@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>k8s-centos</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///C:\Users\wangw\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      <style> 
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+html body {
+  font-size: 14px;
+  /* 等宽字体 */
+  /* 非等宽字体 */
+}
+html body h1,
+html body h2,
+html body h3,
+html body h4,
+html body h5,
+html body h6 {
+  font-family: "Microsoft YaHei", "Courier New", sans-serif;
+}
+html body pre,
+html body code {
+  font-family: "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
+}
+ 
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview   ">
+      <h2 class="mume-header" id="setting-up-a-kubernetes-cluster-with-vagrant-and-virtualbox">Setting up a kubernetes cluster with Vagrant and Virtualbox</h2>
+
+<ul>
+<li><a href="https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html">在CentOS上部署kubernetes集群</a></li>
+<li><a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">rootsongjc/kubernetes-vagrant-centos-cluster</a></li>
+<li><a href="https://github.com/wangwg2/kubernetes-vagrant-centos-cluster">wangwg2/kubernetes-vagrant-centos-cluster</a></li>
+</ul>
+<p>Using vagrant file to build a kubernetes cluster which consists of 1 master(also as node) and 3 nodes. You don't have to create complicated ca files or configuration.</p>
+<h3 class="mume-header" id="why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</h3>
+
+<p>Because I want to setup the etcd, apiserver, controller, scheduler without docker container.</p>
+<h3 class="mume-header" id="architecture">Architecture</h3>
+
+<p>We will create a Kubernetes 1.9.1+ cluster with 3 nodes which contains the components below:</p>
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>Hostname</th>
+<th>Componets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>172.17.8.101</td>
+<td>node1</td>
+<td>kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard</td>
+</tr>
+<tr>
+<td>172.17.8.102</td>
+<td>node2</td>
+<td>kubelet, docker, flannel、traefik</td>
+</tr>
+<tr>
+<td>172.17.8.103</td>
+<td>node3</td>
+<td>kubelet, docker, flannel</td>
+</tr>
+</tbody>
+</table>
+<p>The default setting will create the private network from 172.17.8.101 to 172.17.8.103 for nodes, and it will use the host's DHCP for the public ip.</p>
+<p>The kubernetes service's vip range is <code>10.254.0.0/16</code>.<br>
+The container network range is <code>170.33.0.0/16</code> owned by flanneld with <code>host-gw</code> backend.<br>
+<code>kube-proxy</code> will use <code>ipvs</code> mode.</p>
+<h3 class="mume-header" id="usage">Usage</h3>
+
+<h4 class="mume-header" id="prerequisite">Prerequisite</h4>
+
+<ul>
+<li>Host server with 8G+ mem(More is better), 60G disk, 8 core cpu at lease</li>
+<li>vagrant 2.0+</li>
+<li>virtualbox 5.0+</li>
+<li>Maybe need to access the internet through GFW to download the kubernetes files</li>
+</ul>
+<h3 class="mume-header" id="support-addon">Support Addon</h3>
+
+<p><strong>Required</strong></p>
+<ul>
+<li>CoreDNS</li>
+<li>Dashboard</li>
+<li>Traefik</li>
+</ul>
+<p><strong>Optional</strong></p>
+<ul>
+<li>Heapster + InfluxDB + Grafana</li>
+<li>ElasticSearch + Fluentd + Kibana</li>
+<li>Istio service mesh</li>
+</ul>
+<h4 class="mume-header" id="setup">Setup</h4>
+
+<pre class="language-bash"><span class="token function">git</span> clone https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster.git
+<span class="token function">cd</span> kubernetes-vagrant-centos-cluster
+vagrant up
+</pre>
+<p>Wait about 10 minutes the kubernetes cluster will be setup automatically.</p>
+<h4 class="mume-header" id="connect-to-kubernetes-cluster">Connect to kubernetes cluster</h4>
+
+<p>There are 3 ways to access the kubernetes cluster.</p>
+<p><strong>local</strong></p>
+<p>Copy <code>conf/admin.kubeconfig</code> to <code>~/.kube/config</code>, using <code>kubectl</code> CLI to access the cluster.</p>
+<p>We recommend this way.</p>
+<p><strong>VM</strong></p>
+<p>Login to the virtual machine to access and debug the cluster.</p>
+<pre class="language-bash">vagrant <span class="token function">ssh</span> node1
+<span class="token function">sudo</span> -i
+kubectl get nodes
+</pre>
+<p><strong>Kubernetes dashbaord</strong></p>
+<p>Kubernetes dashboard URL: <a href="https://172.17.8.101:8443">https://172.17.8.101:8443</a></p>
+<p>Get the token:</p>
+<pre class="language-bash">kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
+</pre>
+<p><strong>Note</strong>: You can see the token message from <code>vagrant up</code> logs.</p>
+<h2 class="mume-header" id="components">Components</h2>
+
+<p><strong>Heapster monitoring</strong></p>
+<p>Run this command on you local machine.</p>
+<pre class="language-bash">kubectl apply -f addon/heapster/
+</pre>
+<p>Append the following item to you local <code>/etc/hosts</code> file.</p>
+<pre class="language-ini">172.17.8.102 grafana.jimmysong.io
+</pre>
+<p>Open the URL in your browser: <a href="http://grafana.jimmysong.io">http://grafana.jimmysong.io</a></p>
+<p><strong>Treafik ingress</strong></p>
+<p>Run this command on you local machine.</p>
+<pre class="language-bash">kubectl apply -f addon/traefik-ingress
+</pre>
+<p>Append the following item to you local <code>/etc/hosts</code> file.</p>
+<pre class="language-ini">172.17.8.102 traefik.jimmysong.io
+</pre>
+<p>Traefik UI URL: <a href="http://traefik.jimmysong.io">http://traefik.jimmysong.io</a></p>
+<p><strong>EFK</strong></p>
+<p>Run this command on your local machine.</p>
+<pre class="language-bash">kubectl apply -f addon/heapster/
+</pre>
+<p><strong>Note</strong>: Powerful CPU and memory allocation required. At least 4G per virtual machine.</p>
+<h3 class="mume-header" id="service-mesh">Service Mesh</h3>
+
+<p>We use <a href="https://istio.io">istio</a> as the default service mesh.</p>
+<p><strong>Installation</strong></p>
+<pre class="language-bash">kubectl apply -f addon/istio/
+</pre>
+<p><strong>Run sample</strong></p>
+<pre class="language-bash">kubectl apply -f yaml/istio-bookinfo
+kubectl apply -n default -f <span class="token operator">&lt;</span><span class="token punctuation">(</span>istioctl kube-inject -f yaml/istio-bookinfo/bookinfo.yaml<span class="token punctuation">)</span>
+</pre>
+<p>More detail see <a href="https://istio.io/docs/guides/bookinfo.html">https://istio.io/docs/guides/bookinfo.html</a></p>
+<h3 class="mume-header" id="operation">Operation</h3>
+
+<p>Execute the following commands under the current git repo root directory.</p>
+<p><strong>Suspend</strong></p>
+<p>Suspend the current state of VMs.</p>
+<pre class="language-bash">vagrant <span class="token function">suspend</span>
+</pre>
+<p><strong>Resume</strong></p>
+<p>Resume the last state of VMs.</p>
+<pre class="language-bash">vagrant resume
+</pre>
+<p><strong>Clean</strong></p>
+<p>Clean up the VMs.</p>
+<pre class="language-bash">vagrant destroy
+<span class="token function">rm</span> -rf .vagrant
+</pre>
+<h4 class="mume-header" id="note">Note</h4>
+
+<p>Don't use it in production environment.</p>
+<h3 class="mume-header" id="reference">Reference</h3>
+
+<ul>
+<li><a href="https://jimmysong.io/kubernetes-handbook/">Kubernetes Handbook - jimmysong.io</a></li>
+<li><a href="https://github.com/duffqiu/centos-vagrant">duffqiu/centos-vagrant</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs">kubernetes ipvs</a></li>
+</ul>
+<h6 class="mume-header" id="vagrantfile">Vagrantfile</h6>
+
+<pre class="language-ruby {as=&quot;ruby&quot;}"><span class="token comment" spellcheck="true"># -*- mode: ruby -*-</span>
+<span class="token comment" spellcheck="true"># vi: set ft=ruby :</span>
+
+<span class="token constant">Vagrant</span><span class="token punctuation">.</span><span class="token function">configure</span><span class="token punctuation">(</span><span class="token string">"2"</span><span class="token punctuation">)</span> <span class="token keyword">do</span> <span class="token operator">|</span>config<span class="token operator">|</span>
+  config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box_check_update <span class="token operator">=</span> <span class="token keyword">false</span>
+  <span class="token variable">$num_instances</span> <span class="token operator">=</span> <span class="token number">3</span>
+
+  <span class="token comment" spellcheck="true"># curl https://discovery.etcd.io/new?size=3</span>
+  <span class="token variable">$etcd_cluster</span> <span class="token operator">=</span> <span class="token string">"node1=http://172.17.8.101:2380"</span>
+
+  <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token variable">$num_instances</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>i<span class="token operator">|</span>
+    config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>define <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span> <span class="token keyword">do</span> <span class="token operator">|</span>node<span class="token operator">|</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box <span class="token operator">=</span> <span class="token string">"centos/7"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      ip <span class="token operator">=</span> <span class="token string">"172.17.8.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">100</span><span class="token delimiter tag">}</span></span>"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span><span class="token punctuation">,</span> bridge<span class="token punctuation">:</span> <span class="token string">"en0: Wi-Fi (AirPort)"</span><span class="token punctuation">,</span> auto_config<span class="token punctuation">:</span> <span class="token keyword">true</span>
+      <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
+
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>insert_key <span class="token operator">=</span> <span class="token keyword">false</span>
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>forward_agent <span class="token operator">=</span> <span class="token keyword">true</span>
+
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provider <span class="token string">"virtualbox"</span> <span class="token keyword">do</span> <span class="token operator">|</span>vb<span class="token operator">|</span>
+        vb<span class="token punctuation">.</span>memory <span class="token operator">=</span> <span class="token string">"3072"</span>
+        vb<span class="token punctuation">.</span>cpus <span class="token operator">=</span> <span class="token number">1</span>
+        vb<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      <span class="token keyword">end</span>
+
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+    <span class="token keyword">end</span>  
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+
+</pre>
+<h6 class="mume-header" id="provisionsh"><a href="http://provision.sh">provision.sh</a></h6>
+
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## change time zone</span>
+<span class="token function">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+timedatectl set-timezone Asia/Shanghai
+<span class="token function">cp</span> /vagrant/yum/*.* /etc/yum.repos.d/
+yum <span class="token function">install</span> -y <span class="token function">wget</span> curl conntrack-tools vim net-tools
+<span class="token keyword">echo</span> <span class="token string">'disable selinux'</span>
+setenforce 0
+<span class="token function">sed</span> -i <span class="token string">'s/=enforcing/=disabled/g'</span> /etc/selinux/config
+
+<span class="token comment" spellcheck="true">## 调整 iptable 内核参数</span>
+<span class="token keyword">echo</span> <span class="token string">'enable iptable kernel parameter'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/sysctl.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+net.ipv4.ip_forward=1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF</span>
+sysctl -p
+
+
+<span class="token comment" spellcheck="true">## 设置 /etc/hosts</span>
+<span class="token keyword">echo</span> <span class="token string">'set host name resolution'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/hosts <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+172.17.8.101 node1
+172.17.8.102 node2
+172.17.8.103 node3
+EOF</span>
+
+<span class="token function">cat</span> /etc/hosts
+
+<span class="token comment" spellcheck="true">## 关闭 swap</span>
+<span class="token keyword">echo</span> <span class="token string">'disable swap'</span>
+swapoff -a
+<span class="token function">sed</span> -i <span class="token string">'/swap/s/^/#/'</span> /etc/fstab
+
+<span class="token comment" spellcheck="true">## 创建用户组 docker，安装 docker </span>
+<span class="token comment" spellcheck="true">#create group if not exists</span>
+<span class="token function">egrep</span> <span class="token string">"^docker"</span> /etc/group <span class="token operator">></span><span class="token operator">&amp;</span> /dev/null
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span>
+<span class="token keyword">then</span>
+  <span class="token function">groupadd</span> docker
+<span class="token keyword">fi</span>
+
+<span class="token function">usermod</span> -aG docker vagrant
+<span class="token function">rm</span> -rf ~/.docker/
+yum <span class="token function">install</span> -y docker.x86_64
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/docker/daemon.json <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+{
+  "registry-mirrors" : ["https://4ue5z1dy.mirror.aliyuncs.com/"]
+}
+EOF</span>
+
+<span class="token comment" spellcheck="true">## 安装设置 etcd</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+    yum <span class="token function">install</span> -y etcd
+<span class="token function">cat</span> <span class="token operator">></span> /etc/etcd/etcd.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+#[Member]
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_LISTEN_CLIENT_URLS="http://<span class="token variable">$2</span>:2379,http://localhost:2379"
+ETCD_NAME="node<span class="token variable">$1</span>"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://<span class="token variable">$2</span>:2379"
+ETCD_INITIAL_CLUSTER="<span class="token variable">$3</span>"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+EOF</span>
+
+  <span class="token function">cat</span> /etc/etcd/etcd.conf
+  <span class="token function">sleep</span> 5
+
+  <span class="token keyword">echo</span> <span class="token string">'start etcd...'</span>
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> etcd
+  systemctl start etcd
+
+  <span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
+  etcdctl cluster-health
+  etcdctl <span class="token function">mkdir</span> /kube-centos/network
+  etcdctl mk /kube-centos/network/config <span class="token string">'{"Network":"172.33.0.0/16","SubnetLen":24,"Backend":{"Type":"host-gw"}}'</span>
+<span class="token keyword">fi</span>
+
+<span class="token comment" spellcheck="true">## 安装配置 flannel</span>
+<span class="token keyword">echo</span> <span class="token string">'install flannel...'</span>
+yum <span class="token function">install</span> -y flannel
+
+<span class="token keyword">echo</span> <span class="token string">'create flannel config file...'</span>
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/sysconfig/flanneld <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+# Flanneld configuration options
+FLANNEL_ETCD_ENDPOINTS="http://172.17.8.101:2379"
+FLANNEL_ETCD_PREFIX="/kube-centos/network"
+FLANNEL_OPTIONS="-iface=eth2"
+EOF</span>
+
+<span class="token function">sleep</span> 5
+
+<span class="token keyword">echo</span> <span class="token string">'enable flannel with host-gw backend'</span>
+<span class="token function">rm</span> -rf /run/flannel/
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> flanneld
+systemctl start flanneld
+
+<span class="token comment" spellcheck="true">## 启动 docker</span>
+<span class="token keyword">echo</span> <span class="token string">'enable docker, but you need to start docker after start flannel'</span>
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> docker
+systemctl start docker
+
+<span class="token keyword">echo</span> <span class="token string">"copy pem, token files"</span>
+<span class="token function">mkdir</span> -p /etc/kubernetes/ssl
+<span class="token function">cp</span> /vagrant/pki/*.pem /etc/kubernetes/ssl/
+<span class="token function">cp</span> /vagrant/conf/token.csv /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/bootstrap.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kube-proxy.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kubelet.kubeconfig /etc/kubernetes/
+
+<span class="token keyword">echo</span> <span class="token string">"get kubernetes files..."</span>
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-client-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/client/bin/* /usr/bin
+
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-server-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/server/bin/* /usr/bin
+
+<span class="token function">cp</span> /vagrant/systemd/*.service /usr/lib/systemd/system/
+<span class="token function">mkdir</span> -p /var/lib/kubelet
+<span class="token function">mkdir</span> -p ~/.kube
+<span class="token function">cp</span> /vagrant/conf/admin.kubeconfig ~/.kube/config
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure master and node1"</span>
+
+  <span class="token function">cp</span> /vagrant/conf/apiserver /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/config /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/controller-manager /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler.conf /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/node1/* /etc/kubernetes/
+
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> kube-apiserver
+  systemctl start kube-apiserver
+
+  systemctl <span class="token function">enable</span> kube-controller-manager
+  systemctl start kube-controller-manager
+
+  systemctl <span class="token function">enable</span> kube-scheduler
+  systemctl start kube-scheduler
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 2 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node2"</span>
+  <span class="token function">cp</span> /vagrant/node2/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 3 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node3"</span>
+  <span class="token function">cp</span> /vagrant/node3/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+
+  <span class="token function">sleep</span> 10
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+  <span class="token function">cd</span> /vagrant/addon/dns/
+  ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
+  <span class="token function">cd</span> -
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
+  kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+  <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
+  kubectl apply -f /vagrant/yaml/admin-role.yaml
+  <span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
+  kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
+  <span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
+  <span class="token keyword">echo</span> https://172.17.8.101:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+  <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
+  kubectl apply -f /vagrant/addon/traefik-ingress/
+<span class="token keyword">fi</span>
+
+</pre>
+
+      </div>
+      <div class="md-sidebar-toc"><ul>
+<li><a href="#setting-up-a-kubernetes-cluster-with-vagrant-and-virtualbox">Setting up a kubernetes cluster with Vagrant and Virtualbox</a>
+<ul>
+<li><a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#usage">Usage</a>
+<ul>
+<li><a href="#prerequisite">Prerequisite</a></li>
+</ul>
+</li>
+<li><a href="#support-addon">Support Addon</a>
+<ul>
+<li><a href="#setup">Setup</a></li>
+<li><a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#components">Components</a>
+<ul>
+<li><a href="#service-mesh">Service Mesh</a></li>
+<li><a href="#operation">Operation</a>
+<ul>
+<li><a href="#note">Note</a></li>
+</ul>
+</li>
+<li><a href="#reference">Reference</a><br>
+* <a href="#vagrantfile">Vagrantfile</a><br>
+* <a href="#provisionsh">provision.sh</a></li>
+</ul>
+</li>
+</ul>
+</div>
+      <a id="sidebar-toc-btn">≡</a>
+    </body>
+    
+    
+    
+    
+    
+    <script>
+(function bindTaskListEvent() {
+  var taskListItemCheckboxes = document.body.getElementsByClassName('task-list-item-checkbox')
+  for (var i = 0; i < taskListItemCheckboxes.length; i++) {
+    var checkbox = taskListItemCheckboxes[i]
+    var li = checkbox.parentElement
+    if (li.tagName !== 'LI') li = li.parentElement
+    if (li.tagName === 'LI') {
+      li.classList.add('task-list-item')
+    }
+  }
+}())    
+</script>
+    
+<script>
+
+var sidebarTOCBtn = document.getElementById('sidebar-toc-btn')
+sidebarTOCBtn.addEventListener('click', function(event) {
+  event.stopPropagation()
+  if (document.body.hasAttribute('html-show-sidebar-toc')) {
+    document.body.removeAttribute('html-show-sidebar-toc')
+  } else {
+    document.body.setAttribute('html-show-sidebar-toc', true)
+  }
+})
+</script>
+      
+  </html>

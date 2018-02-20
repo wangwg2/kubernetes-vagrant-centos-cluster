@@ -26,7 +26,11 @@ Vagrant.configure("2") do |config|
         vb.name = "node#{i}"
       end
 
-      node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]
+      # node.vm.provision "shell", path: "provision.sh", args = [i, ip, $etcd_cluster]
+      node.vm.provision "shell" do |s|
+        s.inline = "/bin/sh /vagrant/provision.sh"
+        s.args = [i, ip, $etcd_cluster]
+      end
     end  
   end
 end
