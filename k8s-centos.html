@@ -241,7 +241,7 @@ html body code {
 <p>Because I want to setup the etcd, apiserver, controller, scheduler without docker container.</p>
 <h3 class="mume-header" id="architecture">Architecture</h3>
 
-<p>We will create a Kubernetes 1.9.1+ cluster with 3 nodes which contains the components below:</p>
+<p>We will create a Kubernetes 1.9.2+ cluster with 3 nodes which contains the components below:</p>
 <table>
 <thead>
 <tr>
@@ -252,23 +252,23 @@ html body code {
 </thead>
 <tbody>
 <tr>
-<td>172.17.8.101</td>
+<td>192.168.99.91</td>
 <td>node1</td>
 <td>kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard</td>
 </tr>
 <tr>
-<td>172.17.8.102</td>
+<td>192.168.99.92</td>
 <td>node2</td>
 <td>kubelet, docker, flannel、traefik</td>
 </tr>
 <tr>
-<td>172.17.8.103</td>
+<td>192.168.99.93</td>
 <td>node3</td>
 <td>kubelet, docker, flannel</td>
 </tr>
 </tbody>
 </table>
-<p>The default setting will create the private network from 172.17.8.101 to 172.17.8.103 for nodes, and it will use the host's DHCP for the public ip.</p>
+<p>The default setting will create the private network from 192.168.99.91 to 192.168.99.93 for nodes, and it will use the host's DHCP for the public ip.</p>
 <p>The kubernetes service's vip range is <code>10.254.0.0/16</code>.<br>
 The container network range is <code>170.33.0.0/16</code> owned by flanneld with <code>host-gw</code> backend.<br>
 <code>kube-proxy</code> will use <code>ipvs</code> mode.</p>
@@ -306,17 +306,17 @@ vagrant up
 <h4 class="mume-header" id="connect-to-kubernetes-cluster">Connect to kubernetes cluster</h4>
 
 <p>There are 3 ways to access the kubernetes cluster.</p>
-<p><strong>local</strong></p>
-<p>Copy <code>conf/admin.kubeconfig</code> to <code>~/.kube/config</code>, using <code>kubectl</code> CLI to access the cluster.</p>
+<p><strong>local</strong><br>
+Copy <code>conf/admin.kubeconfig</code> to <code>~/.kube/config</code>, using <code>kubectl</code> CLI to access the cluster.</p>
 <p>We recommend this way.</p>
-<p><strong>VM</strong></p>
-<p>Login to the virtual machine to access and debug the cluster.</p>
+<p><strong>VM</strong><br>
+Login to the virtual machine to access and debug the cluster.</p>
 <pre class="language-bash">vagrant <span class="token function">ssh</span> node1
 <span class="token function">sudo</span> -i
 kubectl get nodes
 </pre>
-<p><strong>Kubernetes dashbaord</strong></p>
-<p>Kubernetes dashboard URL: <a href="https://172.17.8.101:8443">https://172.17.8.101:8443</a></p>
+<p><strong>Kubernetes dashbaord</strong><br>
+Kubernetes dashboard URL: <a href="https://192.168.99.91:8443">https://192.168.99.91:8443</a></p>
 <p>Get the token:</p>
 <pre class="language-bash">kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
 </pre>
@@ -328,19 +328,19 @@ kubectl get nodes
 <pre class="language-bash">kubectl apply -f addon/heapster/
 </pre>
 <p>Append the following item to you local <code>/etc/hosts</code> file.</p>
-<pre class="language-ini">172.17.8.102 grafana.jimmysong.io
+<pre class="language-ini">192.168.99.92 grafana.jimmysong.io
 </pre>
 <p>Open the URL in your browser: <a href="http://grafana.jimmysong.io">http://grafana.jimmysong.io</a></p>
-<p><strong>Treafik ingress</strong></p>
-<p>Run this command on you local machine.</p>
+<p><strong>Treafik ingress</strong><br>
+Run this command on you local machine.</p>
 <pre class="language-bash">kubectl apply -f addon/traefik-ingress
 </pre>
 <p>Append the following item to you local <code>/etc/hosts</code> file.</p>
-<pre class="language-ini">172.17.8.102 traefik.jimmysong.io
+<pre class="language-ini">192.168.99.92 traefik.jimmysong.io
 </pre>
 <p>Traefik UI URL: <a href="http://traefik.jimmysong.io">http://traefik.jimmysong.io</a></p>
-<p><strong>EFK</strong></p>
-<p>Run this command on your local machine.</p>
+<p><strong>EFK</strong><br>
+Run this command on your local machine.</p>
 <pre class="language-bash">kubectl apply -f addon/heapster/
 </pre>
 <p><strong>Note</strong>: Powerful CPU and memory allocation required. At least 4G per virtual machine.</p>
@@ -358,16 +358,16 @@ kubectl apply -n default -f <span class="token operator">&lt;</span><span class=
 <h3 class="mume-header" id="operation">Operation</h3>
 
 <p>Execute the following commands under the current git repo root directory.</p>
-<p><strong>Suspend</strong></p>
-<p>Suspend the current state of VMs.</p>
+<p><strong>Suspend</strong><br>
+Suspend the current state of VMs.</p>
 <pre class="language-bash">vagrant <span class="token function">suspend</span>
 </pre>
-<p><strong>Resume</strong></p>
-<p>Resume the last state of VMs.</p>
+<p><strong>Resume</strong><br>
+Resume the last state of VMs.</p>
 <pre class="language-bash">vagrant resume
 </pre>
-<p><strong>Clean</strong></p>
-<p>Clean up the VMs.</p>
+<p><strong>Clean</strong><br>
+Clean up the VMs.</p>
 <pre class="language-bash">vagrant destroy
 <span class="token function">rm</span> -rf .vagrant
 </pre>
@@ -391,13 +391,13 @@ kubectl apply -n default -f <span class="token operator">&lt;</span><span class=
   <span class="token variable">$num_instances</span> <span class="token operator">=</span> <span class="token number">3</span>
 
   <span class="token comment" spellcheck="true"># curl https://discovery.etcd.io/new?size=3</span>
-  <span class="token variable">$etcd_cluster</span> <span class="token operator">=</span> <span class="token string">"node1=http://172.17.8.101:2380"</span>
+  <span class="token variable">$etcd_cluster</span> <span class="token operator">=</span> <span class="token string">"node1=http://192.168.99.91:2380"</span>
 
   <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token variable">$num_instances</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>i<span class="token operator">|</span>
     config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>define <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span> <span class="token keyword">do</span> <span class="token operator">|</span>node<span class="token operator">|</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box <span class="token operator">=</span> <span class="token string">"centos/7"</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
-      ip <span class="token operator">=</span> <span class="token string">"172.17.8.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">100</span><span class="token delimiter tag">}</span></span>"</span>
+      ip <span class="token operator">=</span> <span class="token string">"192.168.99.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">90</span><span class="token delimiter tag">}</span></span>"</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span><span class="token punctuation">,</span> bridge<span class="token punctuation">:</span> <span class="token string">"en0: Wi-Fi (AirPort)"</span><span class="token punctuation">,</span> auto_config<span class="token punctuation">:</span> <span class="token keyword">true</span>
       <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
@@ -415,7 +415,6 @@ kubectl apply -n default -f <span class="token operator">&lt;</span><span class=
     <span class="token keyword">end</span>  
   <span class="token keyword">end</span>
 <span class="token keyword">end</span>
-
 </pre>
 <h6 class="mume-header" id="provisionsh"><a href="http://provision.sh">provision.sh</a></h6>
 
@@ -443,9 +442,9 @@ sysctl -p
 <span class="token comment" spellcheck="true">## 设置 /etc/hosts</span>
 <span class="token keyword">echo</span> <span class="token string">'set host name resolution'</span>
 <span class="token function">cat</span> <span class="token operator">>></span> /etc/hosts <span class="token operator">&lt;&lt;</span><span class="token string">EOF
-172.17.8.101 node1
-172.17.8.102 node2
-172.17.8.103 node3
+192.168.99.91 node1
+192.168.99.92 node2
+192.168.99.93 node3
 EOF</span>
 
 <span class="token function">cat</span> /etc/hosts
@@ -513,7 +512,7 @@ yum <span class="token function">install</span> -y flannel
 
 <span class="token function">cat</span> <span class="token operator">></span> /etc/sysconfig/flanneld <span class="token operator">&lt;&lt;</span><span class="token string">EOF
 # Flanneld configuration options
-FLANNEL_ETCD_ENDPOINTS="http://172.17.8.101:2379"
+FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
 FLANNEL_ETCD_PREFIX="/kube-centos/network"
 FLANNEL_OPTIONS="-iface=eth2"
 EOF</span>
@@ -541,11 +540,11 @@ systemctl start docker
 <span class="token function">cp</span> /vagrant/conf/kubelet.kubeconfig /etc/kubernetes/
 
 <span class="token keyword">echo</span> <span class="token string">"get kubernetes files..."</span>
-<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz</span>
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz</span>
 <span class="token function">tar</span> -xzvf /vagrant/kubernetes-client-linux-amd64.tar.gz -C /vagrant
 <span class="token function">cp</span> /vagrant/kubernetes/client/bin/* /usr/bin
 
-<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz</span>
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz</span>
 <span class="token function">tar</span> -xzvf /vagrant/kubernetes-server-linux-amd64.tar.gz -C /vagrant
 <span class="token function">cp</span> /vagrant/kubernetes/server/bin/* /usr/bin
 
@@ -618,11 +617,10 @@ systemctl start docker
   <span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
   kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
   <span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
-  <span class="token keyword">echo</span> https://172.17.8.101:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+  <span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
   <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
   kubectl apply -f /vagrant/addon/traefik-ingress/
 <span class="token keyword">fi</span>
-
 </pre>
 
       </div>

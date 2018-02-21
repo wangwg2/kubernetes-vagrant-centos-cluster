@@ -6,13 +6,13 @@ Vagrant.configure("2") do |config|
   $num_instances = 3
 
   # curl https://discovery.etcd.io/new?size=3
-  $etcd_cluster = "node1=http://172.17.8.101:2380"
+  $etcd_cluster = "node1=http://192.168.99.91:2380"
 
   (1..$num_instances).each do |i|
     config.vm.define "node#{i}" do |node|
       node.vm.box = "centos/7"
       node.vm.hostname = "node#{i}"
-      ip = "172.17.8.#{i+100}"
+      ip = "192.168.99.#{i+90}"
       node.vm.network "private_network", ip: ip
       node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true
       #node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"

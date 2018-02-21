@@ -10,15 +10,15 @@ Using vagrant file to build a kubernetes cluster which consists of 1 master(also
 Because I want to setup the etcd, apiserver, controller, scheduler without docker container.
 
 ### Architecture
-We will create a Kubernetes 1.9.1+ cluster with 3 nodes which contains the components below:
+We will create a Kubernetes 1.9.2+ cluster with 3 nodes which contains the components below:
 
 | IP           | Hostname | Componets                                |
 | ------------ | -------- | ---------------------------------------- |
-| 172.17.8.101 | node1    | kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard |
-| 172.17.8.102 | node2    | kubelet, docker, flannel、traefik         |
-| 172.17.8.103 | node3    | kubelet, docker, flannel                 |
+| 192.168.99.91 | node1    | kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard |
+| 192.168.99.92 | node2    | kubelet, docker, flannel、traefik         |
+| 192.168.99.93 | node3    | kubelet, docker, flannel                 |
 
-The default setting will create the private network from 172.17.8.101 to 172.17.8.103 for nodes, and it will use the host's DHCP for the public ip.
+The default setting will create the private network from 192.168.99.91 to 192.168.99.93 for nodes, and it will use the host's DHCP for the public ip.
 
 The kubernetes service's vip range is `10.254.0.0/16`.
 The container network range is `170.33.0.0/16` owned by flanneld with `host-gw` backend.
@@ -32,15 +32,12 @@ The container network range is `170.33.0.0/16` owned by flanneld with `host-gw` 
 * Maybe need to access the internet through GFW to download the kubernetes files
 
 ### Support Addon
-
 **Required**
-
 - CoreDNS
 - Dashboard
 - Traefik
 
 **Optional**
-
 - Heapster + InfluxDB + Grafana
 - ElasticSearch + Fluentd + Kibana
 - Istio service mesh
@@ -55,17 +52,14 @@ vagrant up
 Wait about 10 minutes the kubernetes cluster will be setup automatically.
 
 #### Connect to kubernetes cluster
-
 There are 3 ways to access the kubernetes cluster.
 
 **local**
-
 Copy `conf/admin.kubeconfig` to `~/.kube/config`, using `kubectl` CLI to access the cluster.
 
 We recommend this way.
 
 **VM**
-
 Login to the virtual machine to access and debug the cluster.
 
 ```bash
@@ -75,11 +69,9 @@ kubectl get nodes
 ```
 
 **Kubernetes dashbaord**
-
-Kubernetes dashboard URL: <https://172.17.8.101:8443>
+Kubernetes dashboard URL: <https://192.168.99.91:8443>
 
 Get the token:
-
 ```bash
 kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
 ```
@@ -87,7 +79,6 @@ kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep a
 **Note**: You can see the token message from `vagrant up` logs.
 
 ## Components
-
 **Heapster monitoring**
 
 Run this command on you local machine.
@@ -99,15 +90,13 @@ kubectl apply -f addon/heapster/
 Append the following item to you local `/etc/hosts` file.
 
 ```ini
-172.17.8.102 grafana.jimmysong.io
+192.168.99.92 grafana.jimmysong.io
 ```
 
 Open the URL in your browser: <http://grafana.jimmysong.io>
 
 **Treafik ingress**
-
 Run this command on you local machine.
-
 ```bash
 kubectl apply -f addon/traefik-ingress
 ```
@@ -115,15 +104,13 @@ kubectl apply -f addon/traefik-ingress
 Append the following item to you local `/etc/hosts` file.
 
 ```ini
-172.17.8.102 traefik.jimmysong.io
+192.168.99.92 traefik.jimmysong.io
 ```
 
 Traefik UI URL: <http://traefik.jimmysong.io>
 
 **EFK**
-
 Run this command on your local machine.
-
 ```bash
 kubectl apply -f addon/heapster/
 ```
@@ -131,59 +118,46 @@ kubectl apply -f addon/heapster/
 **Note**: Powerful CPU and memory allocation required. At least 4G per virtual machine.
 
 ### Service Mesh
-
 We use [istio](https://istio.io) as the default service mesh.
 
 **Installation**
-
 ```bash
 kubectl apply -f addon/istio/
 ```
 
 **Run sample**
-
 ```bash
 kubectl apply -f yaml/istio-bookinfo
 kubectl apply -n default -f <(istioctl kube-inject -f yaml/istio-bookinfo/bookinfo.yaml)
 ```
-
 More detail see https://istio.io/docs/guides/bookinfo.html
 
 ### Operation
-
 Execute the following commands under the current git repo root directory.
 
 **Suspend**
-
 Suspend the current state of VMs.
-
 ```bash
 vagrant suspend
 ```
 
 **Resume**
-
 Resume the last state of VMs.
-
 ```bash
 vagrant resume
 ```
 
 **Clean**
-
 Clean up the VMs.
-
 ```bash
 vagrant destroy
 rm -rf .vagrant
 ```
 
 #### Note
-
 Don't use it in production environment.
 
 ### Reference
-
 * [Kubernetes Handbook - jimmysong.io](https://jimmysong.io/kubernetes-handbook/)
 * [duffqiu/centos-vagrant](https://github.com/duffqiu/centos-vagrant)
 * [kubernetes ipvs](https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs)

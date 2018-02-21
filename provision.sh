@@ -22,9 +22,9 @@ sysctl -p
 ## 设置 /etc/hosts
 echo 'set host name resolution'
 cat >> /etc/hosts <<EOF
-172.17.8.101 node1
-172.17.8.102 node2
-172.17.8.103 node3
+192.168.99.91 node1
+192.168.99.92 node2
+192.168.99.93 node3
 EOF
 
 cat /etc/hosts
@@ -92,7 +92,7 @@ echo 'create flannel config file...'
 
 cat > /etc/sysconfig/flanneld <<EOF
 # Flanneld configuration options
-FLANNEL_ETCD_ENDPOINTS="http://172.17.8.101:2379"
+FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
 FLANNEL_ETCD_PREFIX="/kube-centos/network"
 FLANNEL_OPTIONS="-iface=eth2"
 EOF
@@ -120,11 +120,11 @@ cp /vagrant/conf/kube-proxy.kubeconfig /etc/kubernetes/
 cp /vagrant/conf/kubelet.kubeconfig /etc/kubernetes/
 
 echo "get kubernetes files..."
-#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz
+#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz
 tar -xzvf /vagrant/kubernetes-client-linux-amd64.tar.gz -C /vagrant
 cp /vagrant/kubernetes/client/bin/* /usr/bin
 
-#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.1/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz
+#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz
 tar -xzvf /vagrant/kubernetes-server-linux-amd64.tar.gz -C /vagrant
 cp /vagrant/kubernetes/server/bin/* /usr/bin
 
@@ -197,7 +197,7 @@ if [[ $1 -eq 3 ]];then
   echo "the admin role token is:"
   kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
   echo "login to dashboard with the above token"
-  echo https://172.17.8.101:`kubectl -n kube-system get svc kubernetes-dashboard -o=jsonpath='{.spec.ports[0].port}'`
+  echo https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o=jsonpath='{.spec.ports[0].port}'`
   echo "install traefik ingress controller"
   kubectl apply -f /vagrant/addon/traefik-ingress/
 fi
