@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
-      <link rel="stylesheet" href="file:///C:\Users\wangwg2\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      <link rel="stylesheet" href="file:///C:\Users\wangw\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
       
       
       
@@ -221,7 +221,7 @@ html body h6 {
 }
 html body pre,
 html body code {
-  font-family: "Microsoft YaHei Mono", "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
+  font-family: "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
 }
  
       </style>
@@ -234,20 +234,29 @@ html body code {
 <li><a href="https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html">在CentOS上部署kubernetes集群</a></li>
 <li><a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">rootsongjc/kubernetes-vagrant-centos-cluster</a></li>
 <li><a href="https://github.com/wangwg2/kubernetes-vagrant-centos-cluster">wangwg2/kubernetes-vagrant-centos-cluster</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/">etcd</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">etcd：Clustering Guide</a></li>
+<li><a href="http://www.infoq.com/cn/articles/etcd-interpretation-application-scenario-implement-principle">etcd：从应用场景到实现原理的全方位解读</a></li>
+<li><a href="http://www.cnblogs.com/breg/p/5728237.html">etcd集群部署与遇到的坑</a></li>
+<li><a href="https://coreos.com/flannel/docs/latest/">flannel</a></li>
+<li><a href="http://www.cnblogs.com/xuxinkun/p/5696031.html">浅析flannel与docker结合的机制和原理</a></li>
+<li><a href="http://dockone.io/article/618">DockOne技术分享（十八）：一篇文章带你了解Flannel</a></li>
 </ul>
-<p>Using vagrant file to build a kubernetes cluster which consists of 1 master(also as node) and 3 nodes. You don't have to create complicated ca files or configuration.</p>
-<h3 class="mume-header" id="why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</h3>
+<p>使用Vagrant和Virtualbox安装包含3个节点的kubernetes集群，其中master节点同时作为node节点。<br>
+You don't have to create complicated ca files or configuration.</p>
+<h3 class="mume-header" id="get-start">Get Start</h3>
+
+<h6 class="mume-header" id="why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</h6>
 
 <p>Because I want to setup the etcd, apiserver, controller, scheduler without docker container.</p>
-<h3 class="mume-header" id="architecture">Architecture</h3>
+<h6 class="mume-header" id="architecture">Architecture</h6>
 
-<p>We will create a Kubernetes 1.9.2+ cluster with 3 nodes which contains the components below:</p>
 <table>
 <thead>
 <tr>
 <th>IP</th>
-<th>Hostname</th>
-<th>Componets</th>
+<th>主机名</th>
+<th>组件</th>
 </tr>
 </thead>
 <tbody>
@@ -268,21 +277,28 @@ html body code {
 </tr>
 </tbody>
 </table>
-<p>The default setting will create the private network from 192.168.99.91 to 192.168.99.93 for nodes, and it will use the host's DHCP for the public ip.</p>
-<p>The kubernetes service's vip range is <code>10.254.0.0/16</code>.<br>
-The container network range is <code>170.33.0.0/16</code> owned by flanneld with <code>host-gw</code> backend.<br>
-<code>kube-proxy</code> will use <code>ipvs</code> mode.</p>
-<h3 class="mume-header" id="usage">Usage</h3>
-
-<h4 class="mume-header" id="prerequisite">Prerequisite</h4>
-
+<p>以上的IP、主机名和组件都是固定在这些节点的，即使销毁后下次使用vagrant重建依然保持不变。<br>
+节点网络IP: <code>192.168.99.91 ~ 192.168.99.93</code>，公有网络IP由宿主机DHCP分配。</p>
 <ul>
-<li>Host server with 8G+ mem(More is better), 60G disk, 8 core cpu at lease</li>
-<li>vagrant 2.0+</li>
-<li>virtualbox 5.0+</li>
-<li>Maybe need to access the internet through GFW to download the kubernetes files</li>
+<li>NODE 网络：集群主机网段。<br>
+<code>192.168.99.91-93</code></li>
+<li>容器IP / POD 网络（Cluster CIDR）：部署前路由不可达，部署后路由可达 (flanneld 保证)<br>
+<code>170.33.0.0/16</code></li>
+<li>Kubernetes 服务网络（Service CIDR）：部署前路由不可达，部署后集群内使用 IP:Port 可达<br>
+<code>10.254.0.0/16</code></li>
 </ul>
-<h3 class="mume-header" id="support-addon">Support Addon</h3>
+<h6 class="mume-header" id="usage">Usage</h6>
+
+<p>安装完成后的集群包含以下组件：</p>
+<ul>
+<li>flannel（host-gw模式）</li>
+<li>kubernetes dashboard 1.8.2</li>
+<li>etcd（单节点）</li>
+<li>kubectl</li>
+<li>CoreDNS</li>
+<li>kubernetes（版本根据下载的kubernetes安装包而定）</li>
+</ul>
+<h6 class="mume-header" id="support-addon">Support Addon</h6>
 
 <p><strong>Required</strong></p>
 <ul>
@@ -296,14 +312,14 @@ The container network range is <code>170.33.0.0/16</code> owned by flanneld with
 <li>ElasticSearch + Fluentd + Kibana</li>
 <li>Istio service mesh</li>
 </ul>
-<h4 class="mume-header" id="setup">Setup</h4>
+<h6 class="mume-header" id="setup">Setup</h6>
 
 <pre class="language-bash"><span class="token function">git</span> clone https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster.git
 <span class="token function">cd</span> kubernetes-vagrant-centos-cluster
 vagrant up
 </pre>
 <p>Wait about 10 minutes the kubernetes cluster will be setup automatically.</p>
-<h4 class="mume-header" id="connect-to-kubernetes-cluster">Connect to kubernetes cluster</h4>
+<h6 class="mume-header" id="connect-to-kubernetes-cluster">Connect to kubernetes cluster</h6>
 
 <p>There are 3 ways to access the kubernetes cluster.</p>
 <p><strong>local</strong><br>
@@ -321,7 +337,7 @@ Kubernetes dashboard URL: <a href="https://192.168.99.91:8443">https://192.168.9
 <pre class="language-bash">kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
 </pre>
 <p><strong>Note</strong>: You can see the token message from <code>vagrant up</code> logs.</p>
-<h2 class="mume-header" id="components">Components</h2>
+<h3 class="mume-header" id="components">Components</h3>
 
 <p><strong>Heapster monitoring</strong></p>
 <p>Run this command on you local machine.</p>
@@ -371,7 +387,7 @@ Clean up the VMs.</p>
 <pre class="language-bash">vagrant destroy
 <span class="token function">rm</span> -rf .vagrant
 </pre>
-<h4 class="mume-header" id="note">Note</h4>
+<h6 class="mume-header" id="note">Note</h6>
 
 <p>Don't use it in production environment.</p>
 <h3 class="mume-header" id="reference">Reference</h3>
@@ -399,6 +415,7 @@ Clean up the VMs.</p>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
       ip <span class="token operator">=</span> <span class="token string">"192.168.99.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">90</span><span class="token delimiter tag">}</span></span>"</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network"</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span><span class="token punctuation">,</span> bridge<span class="token punctuation">:</span> <span class="token string">"en0: Wi-Fi (AirPort)"</span><span class="token punctuation">,</span> auto_config<span class="token punctuation">:</span> <span class="token keyword">true</span>
       <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
 
@@ -622,37 +639,120 @@ systemctl start docker
   kubectl apply -f /vagrant/addon/traefik-ingress/
 <span class="token keyword">fi</span>
 </pre>
+<h6 class="mume-header" id="etcd">etcd</h6>
+
+<p>集群指南 <a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">Clustering Guide</a></p>
+<p>etcd 参数说明</p>
+<ul>
+<li><code>--data-dir</code> 指定节点的数据存储目录，这些数据包括节点ID，集群ID，集群初始化配置，Snapshot文件，若未指定 <code>--wal-dir</code>，还会存储WAL文件；</li>
+<li><code>--wal-dir</code> 指定节点的was文件的存储目录，若指定了该参数，wal文件会和其他数据文件分开存储。</li>
+<li><code>--name</code> 节点名称</li>
+<li><code>--initial-advertise-peer-urls</code> 告知集群其他节点url.</li>
+<li><code>--listen-peer-urls</code> 监听URL，用于与其他节点通讯</li>
+<li><code>--advertise-client-urls</code> 告知客户端url, 也就是服务的url</li>
+<li><code>--initial-cluster-token</code> 集群的ID</li>
+<li><code>--initial-cluster</code> 集群中所有节点</li>
+</ul>
+<p>etcd.service</p>
+<pre class="language-ini"># /usr/lib/systemd/system/etcd.service
+<span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Etcd Server</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
+<span class="token constant">WorkingDirectory</span><span class="token attr-value"><span class="token punctuation">=</span>/var/lib/etcd/</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/etcd/etcd.conf</span>
+<span class="token constant">User</span><span class="token attr-value"><span class="token punctuation">=</span>etcd</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/etcd --name $ETCD_NAME --data-dir=$ETCD_DATA_DIR --listen-client-urls $ETCD_LISTEN_CLIENT_URLS --advertise-client-urls $ETCD_ADVERTISE_CLIENT_URLS</span>
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+</pre>
+<p>/etc/etcd/etcd.conf</p>
+<pre class="language-ini">#[Member]
+<span class="token constant">ETCD_DATA_DIR</span><span class="token attr-value"><span class="token punctuation">=</span>"/var/lib/etcd/default.etcd"</span>
+<span class="token constant">ETCD_LISTEN_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_LISTEN_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379,http://localhost:2379"</span>
+<span class="token constant">ETCD_NAME</span><span class="token attr-value"><span class="token punctuation">=</span>"node1"</span>
+
+#[Clustering]
+<span class="token constant">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_ADVERTISE_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER</span><span class="token attr-value"><span class="token punctuation">=</span>"node1=http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER_TOKEN</span><span class="token attr-value"><span class="token punctuation">=</span>"etcd-cluster"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER_STATE</span><span class="token attr-value"><span class="token punctuation">=</span>"new"</span>
+</pre>
+<h6 class="mume-header" id="flanneld">flanneld</h6>
+
+<p>flanneld.service</p>
+<pre class="language-ini"># /usr/lib/systemd/system/flanneld.service
+<span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Flanneld overlay address etcd agent</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>etcd.service</span>
+<span class="token constant">Before</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>/etc/sysconfig/flanneld</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/sysconfig/docker-network</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/flanneld-start $FLANNEL_OPTIONS</span>
+<span class="token constant">ExecStartPost</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/libexec/flannel/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker</span>
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+<span class="token constant">RequiredBy</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+</pre>
+<p>/etc/sysconfig/flanneld</p>
+<pre class="language-ini"># Flanneld configuration options
+<span class="token constant">FLANNEL_ETCD_ENDPOINTS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
+<span class="token constant">FLANNEL_ETCD_PREFIX</span><span class="token attr-value"><span class="token punctuation">=</span>"/kube-centos/network"</span>
+<span class="token constant">FLANNEL_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span>"-iface=eth2"</span>
+</pre>
+<blockquote>
+<p><strong>Tips</strong><br>
+<code>FLANNEL_OPTIONS=&quot;-iface=eth2&quot;</code></p>
+</blockquote>
+<p>/etc/sysconfig/docker-network</p>
+<pre class="language-ini"># /etc/sysconfig/docker-network
+<span class="token constant">DOCKER_NETWORK_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span></span>
+</pre>
+<p>/usr/bin/flanneld-start</p>
+<pre class="language-bash"><span class="token shebang important">#!/bin/sh</span>
+<span class="token function">exec</span> /usr/bin/flanneld \
+  -etcd-endpoints<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_ENDPOINTS:-${FLANNEL_ETCD}</span><span class="token punctuation">}</span> \
+  -etcd-prefix<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}</span><span class="token punctuation">}</span> \
+  <span class="token string">"<span class="token variable">$@</span>"</span>
+</pre>
 
       </div>
       <div class="md-sidebar-toc"><ul>
 <li><a href="#setting-up-a-kubernetes-cluster-with-vagrant-and-virtualbox">Setting up a kubernetes cluster with Vagrant and Virtualbox</a>
 <ul>
-<li><a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a></li>
-<li><a href="#architecture">Architecture</a></li>
-<li><a href="#usage">Usage</a>
-<ul>
-<li><a href="#prerequisite">Prerequisite</a></li>
-</ul>
-</li>
-<li><a href="#support-addon">Support Addon</a>
-<ul>
-<li><a href="#setup">Setup</a></li>
-<li><a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#components">Components</a>
-<ul>
+<li><a href="#get-start">Get Start</a><br>
+* <a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a><br>
+* <a href="#architecture">Architecture</a><br>
+* <a href="#usage">Usage</a><br>
+* <a href="#support-addon">Support Addon</a><br>
+* <a href="#setup">Setup</a><br>
+* <a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a></li>
+<li><a href="#components">Components</a></li>
 <li><a href="#service-mesh">Service Mesh</a></li>
-<li><a href="#operation">Operation</a>
-<ul>
-<li><a href="#note">Note</a></li>
-</ul>
-</li>
+<li><a href="#operation">Operation</a><br>
+* <a href="#note">Note</a></li>
 <li><a href="#reference">Reference</a><br>
 * <a href="#vagrantfile">Vagrantfile</a><br>
-* <a href="#provisionsh">provision.sh</a></li>
+* <a href="#provisionsh">provision.sh</a><br>
+* <a href="#etcd">etcd</a><br>
+* <a href="#flanneld">flanneld</a></li>
 </ul>
 </li>
 </ul>
