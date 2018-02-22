@@ -3,33 +3,37 @@
 * [rootsongjc/kubernetes-vagrant-centos-cluster](https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster)
 * [wangwg2/kubernetes-vagrant-centos-cluster](https://github.com/wangwg2/kubernetes-vagrant-centos-cluster)
 
+使用Vagrant和Virtualbox安装包含3个节点的kubernetes集群，其中master节点同时作为node节点。
+You don't have to create complicated ca files or configuration.
 
-Using vagrant file to build a kubernetes cluster which consists of 1 master(also as node) and 3 nodes. You don't have to create complicated ca files or configuration.
-
-### Why don't do that with kubeadm
+###### Why don't do that with kubeadm
 Because I want to setup the etcd, apiserver, controller, scheduler without docker container.
 
-### Architecture
-We will create a Kubernetes 1.9.2+ cluster with 3 nodes which contains the components below:
-
-| IP           | Hostname | Componets                                |
+###### Architecture
+| IP           | 主机名    | 组件                                     |
 | ------------ | -------- | ---------------------------------------- |
 | 192.168.99.91 | node1    | kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard |
 | 192.168.99.92 | node2    | kubelet, docker, flannel、traefik         |
 | 192.168.99.93 | node3    | kubelet, docker, flannel                 |
 
-The default setting will create the private network from 192.168.99.91 to 192.168.99.93 for nodes, and it will use the host's DHCP for the public ip.
-
-The kubernetes service's vip range is `10.254.0.0/16`.
-The container network range is `170.33.0.0/16` owned by flanneld with `host-gw` backend.
-`kube-proxy` will use `ipvs` mode.
+以上的IP、主机名和组件都是固定在这些节点的，即使销毁后下次使用vagrant重建依然保持不变。
+节点网络IP: `192.168.99.91 ~ 192.168.99.93`，公有网络IP由宿主机DHCP分配。
+* NODE 网络：集群主机网段。
+  `192.168.99.91-93`
+* 容器IP / POD 网络（Cluster CIDR）：部署前路由不可达，部署后路由可达 (flanneld 保证)
+  `170.33.0.0/16`
+* Kubernetes 服务网络（Service CIDR）：部署前路由不可达，部署后集群内使用 IP:Port 可达
+  `10.254.0.0/16`
 
 ### Usage
-#### Prerequisite
-* Host server with 8G+ mem(More is better), 60G disk, 8 core cpu at lease
-* vagrant 2.0+
-* virtualbox 5.0+
-* Maybe need to access the internet through GFW to download the kubernetes files
+
+安装完成后的集群包含以下组件：
+* flannel（host-gw模式）
+* kubernetes dashboard 1.8.2
+* etcd（单节点）
+* kubectl
+* CoreDNS
+* kubernetes（版本根据下载的kubernetes安装包而定）
 
 ### Support Addon
 **Required**
