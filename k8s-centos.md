@@ -80,8 +80,8 @@ curl "10.254.62.207:80"
 @import "./provision-docker-start.sh"
 
 ###### Kubernetes
-`provision-kubenetes.sh`
-@import "./provision-kubenetes.sh"
+`provision-kubernetes.sh`
+@import "./provision-kubernetes.sh"
 
 
 ### Misc
