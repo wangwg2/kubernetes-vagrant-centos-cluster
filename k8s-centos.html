@@ -232,6 +232,7 @@ html body code {
 
 <ul>
 <li><a href="https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html">在CentOS上部署kubernetes集群</a></li>
+<li><a href="https://www.gitbook.com/book/opsnull/follow-me-install-kubernetes-cluster/details">和我一步步部署 kubernetes 集群</a></li>
 <li><a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">rootsongjc/kubernetes-vagrant-centos-cluster</a></li>
 <li><a href="https://github.com/wangwg2/kubernetes-vagrant-centos-cluster">wangwg2/kubernetes-vagrant-centos-cluster</a></li>
 <li><a href="https://coreos.com/etcd/docs/latest/">etcd</a></li>
@@ -287,6 +288,340 @@ You don't have to create complicated ca files or configuration.</p>
 <li>Kubernetes 服务网络（Service CIDR）：部署前路由不可达，部署后集群内使用 IP:Port 可达<br>
 <code>10.254.0.0/16</code></li>
 </ul>
+<h6 class="mume-header" id="%E5%91%BD%E4%BB%A4">命令</h6>
+
+<pre class="language-bash"><span class="token comment" spellcheck="true">## 验证 master 节点功能</span>
+kubectl get componentstatuses
+
+<span class="token comment" spellcheck="true">## node 验证测试</span>
+kubectl run nginx --replicas<span class="token operator">=</span>2 --labels<span class="token operator">=</span><span class="token string">"run=load-balancer-example"</span> --image<span class="token operator">=</span>nginx:1.9  --port<span class="token operator">=</span>80
+kubectl expose deployment nginx --type<span class="token operator">=</span>NodePort --name<span class="token operator">=</span>example-service
+kubectl describe svc example-service
+curl <span class="token string">"10.254.62.207:80"</span>
+</pre>
+<h3 class="mume-header" id="%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4">主要步骤</h3>
+
+<h6 class="mume-header" id="%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">启动集群主机</h6>
+
+<p>启动集群主机： <code>node1</code>，<code>node2</code>，<code>node3</code><br>
+<code>Vagrantfile</code></p>
+<pre class="language-ruby {as=&quot;ruby&quot;}"><span class="token comment" spellcheck="true"># -*- mode: ruby -*-</span>
+<span class="token comment" spellcheck="true"># vi: set ft=ruby :</span>
+
+<span class="token constant">Vagrant</span><span class="token punctuation">.</span><span class="token function">configure</span><span class="token punctuation">(</span><span class="token string">"2"</span><span class="token punctuation">)</span> <span class="token keyword">do</span> <span class="token operator">|</span>config<span class="token operator">|</span>
+  config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box_check_update <span class="token operator">=</span> <span class="token keyword">false</span>
+  <span class="token variable">$num_instances</span> <span class="token operator">=</span> <span class="token number">3</span>
+
+  <span class="token comment" spellcheck="true"># curl https://discovery.etcd.io/new?size=3</span>
+  <span class="token variable">$etcd_cluster</span> <span class="token operator">=</span> <span class="token string">"node1=http://192.168.99.91:2380"</span>
+
+  <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token variable">$num_instances</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>i<span class="token operator">|</span>
+    config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>define <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span> <span class="token keyword">do</span> <span class="token operator">|</span>node<span class="token operator">|</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box <span class="token operator">=</span> <span class="token string">"centos/7"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      ip <span class="token operator">=</span> <span class="token string">"192.168.99.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">90</span><span class="token delimiter tag">}</span></span>"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Killer Wireless-n/a/ac 1535 Wireless Network Adapter"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Intel(R) Dual Band Wireless-AC 7265"  </span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true</span>
+      <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
+
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>insert_key <span class="token operator">=</span> <span class="token keyword">false</span>
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>forward_agent <span class="token operator">=</span> <span class="token keyword">true</span>
+
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provider <span class="token string">"virtualbox"</span> <span class="token keyword">do</span> <span class="token operator">|</span>vb<span class="token operator">|</span>
+        vb<span class="token punctuation">.</span>memory <span class="token operator">=</span> <span class="token string">"2048"</span>
+        vb<span class="token punctuation">.</span>cpus <span class="token operator">=</span> <span class="token number">1</span>
+        vb<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      <span class="token keyword">end</span>
+
+      <span class="token comment" spellcheck="true"># node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-init.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-install.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-etcd.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-flannel.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-start.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-kubernetes.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+    <span class="token keyword">end</span>  
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</pre>
+<h6 class="mume-header" id="%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">系统环境准备</h6>
+
+<ul>
+<li>修改时区</li>
+<li>添加软件源，安装 <code>wget</code> <code>curl</code> <code>conntrack-tools</code> <code>vim</code> <code>net-tools</code></li>
+<li>关闭 <code>selinux</code></li>
+<li>调整 <code>iptable</code> 内核参数</li>
+<li>设置 <code>/etc/hosts</code></li>
+<li>关闭 swap</li>
+</ul>
+<p><code>provision-init.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 修改时区</span>
+<span class="token function">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+timedatectl set-timezone Asia/Shanghai
+
+<span class="token comment" spellcheck="true">## 添加软件源，安装 wget curl conntrack-tools vim net-tools</span>
+<span class="token function">cp</span> /vagrant/yum/*.* /etc/yum.repos.d/
+yum <span class="token function">install</span> -y <span class="token function">wget</span> curl conntrack-tools vim net-tools
+
+<span class="token comment" spellcheck="true">## 关闭 selinux</span>
+<span class="token keyword">echo</span> <span class="token string">'disable selinux'</span>
+setenforce 0
+<span class="token function">sed</span> -i <span class="token string">'s/=enforcing/=disabled/g'</span> /etc/selinux/config
+
+<span class="token comment" spellcheck="true">## 调整 iptable 内核参数</span>
+<span class="token keyword">echo</span> <span class="token string">'enable iptable kernel parameter'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/sysctl.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+net.ipv4.ip_forward=1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF</span>
+sysctl -p
+
+
+<span class="token comment" spellcheck="true">## 设置 /etc/hosts</span>
+<span class="token keyword">echo</span> <span class="token string">'set host name resolution'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/hosts <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+192.168.99.91 node1
+192.168.99.92 node2
+192.168.99.93 node3
+EOF</span>
+
+<span class="token function">cat</span> /etc/hosts
+
+<span class="token comment" spellcheck="true">## 关闭 swap</span>
+<span class="token keyword">echo</span> <span class="token string">'disable swap'</span>
+swapoff -a
+<span class="token function">sed</span> -i <span class="token string">'/swap/s/^/#/'</span> /etc/fstab
+
+<span class="token comment" spellcheck="true">## 创建用户组 docker，安装 docker </span>
+<span class="token comment" spellcheck="true">#create group if not exists</span>
+<span class="token function">egrep</span> <span class="token string">"^docker"</span> /etc/group <span class="token operator">></span><span class="token operator">&amp;</span> /dev/null
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span>
+<span class="token keyword">then</span>
+  <span class="token function">groupadd</span> docker
+<span class="token keyword">fi</span>
+
+<span class="token function">usermod</span> -aG docker vagrant
+<span class="token function">rm</span> -rf ~/.docker/
+yum <span class="token function">install</span> -y docker.x86_64
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/docker/daemon.json <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+{
+  "registry-mirrors" : ["https://4ue5z1dy.mirror.aliyuncs.com/"]
+}
+EOF</span>
+</pre>
+<h6 class="mume-header" id="etcd-flannel-docker">etcd flannel docker</h6>
+
+<ul>
+<li>创建用户组 docker，安装 docker, 添加镜像加速</li>
+<li>安装/设置/启动 etcd</li>
+<li>安装/设置/启动 etcd</li>
+<li>启动 docker</li>
+</ul>
+<p><code>provision-docker-install.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 创建用户组 docker，安装 docker </span>
+<span class="token comment" spellcheck="true">#create group if not exists</span>
+<span class="token function">egrep</span> <span class="token string">"^docker"</span> /etc/group <span class="token operator">></span><span class="token operator">&amp;</span> /dev/null
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span>
+<span class="token keyword">then</span>
+  <span class="token function">groupadd</span> docker
+<span class="token keyword">fi</span>
+
+<span class="token function">usermod</span> -aG docker vagrant
+<span class="token function">rm</span> -rf ~/.docker/
+yum <span class="token function">install</span> -y docker.x86_64
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/docker/daemon.json <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+{
+  "registry-mirrors" : ["https://4ue5z1dy.mirror.aliyuncs.com/"]
+}
+EOF</span>
+</pre>
+<p><code>provision-etcd.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 安装设置 etcd</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+    yum <span class="token function">install</span> -y etcd
+<span class="token function">cat</span> <span class="token operator">></span> /etc/etcd/etcd.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+#[Member]
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_LISTEN_CLIENT_URLS="http://<span class="token variable">$2</span>:2379,http://localhost:2379"
+ETCD_NAME="node<span class="token variable">$1</span>"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://<span class="token variable">$2</span>:2379"
+ETCD_INITIAL_CLUSTER="<span class="token variable">$3</span>"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+EOF</span>
+
+  <span class="token function">cat</span> /etc/etcd/etcd.conf
+  <span class="token function">sleep</span> 5
+
+  <span class="token keyword">echo</span> <span class="token string">'start etcd...'</span>
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> etcd
+  systemctl start etcd
+
+  <span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
+  etcdctl cluster-health
+  etcdctl <span class="token function">mkdir</span> /kube-centos/network
+  etcdctl mk /kube-centos/network/config <span class="token string">'{"Network":"172.33.0.0/16","SubnetLen":24,"Backend":{"Type":"host-gw"}}'</span>
+<span class="token keyword">fi</span>
+</pre>
+<p><code>provision-flannel.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 安装配置 flannel</span>
+<span class="token keyword">echo</span> <span class="token string">'install flannel...'</span>
+yum <span class="token function">install</span> -y flannel
+
+<span class="token keyword">echo</span> <span class="token string">'create flannel config file...'</span>
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/sysconfig/flanneld <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+# Flanneld configuration options
+FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
+FLANNEL_ETCD_PREFIX="/kube-centos/network"
+FLANNEL_OPTIONS="-iface=eth2"
+EOF</span>
+
+<span class="token function">sleep</span> 5
+
+<span class="token keyword">echo</span> <span class="token string">'enable flannel with host-gw backend'</span>
+<span class="token function">rm</span> -rf /run/flannel/
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> flanneld
+systemctl start flanneld
+
+<span class="token comment" spellcheck="true">## 启动 docker</span>
+<span class="token keyword">echo</span> <span class="token string">'enable docker, but you need to start docker after start flannel'</span>
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> docker
+systemctl start docker
+</pre>
+<p><code>provision-docker-start.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 启动 docker</span>
+<span class="token keyword">echo</span> <span class="token string">'enable docker, but you need to start docker after start flannel'</span>
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> docker
+systemctl start docker
+</pre>
+<h6 class="mume-header" id="kubernetes">Kubernetes</h6>
+
+<p><code>provision-kubenetes.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## -------------------------------------------------</span>
+<span class="token comment" spellcheck="true">## 拷贝 pem, token 文件</span>
+<span class="token keyword">echo</span> <span class="token string">"copy pem, token files"</span>
+<span class="token function">mkdir</span> -p /etc/kubernetes/ssl
+<span class="token function">cp</span> /vagrant/pki/*.pem /etc/kubernetes/ssl/
+<span class="token function">cp</span> /vagrant/conf/token.csv /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/bootstrap.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kube-proxy.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kubelet.kubeconfig /etc/kubernetes/
+
+<span class="token comment" spellcheck="true">## Kubernetes 应用程序</span>
+<span class="token keyword">echo</span> <span class="token string">"get kubernetes files..."</span>
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-client-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/client/bin/* /usr/bin
+
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-server-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/server/bin/* /usr/bin
+
+<span class="token comment" spellcheck="true">## Kubernetes 配置文件</span>
+<span class="token function">cp</span> /vagrant/systemd/*.service /usr/lib/systemd/system/
+<span class="token function">mkdir</span> -p /var/lib/kubelet
+<span class="token function">mkdir</span> -p ~/.kube
+<span class="token function">cp</span> /vagrant/conf/admin.kubeconfig ~/.kube/config
+
+<span class="token comment" spellcheck="true">## Kubernetes 配置与启动</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure master and node1"</span>
+
+  <span class="token function">cp</span> /vagrant/conf/apiserver /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/config /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/controller-manager /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler.conf /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/node1/* /etc/kubernetes/
+
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> kube-apiserver
+  systemctl start kube-apiserver
+
+  systemctl <span class="token function">enable</span> kube-controller-manager
+  systemctl start kube-controller-manager
+
+  systemctl <span class="token function">enable</span> kube-scheduler
+  systemctl start kube-scheduler
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 2 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node2"</span>
+  <span class="token function">cp</span> /vagrant/node2/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 3 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node3"</span>
+  <span class="token function">cp</span> /vagrant/node3/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+
+  <span class="token function">sleep</span> 10
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+  <span class="token function">cd</span> /vagrant/addon/dns/
+  ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
+  <span class="token function">cd</span> -
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
+  kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+  <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
+  kubectl apply -f /vagrant/yaml/admin-role.yaml
+  <span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
+  kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
+  <span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
+  <span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+  <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
+  kubectl apply -f /vagrant/addon/traefik-ingress/
+<span class="token keyword">fi</span>
+</pre>
+<h3 class="mume-header" id="misc">Misc</h3>
+
 <h6 class="mume-header" id="usage">Usage</h6>
 
 <p>安装完成后的集群包含以下组件：</p>
@@ -390,13 +725,514 @@ Clean up the VMs.</p>
 <h6 class="mume-header" id="note">Note</h6>
 
 <p>Don't use it in production environment.</p>
-<h3 class="mume-header" id="reference">Reference</h3>
+<h3 class="mume-header" id="kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</h3>
 
 <ul>
 <li><a href="https://jimmysong.io/kubernetes-handbook/">Kubernetes Handbook - jimmysong.io</a></li>
 <li><a href="https://github.com/duffqiu/centos-vagrant">duffqiu/centos-vagrant</a></li>
 <li><a href="https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs">kubernetes ipvs</a></li>
 </ul>
+<h6 class="mume-header" id="etcd">etcd</h6>
+
+<p>集群指南 <a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">Clustering Guide</a></p>
+<p>etcd 参数说明</p>
+<ul>
+<li><code>--data-dir</code> 指定节点的数据存储目录，这些数据包括节点ID，集群ID，集群初始化配置，Snapshot文件，若未指定 <code>--wal-dir</code>，还会存储WAL文件；</li>
+<li><code>--wal-dir</code> 指定节点的was文件的存储目录，若指定了该参数，wal文件会和其他数据文件分开存储。</li>
+<li><code>--name</code> 节点名称</li>
+<li><code>--initial-advertise-peer-urls</code> 告知集群其他节点url.</li>
+<li><code>--listen-peer-urls</code> 监听URL，用于与其他节点通讯</li>
+<li><code>--advertise-client-urls</code> 告知客户端url, 也就是服务的url</li>
+<li><code>--initial-cluster-token</code> 集群的ID</li>
+<li><code>--initial-cluster</code> 集群中所有节点</li>
+</ul>
+<p>/etc/etcd/etcd.conf</p>
+<pre class="language-ini">#[Member]
+<span class="token constant">ETCD_DATA_DIR</span><span class="token attr-value"><span class="token punctuation">=</span>"/var/lib/etcd/default.etcd"</span>
+<span class="token constant">ETCD_LISTEN_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_LISTEN_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379,http://localhost:2379"</span>
+<span class="token constant">ETCD_NAME</span><span class="token attr-value"><span class="token punctuation">=</span>"node1"</span>
+
+#[Clustering]
+<span class="token constant">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_ADVERTISE_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER</span><span class="token attr-value"><span class="token punctuation">=</span>"node1=http://192.168.99.91:2380"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER_TOKEN</span><span class="token attr-value"><span class="token punctuation">=</span>"etcd-cluster"</span>
+<span class="token constant">ETCD_INITIAL_CLUSTER_STATE</span><span class="token attr-value"><span class="token punctuation">=</span>"new"</span>
+</pre>
+<p>/usr/lib/systemd/system/etcd.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Etcd Server</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
+<span class="token constant">WorkingDirectory</span><span class="token attr-value"><span class="token punctuation">=</span>/var/lib/etcd/</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/etcd/etcd.conf</span>
+<span class="token constant">User</span><span class="token attr-value"><span class="token punctuation">=</span>etcd</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/etcd --name $ETCD_NAME --data-dir=$ETCD_DATA_DIR --listen-client-urls $ETCD_LISTEN_CLIENT_URLS --advertise-client-urls $ETCD_ADVERTISE_CLIENT_URLS</span>
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+
+</pre>
+<h6 class="mume-header" id="flanneld">flanneld</h6>
+
+<p>/etc/sysconfig/flanneld</p>
+<pre class="language-ini"># Flanneld configuration options
+<span class="token constant">FLANNEL_ETCD_ENDPOINTS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
+<span class="token constant">FLANNEL_ETCD_PREFIX</span><span class="token attr-value"><span class="token punctuation">=</span>"/kube-centos/network"</span>
+<span class="token constant">FLANNEL_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span>"-iface=eth2"</span>
+</pre>
+<p>/etc/sysconfig/docker-network</p>
+<pre class="language-ini"><span class="token constant">DOCKER_NETWORK_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span></span>
+</pre>
+<p>/usr/lib/systemd/system/flanneld.service</p>
+<pre class="language-ini"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Flanneld overlay address etcd agent</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>etcd.service</span>
+<span class="token constant">Before</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>/etc/sysconfig/flanneld</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/sysconfig/docker-network</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/flanneld-start $FLANNEL_OPTIONS</span>
+<span class="token constant">ExecStartPost</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/libexec/flannel/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker</span>
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+<span class="token constant">RequiredBy</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+</pre>
+<blockquote>
+<p><strong>Tips</strong><br>
+<code>FLANNEL_OPTIONS=&quot;-iface=eth2&quot;</code></p>
+</blockquote>
+<p>/usr/bin/flanneld-start</p>
+<pre class="language-bash"><span class="token shebang important">#!/bin/sh</span>
+<span class="token function">exec</span> /usr/bin/flanneld \
+  -etcd-endpoints<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_ENDPOINTS:-${FLANNEL_ETCD}</span><span class="token punctuation">}</span> \
+  -etcd-prefix<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}</span><span class="token punctuation">}</span> \
+  <span class="token string">"<span class="token variable">$@</span>"</span>
+</pre>
+<h6 class="mume-header" id="kubernetes-overview">Kubernetes overview</h6>
+
+<pre class="language-yaml"><span class="token comment" spellcheck="true">## /etc/kubernetes/ssl (来自 /pki)</span>
+ca<span class="token punctuation">-</span>key.pem          ca.pem  
+admin<span class="token punctuation">-</span>key.pem       admin.pem
+kubelet.crt         kubelet.key  
+kube<span class="token punctuation">-</span>proxy<span class="token punctuation">-</span>key.pem  kube<span class="token punctuation">-</span>proxy.pem  
+kubernetes<span class="token punctuation">-</span>key.pem  kubernetes.pem  
+scheduler<span class="token punctuation">-</span>key.pem   scheduler.pem
+
+<span class="token comment" spellcheck="true">## /etc/kubernetes (来自 /conf)</span>
+token.csv
+bootstrap.kubeconfig
+kube<span class="token punctuation">-</span>proxy.kubeconfig
+kubelet.kubeconfig
+config
+apiserver
+controller<span class="token punctuation">-</span>manager
+scheduler
+
+<span class="token comment" spellcheck="true">## ~/.kube/config (来自 /conf/admin.kubeconfig)</span>
+~/.kube/config
+
+<span class="token comment" spellcheck="true">## /usr/lib/systemd/system (来自 /systemd)</span>
+kube<span class="token punctuation">-</span>apiserver.service
+kube<span class="token punctuation">-</span>controller<span class="token punctuation">-</span>manager.service
+kube<span class="token punctuation">-</span>scheduler.service
+kubelet.service
+kube<span class="token punctuation">-</span>proxy.service
+</pre>
+<h6 class="mume-header" id="kubernetes-config">Kubernetes config</h6>
+
+<p>/etc/kubernetes/config<br>
+这个配置文件同时被<code>kube-apiserver</code>、<code>kube-controller-manager</code>、<code>kube-scheduler</code>、<code>kubelet</code>、<code>kube-proxy</code>使用。</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+# kubernetes system config
+#
+# The following values are used to configure various aspects of all
+# kubernetes services, including
+#
+#   kube-apiserver.service
+#   kube-controller-manager.service
+#   kube-scheduler.service
+#   kubelet.service
+#   kube-proxy.service
+# logging to stderr means we get it in the systemd journal
+<span class="token constant">KUBE_LOGTOSTDERR</span><span class="token attr-value"><span class="token punctuation">=</span>"--logtostderr=true"</span>
+
+# journal message level, 0 is debug
+<span class="token constant">KUBE_LOG_LEVEL</span><span class="token attr-value"><span class="token punctuation">=</span>"--v=0"</span>
+
+# Should this cluster be allowed to run privileged docker containers
+<span class="token constant">KUBE_ALLOW_PRIV</span><span class="token attr-value"><span class="token punctuation">=</span>"--allow-privileged=true"</span>
+
+# How the controller-manager, scheduler, and proxy find the apiserver
+<span class="token constant">KUBE_MASTER</span><span class="token attr-value"><span class="token punctuation">=</span>"--master=http://192.168.99.91:8080"</span>
+
+</pre>
+<h6 class="mume-header" id="kubernetes-apiserver">Kubernetes apiserver</h6>
+
+<p>/etc/kubernetes/apiserver</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+## kubernetes system config
+##
+## The following values are used to configure the kube-apiserver
+##
+#
+## The address on the local server to listen to.
+<span class="token constant">KUBE_API_ADDRESS</span><span class="token attr-value"><span class="token punctuation">=</span>"--advertise-address=192.168.99.91 --bind-address=192.168.99.91 --insecure-bind-address=192.168.99.91"</span>
+#
+## The port on the local server to listen on.
+<span class="token constant">#KUBE_API_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--port=8080"</span>
+#
+## Port minions listen on
+<span class="token constant">#KUBELET_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--kubelet-port=10250"</span>
+#
+## Comma separated list of nodes in the etcd cluster
+<span class="token constant">KUBE_ETCD_SERVERS</span><span class="token attr-value"><span class="token punctuation">=</span>"--etcd-servers=http://192.168.99.91:2379,http://192.168.99.92:2379,http://192.168.99.93:2379"</span>
+#
+## Address range to use for services
+<span class="token constant">KUBE_SERVICE_ADDRESSES</span><span class="token attr-value"><span class="token punctuation">=</span>"--service-cluster-ip-range=10.254.0.0/16"</span>
+#
+## default admission control policies
+<span class="token constant">KUBE_ADMISSION_CONTROL</span><span class="token attr-value"><span class="token punctuation">=</span>"--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"</span>
+#
+## Add your own!
+<span class="token constant">KUBE_API_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--authorization-mode=Node,RBAC --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
+
+</pre>
+<p>/usr/lib/systemd/system/kube-apiserver.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Kubernetes API Service</span>
+<span class="token constant">Documentation</span><span class="token attr-value"><span class="token punctuation">=</span>https://github.com/GoogleCloudPlatform/kubernetes</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>etcd.service</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/config</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/apiserver</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/kube-apiserver \</span>
+	    $KUBE_LOGTOSTDERR \
+	    $KUBE_LOG_LEVEL \
+	    $KUBE_ETCD_SERVERS \
+	    $KUBE_API_ADDRESS \
+	    $KUBE_API_PORT \
+	    $KUBELET_PORT \
+	    $KUBE_ALLOW_PRIV \
+	    $KUBE_SERVICE_ADDRESSES \
+	    $KUBE_ADMISSION_CONTROL \
+	    $KUBE_API_ARGS
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+</pre>
+<h6 class="mume-header" id="kubernetes-controller-manager">Kubernetes controller-manager</h6>
+
+<p>/etc/kubernetes/controller-manager</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+# The following values are used to configure the kubernetes controller-manager
+
+# defaults from config and apiserver should be adequate
+
+# Add your own!
+<span class="token constant">KUBE_CONTROLLER_MANAGER_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--address=127.0.0.1 --service-cluster-ip-range=10.254.0.0/16 --cluster-name=kubernetes --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem --root-ca-file=/etc/kubernetes/ssl/ca.pem --leader-elect=true"</span>
+</pre>
+<p>/usr/lib/systemd/system/kube-controller-manager.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Kubernetes Controller Manager</span>
+<span class="token constant">Documentation</span><span class="token attr-value"><span class="token punctuation">=</span>https://github.com/GoogleCloudPlatform/kubernetes</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/config</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/controller-manager</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/kube-controller-manager \</span>
+        $KUBE_LOGTOSTDERR \
+        $KUBE_LOG_LEVEL \
+        $KUBE_MASTER \
+        $KUBE_CONTROLLER_MANAGER_ARGS
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+
+</pre>
+<h6 class="mume-header" id="kubernetes-scheduler">Kubernetes scheduler</h6>
+
+<p>/etc/kubernetes/scheduler</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+# kubernetes scheduler config
+
+# default config should be adequate
+
+# Add your own!
+<span class="token constant">KUBE_SCHEDULER_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--leader-elect=true --address=127.0.0.1"</span>
+<span class="token constant">KUBE_SCHEDULER_CONF</span><span class="token attr-value"><span class="token punctuation">=</span>"--kubeconfig=/etc/kubernetes/scheduler.conf"</span>
+</pre>
+<p>/usr/lib/systemd/system/kube-scheduler.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Kubernetes Scheduler Plugin</span>
+<span class="token constant">Documentation</span><span class="token attr-value"><span class="token punctuation">=</span>https://github.com/GoogleCloudPlatform/kubernetes</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/config</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/scheduler</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/kube-scheduler \</span>
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_LEVEL \
+            $KUBE_MASTER \
+            $KUBE_SCHEDULER_CONF \
+            $KUBE_SCHEDULER_ARGS
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+
+</pre>
+<h6 class="mume-header" id="kubernetes-kube-proxy">Kubernetes kube-proxy</h6>
+
+<p>/etc/kubernetes/proxy</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+# kubernetes proxy config
+
+# default config should be adequate
+
+# Add your own!
+<span class="token constant">KUBE_PROXY_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--bind-address=192.168.99.91 --hostname-override=192.168.99.91 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --cluster-cidr=10.254.0.0/16 --hostname-override=node1"</span>
+
+</pre>
+<p>/usr/lib/systemd/system/kube-proxy.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Kubernetes Kube-Proxy Server</span>
+<span class="token constant">Documentation</span><span class="token attr-value"><span class="token punctuation">=</span>https://github.com/GoogleCloudPlatform/kubernetes</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/config</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/proxy</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/kube-proxy \</span>
+        $KUBE_LOGTOSTDERR \
+        $KUBE_LOG_LEVEL \
+        $KUBE_MASTER \
+        $KUBE_PROXY_ARGS
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+
+</pre>
+<h6 class="mume-header" id="kubernetes-kubelet">Kubernetes kubelet</h6>
+
+<p>/etc/kubernetes/kubelet</p>
+<pre class="language-ini {as=&quot;ini&quot;}">###
+## kubernetes kubelet (minion) config
+#
+## The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
+<span class="token constant">KUBELET_ADDRESS</span><span class="token attr-value"><span class="token punctuation">=</span>"--address=192.168.99.91"</span>
+#
+## The port for the info server to serve on
+<span class="token constant">#KUBELET_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--port=10250"</span>
+#
+## You may leave this blank to use the actual hostname
+<span class="token constant">KUBELET_HOSTNAME</span><span class="token attr-value"><span class="token punctuation">=</span>"--hostname-override=node1"</span>
+#
+## location of the api-server
+## COMMENT THIS ON KUBERNETES 1.8+
+# KUBELET_API_SERVER<span class="token attr-value"><span class="token punctuation">=</span>"--api-servers=http://172.20.0.113:8080"</span>
+#
+## pod infrastructure container
+<span class="token constant">KUBELET_POD_INFRA_CONTAINER</span><span class="token attr-value"><span class="token punctuation">=</span>"--pod-infra-container-image=docker.io/openshift/origin-pod"</span>
+#
+## Add your own!
+<span class="token constant">KUBELET_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice --cgroup-driver=systemd --cluster-dns=10.254.0.2 --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig --kubeconfig=/etc/kubernetes/kubelet.kubeconfig --require-kubeconfig --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --hairpin-mode promiscuous-bridge --serialize-image-pulls=false --allow-privileged=true"</span>
+
+</pre>
+<p>/usr/lib/systemd/system/kubelet.service</p>
+<pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
+<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Kubernetes Kubelet Server</span>
+<span class="token constant">Documentation</span><span class="token attr-value"><span class="token punctuation">=</span>https://github.com/GoogleCloudPlatform/kubernetes</span>
+<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+<span class="token constant">Requires</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
+
+<span class="token selector">[Service]</span>
+<span class="token constant">WorkingDirectory</span><span class="token attr-value"><span class="token punctuation">=</span>/var/lib/kubelet</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/config</span>
+<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/kubernetes/kubelet</span>
+<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/kubelet \</span>
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_LEVEL \
+            $KUBELET_API_SERVER \
+            $KUBELET_ADDRESS \
+            $KUBELET_PORT \
+            $KUBELET_HOSTNAME \
+            $KUBE_ALLOW_PRIV \
+            $KUBELET_POD_INFRA_CONTAINER \
+            $KUBELET_ARGS
+<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
+
+<span class="token selector">[Install]</span>
+<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+</pre>
+<h6 class="mume-header" id="kubernetes-misc">Kubernetes misc</h6>
+
+<p>coredns / dashboard</p>
+<pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+<span class="token function">cd</span> /vagrant/addon/dns/
+./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
+<span class="token function">cd</span> -
+
+<span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
+kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+<span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
+kubectl apply -f /vagrant/yaml/admin-role.yaml
+<span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
+kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
+<span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
+<span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+<span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
+kubectl apply -f /vagrant/addon/traefik-ingress/
+</pre>
+<h3 class="mume-header" id="%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</h3>
+
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/">Organizing Cluster Access Using kubeconfig Files</a></li>
+<li><a href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Configure Access to Multiple Clusters</a></li>
+<li><a href="https://jimmysong.io/kubernetes-handbook/practice/create-kubeconfig.html">创建 kubeconfig 文件</a></li>
+</ul>
+<p>使用kubeconfig文件来组织关于集群，用户，名称空间和身份验证机制的信息。<code>kubectl</code>命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。<br>
+用于配置对群集的访问的文件称为 <code>kubeconfig</code> 文件。这是引用配置文件的通用方式。这并不意味着有一个名为的文件kubeconfig。<br>
+默认情况下，kubectl 在 <code>$HOME/.kube</code> 目录中查找指定config的文件。您可以通过设置 <code>KUBECONFIG</code> 环境变量或设置 <code>--kubeconfig</code> 标志来指定其他kubeconfig文件。</p>
+<ul>
+<li>支持多个群集，用户和认证机制</li>
+<li>每个上下文有三个参数：集群，命名空间和用户。</li>
+</ul>
+<p>文件清单</p>
+<pre class="language-yaml">admin.kubeconfig          <span class="token comment" spellcheck="true"># (~/.kube/config) </span>
+kubelet.kubeconfig        <span class="token comment" spellcheck="true"># (同 admin.kubeconfig)</span>
+bootstrap.kubeconfig
+kube<span class="token punctuation">-</span>proxy.kubeconfig
+scheduler.kubeconfig
+</pre>
+<h6 class="mume-header" id="tls-bootstrapping-token">TLS Bootstrapping Token</h6>
+
+<p>创建 TLS Bootstrapping Token (<code>token.csv</code>)</p>
+<pre class="language-bash"><span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token punctuation">$(</span>head -c 16 /dev/urandom <span class="token operator">|</span> od -An -t x <span class="token operator">|</span> <span class="token function">tr</span> -d <span class="token string">' '</span><span class="token punctuation">)</span>
+<span class="token function">cat</span> <span class="token operator">></span> token.csv <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+<span class="token variable">${BOOTSTRAP_TOKEN}</span>,kubelet-bootstrap,10001,"system:kubelet-bootstrap"
+EOF</span>
+</pre>
+<h6 class="mume-header" id="kubeconfig">kubeconfig</h6>
+
+<p>创建 kubectl kubeconfig 文件 (<code>admin.kubeconfig</code>、<code>kubelet.kubeconfig</code>，<code>~/.kube/config</code>)<br>
+生成的 <code>kubeconfig</code> 被保存到 <code>~/.kube/config</code> 文件；</p>
+<pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
+<span class="token comment" spellcheck="true"># 设置集群参数</span>
+kubectl config set-cluster kubernetes \
+  --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span>
+<span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
+kubectl config set-credentials admin \
+  --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/admin.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/admin-key.pem
+<span class="token comment" spellcheck="true"># 设置上下文参数</span>
+kubectl config set-context kubernetes \
+  --cluster<span class="token operator">=</span>kubernetes \
+  --user<span class="token operator">=</span>admin
+<span class="token comment" spellcheck="true"># 设置默认上下文</span>
+kubectl config use-context kubernetes
+</pre>
+<h6 class="mume-header" id="bootstrapping">bootstrapping</h6>
+
+<p>创建 kubelet bootstrapping kubeconfig 文件 (<code>bootstrap.kubeconfig</code>)</p>
+<pre class="language-bash"><span class="token function">cd</span> /etc/kubernetes
+<span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token string">"9c64d78dbd5afd42316e32d922e2da47"</span>
+<span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
+<span class="token comment" spellcheck="true"># 设置集群参数</span>
+kubectl config set-cluster kubernetes \
+  --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
+  --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
+<span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
+kubectl config set-credentials kubelet-bootstrap \
+  --token<span class="token operator">=</span><span class="token variable">${BOOTSTRAP_TOKEN}</span> \
+  --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
+<span class="token comment" spellcheck="true"># 设置上下文参数</span>
+kubectl config set-context default \
+  --cluster<span class="token operator">=</span>kubernetes \
+  --user<span class="token operator">=</span>kubelet-bootstrap \
+  --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
+<span class="token comment" spellcheck="true"># 设置默认上下文</span>
+kubectl config use-context default --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
+</pre>
+<h6 class="mume-header" id="kube-proxy">kube-proxy</h6>
+
+<p>创建 kube-proxy kubeconfig 文件 (<code>kube-proxy.kubeconfig</code>)</p>
+<pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
+<span class="token comment" spellcheck="true"># 设置集群参数</span>
+kubectl config set-cluster kubernetes \
+  --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
+  --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
+<span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
+kubectl config set-credentials kube-proxy \
+  --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/kube-proxy.pem \
+  --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/kube-proxy-key.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
+<span class="token comment" spellcheck="true"># 设置上下文参数</span>
+kubectl config set-context default \
+  --cluster<span class="token operator">=</span>kubernetes \
+  --user<span class="token operator">=</span>kube-proxy \
+  --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
+<span class="token comment" spellcheck="true"># 设置默认上下文</span>
+kubectl config use-context default --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
+</pre>
+<h6 class="mume-header" id="scheduler">scheduler</h6>
+
+<p>创建 scheduler kubeconfig 文件 (<code>scheduler.conf</code>)</p>
+<pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
+<span class="token comment" spellcheck="true"># 设置集群参数</span>
+kubectl config set-cluster kubernetes \
+  --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
+  --kubeconfig<span class="token operator">=</span>scheduler.conf
+<span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
+kubectl config set-credentials system:kube-scheduler \
+  --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/scheduler.pem \
+  --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/scheduler-key.pem \
+  --embed-certs<span class="token operator">=</span>true \
+  --kubeconfig<span class="token operator">=</span>scheduler.conf
+<span class="token comment" spellcheck="true"># 设置上下文参数</span>
+kubectl config set-context system:kube-scheduler@kubernetes \
+  --cluster<span class="token operator">=</span>kubernetes \
+  --user<span class="token operator">=</span>system:kube-scheduler \
+  --kubeconfig<span class="token operator">=</span>scheduler.conf
+<span class="token comment" spellcheck="true"># 设置默认上下文</span>
+kubectl config use-context system:kube-scheduler@kubernetes --kubeconfig<span class="token operator">=</span>scheduler.conf
+</pre>
+<h3 class="mume-header" id="file-list">File List</h3>
+
 <h6 class="mume-header" id="vagrantfile">Vagrantfile</h6>
 
 <pre class="language-ruby {as=&quot;ruby&quot;}"><span class="token comment" spellcheck="true"># -*- mode: ruby -*-</span>
@@ -415,8 +1251,10 @@ Clean up the VMs.</p>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
       ip <span class="token operator">=</span> <span class="token string">"192.168.99.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">90</span><span class="token delimiter tag">}</span></span>"</span>
       node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
-      <span class="token comment" spellcheck="true"># node.vm.network "public_network"</span>
-      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span><span class="token punctuation">,</span> bridge<span class="token punctuation">:</span> <span class="token string">"en0: Wi-Fi (AirPort)"</span><span class="token punctuation">,</span> auto_config<span class="token punctuation">:</span> <span class="token keyword">true</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Killer Wireless-n/a/ac 1535 Wireless Network Adapter"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Intel(R) Dual Band Wireless-AC 7265"  </span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true</span>
       <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
 
       config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>insert_key <span class="token operator">=</span> <span class="token keyword">false</span>
@@ -428,7 +1266,13 @@ Clean up the VMs.</p>
         vb<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
       <span class="token keyword">end</span>
 
-      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+      <span class="token comment" spellcheck="true"># node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-init.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-install.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-etcd.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-flannel.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-start.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-kubernetes.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
     <span class="token keyword">end</span>  
   <span class="token keyword">end</span>
 <span class="token keyword">end</span>
@@ -437,11 +1281,15 @@ Clean up the VMs.</p>
 
 <pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
 
-<span class="token comment" spellcheck="true">## change time zone</span>
+<span class="token comment" spellcheck="true">## 修改时区</span>
 <span class="token function">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 timedatectl set-timezone Asia/Shanghai
+
+<span class="token comment" spellcheck="true">## 添加软件源，安装 wget curl conntrack-tools vim net-tools</span>
 <span class="token function">cp</span> /vagrant/yum/*.* /etc/yum.repos.d/
 yum <span class="token function">install</span> -y <span class="token function">wget</span> curl conntrack-tools vim net-tools
+
+<span class="token comment" spellcheck="true">## 关闭 selinux</span>
 <span class="token keyword">echo</span> <span class="token string">'disable selinux'</span>
 setenforce 0
 <span class="token function">sed</span> -i <span class="token string">'s/=enforcing/=disabled/g'</span> /etc/selinux/config
@@ -454,7 +1302,6 @@ net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 EOF</span>
 sysctl -p
-
 
 <span class="token comment" spellcheck="true">## 设置 /etc/hosts</span>
 <span class="token keyword">echo</span> <span class="token string">'set host name resolution'</span>
@@ -470,6 +1317,8 @@ EOF</span>
 <span class="token keyword">echo</span> <span class="token string">'disable swap'</span>
 swapoff -a
 <span class="token function">sed</span> -i <span class="token string">'/swap/s/^/#/'</span> /etc/fstab
+
+<span class="token comment" spellcheck="true">## -------------------------------------------------</span>
 
 <span class="token comment" spellcheck="true">## 创建用户组 docker，安装 docker </span>
 <span class="token comment" spellcheck="true">#create group if not exists</span>
@@ -547,6 +1396,8 @@ systemctl start flanneld
 systemctl daemon-reload
 systemctl <span class="token function">enable</span> docker
 systemctl start docker
+
+<span class="token comment" spellcheck="true">## -------------------------------------------------</span>
 
 <span class="token keyword">echo</span> <span class="token string">"copy pem, token files"</span>
 <span class="token function">mkdir</span> -p /etc/kubernetes/ssl
@@ -639,99 +1490,6 @@ systemctl start docker
   kubectl apply -f /vagrant/addon/traefik-ingress/
 <span class="token keyword">fi</span>
 </pre>
-<h6 class="mume-header" id="etcd">etcd</h6>
-
-<p>集群指南 <a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">Clustering Guide</a></p>
-<p>etcd 参数说明</p>
-<ul>
-<li><code>--data-dir</code> 指定节点的数据存储目录，这些数据包括节点ID，集群ID，集群初始化配置，Snapshot文件，若未指定 <code>--wal-dir</code>，还会存储WAL文件；</li>
-<li><code>--wal-dir</code> 指定节点的was文件的存储目录，若指定了该参数，wal文件会和其他数据文件分开存储。</li>
-<li><code>--name</code> 节点名称</li>
-<li><code>--initial-advertise-peer-urls</code> 告知集群其他节点url.</li>
-<li><code>--listen-peer-urls</code> 监听URL，用于与其他节点通讯</li>
-<li><code>--advertise-client-urls</code> 告知客户端url, 也就是服务的url</li>
-<li><code>--initial-cluster-token</code> 集群的ID</li>
-<li><code>--initial-cluster</code> 集群中所有节点</li>
-</ul>
-<p>etcd.service</p>
-<pre class="language-ini"># /usr/lib/systemd/system/etcd.service
-<span class="token selector">[Unit]</span>
-<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Etcd Server</span>
-<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
-<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
-<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
-
-<span class="token selector">[Service]</span>
-<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
-<span class="token constant">WorkingDirectory</span><span class="token attr-value"><span class="token punctuation">=</span>/var/lib/etcd/</span>
-<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/etcd/etcd.conf</span>
-<span class="token constant">User</span><span class="token attr-value"><span class="token punctuation">=</span>etcd</span>
-<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/etcd --name $ETCD_NAME --data-dir=$ETCD_DATA_DIR --listen-client-urls $ETCD_LISTEN_CLIENT_URLS --advertise-client-urls $ETCD_ADVERTISE_CLIENT_URLS</span>
-<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
-<span class="token constant">LimitNOFILE</span><span class="token attr-value"><span class="token punctuation">=</span>65536</span>
-
-<span class="token selector">[Install]</span>
-<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
-</pre>
-<p>/etc/etcd/etcd.conf</p>
-<pre class="language-ini">#[Member]
-<span class="token constant">ETCD_DATA_DIR</span><span class="token attr-value"><span class="token punctuation">=</span>"/var/lib/etcd/default.etcd"</span>
-<span class="token constant">ETCD_LISTEN_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
-<span class="token constant">ETCD_LISTEN_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379,http://localhost:2379"</span>
-<span class="token constant">ETCD_NAME</span><span class="token attr-value"><span class="token punctuation">=</span>"node1"</span>
-
-#[Clustering]
-<span class="token constant">ETCD_INITIAL_ADVERTISE_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
-<span class="token constant">ETCD_ADVERTISE_CLIENT_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
-<span class="token constant">ETCD_INITIAL_CLUSTER</span><span class="token attr-value"><span class="token punctuation">=</span>"node1=http://192.168.99.91:2380"</span>
-<span class="token constant">ETCD_INITIAL_CLUSTER_TOKEN</span><span class="token attr-value"><span class="token punctuation">=</span>"etcd-cluster"</span>
-<span class="token constant">ETCD_INITIAL_CLUSTER_STATE</span><span class="token attr-value"><span class="token punctuation">=</span>"new"</span>
-</pre>
-<h6 class="mume-header" id="flanneld">flanneld</h6>
-
-<p>flanneld.service</p>
-<pre class="language-ini"># /usr/lib/systemd/system/flanneld.service
-<span class="token selector">[Unit]</span>
-<span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Flanneld overlay address etcd agent</span>
-<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
-<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
-<span class="token constant">Wants</span><span class="token attr-value"><span class="token punctuation">=</span>network-online.target</span>
-<span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>etcd.service</span>
-<span class="token constant">Before</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
-
-<span class="token selector">[Service]</span>
-<span class="token constant">Type</span><span class="token attr-value"><span class="token punctuation">=</span>notify</span>
-<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>/etc/sysconfig/flanneld</span>
-<span class="token constant">EnvironmentFile</span><span class="token attr-value"><span class="token punctuation">=</span>-/etc/sysconfig/docker-network</span>
-<span class="token constant">ExecStart</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/bin/flanneld-start $FLANNEL_OPTIONS</span>
-<span class="token constant">ExecStartPost</span><span class="token attr-value"><span class="token punctuation">=</span>/usr/libexec/flannel/mk-docker-opts.sh -k DOCKER_NETWORK_OPTIONS -d /run/flannel/docker</span>
-<span class="token constant">Restart</span><span class="token attr-value"><span class="token punctuation">=</span>on-failure</span>
-
-<span class="token selector">[Install]</span>
-<span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
-<span class="token constant">RequiredBy</span><span class="token attr-value"><span class="token punctuation">=</span>docker.service</span>
-</pre>
-<p>/etc/sysconfig/flanneld</p>
-<pre class="language-ini"># Flanneld configuration options
-<span class="token constant">FLANNEL_ETCD_ENDPOINTS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2379"</span>
-<span class="token constant">FLANNEL_ETCD_PREFIX</span><span class="token attr-value"><span class="token punctuation">=</span>"/kube-centos/network"</span>
-<span class="token constant">FLANNEL_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span>"-iface=eth2"</span>
-</pre>
-<blockquote>
-<p><strong>Tips</strong><br>
-<code>FLANNEL_OPTIONS=&quot;-iface=eth2&quot;</code></p>
-</blockquote>
-<p>/etc/sysconfig/docker-network</p>
-<pre class="language-ini"># /etc/sysconfig/docker-network
-<span class="token constant">DOCKER_NETWORK_OPTIONS</span><span class="token attr-value"><span class="token punctuation">=</span></span>
-</pre>
-<p>/usr/bin/flanneld-start</p>
-<pre class="language-bash"><span class="token shebang important">#!/bin/sh</span>
-<span class="token function">exec</span> /usr/bin/flanneld \
-  -etcd-endpoints<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_ENDPOINTS:-${FLANNEL_ETCD}</span><span class="token punctuation">}</span> \
-  -etcd-prefix<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}</span><span class="token punctuation">}</span> \
-  <span class="token string">"<span class="token variable">$@</span>"</span>
-</pre>
 
       </div>
       <div class="md-sidebar-toc"><ul>
@@ -740,6 +1498,13 @@ systemctl start docker
 <li><a href="#get-start">Get Start</a><br>
 * <a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a><br>
 * <a href="#architecture">Architecture</a><br>
+* <a href="#%E5%91%BD%E4%BB%A4">命令</a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4">主要步骤</a><br>
+* <a href="#%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">启动集群主机</a><br>
+* <a href="#%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">系统环境准备</a><br>
+* <a href="#etcd-flannel-docker">etcd flannel docker</a><br>
+* <a href="#kubernetes">Kubernetes</a></li>
+<li><a href="#misc">Misc</a><br>
 * <a href="#usage">Usage</a><br>
 * <a href="#support-addon">Support Addon</a><br>
 * <a href="#setup">Setup</a><br>
@@ -748,11 +1513,26 @@ systemctl start docker
 <li><a href="#service-mesh">Service Mesh</a></li>
 <li><a href="#operation">Operation</a><br>
 * <a href="#note">Note</a></li>
-<li><a href="#reference">Reference</a><br>
-* <a href="#vagrantfile">Vagrantfile</a><br>
-* <a href="#provisionsh">provision.sh</a><br>
+<li><a href="#kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</a><br>
 * <a href="#etcd">etcd</a><br>
-* <a href="#flanneld">flanneld</a></li>
+* <a href="#flanneld">flanneld</a><br>
+* <a href="#kubernetes-overview">Kubernetes overview</a><br>
+* <a href="#kubernetes-config">Kubernetes config</a><br>
+* <a href="#kubernetes-apiserver">Kubernetes apiserver</a><br>
+* <a href="#kubernetes-controller-manager">Kubernetes controller-manager</a><br>
+* <a href="#kubernetes-scheduler">Kubernetes scheduler</a><br>
+* <a href="#kubernetes-kube-proxy">Kubernetes kube-proxy</a><br>
+* <a href="#kubernetes-kubelet">Kubernetes kubelet</a><br>
+* <a href="#kubernetes-misc">Kubernetes misc</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</a><br>
+* <a href="#tls-bootstrapping-token">TLS Bootstrapping Token</a><br>
+* <a href="#kubeconfig">kubeconfig</a><br>
+* <a href="#bootstrapping">bootstrapping</a><br>
+* <a href="#kube-proxy">kube-proxy</a><br>
+* <a href="#scheduler">scheduler</a></li>
+<li><a href="#file-list">File List</a><br>
+* <a href="#vagrantfile">Vagrantfile</a><br>
+* <a href="#provisionsh">provision.sh</a></li>
 </ul>
 </li>
 </ul>

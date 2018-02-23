@@ -29,7 +29,13 @@ Vagrant.configure("2") do |config|
         vb.name = "node#{i}"
       end
 
-      node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]
+      # node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]
+      node.vm.provision :shell, :path => "provision-init.sh"
+      node.vm.provision :shell, :path => "provision-docker-install.sh"
+      node.vm.provision :shell, :path => "provision-etcd.sh", :args => [i, ip, $etcd_cluster]
+      node.vm.provision :shell, :path => "provision-flannel.sh"
+      node.vm.provision :shell, :path => "provision-docker-start.sh"
+      node.vm.provision :shell, :path => "provision-kubernetes.sh", :args => [i, ip, $etcd_cluster]
     end  
   end
 end

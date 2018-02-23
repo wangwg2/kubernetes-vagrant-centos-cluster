@@ -1,5 +1,6 @@
 ## Setting up a kubernetes cluster with Vagrant and Virtualbox
 * [在CentOS上部署kubernetes集群](https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html)
+* [和我一步步部署 kubernetes 集群](https://www.gitbook.com/book/opsnull/follow-me-install-kubernetes-cluster/details)
 * [rootsongjc/kubernetes-vagrant-centos-cluster](https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster)
 * [wangwg2/kubernetes-vagrant-centos-cluster](https://github.com/wangwg2/kubernetes-vagrant-centos-cluster)
 * [etcd](https://coreos.com/etcd/docs/latest/)
@@ -33,6 +34,57 @@ Because I want to setup the etcd, apiserver, controller, scheduler without docke
 * Kubernetes 服务网络（Service CIDR）：部署前路由不可达，部署后集群内使用 IP:Port 可达
   `10.254.0.0/16`
 
+###### 命令
+```bash
+## 验证 master 节点功能
+kubectl get componentstatuses
+
+## node 验证测试
+kubectl run nginx --replicas=2 --labels="run=load-balancer-example" --image=nginx:1.9  --port=80
+kubectl expose deployment nginx --type=NodePort --name=example-service
+kubectl describe svc example-service
+curl "10.254.62.207:80"
+```
+
+
+### 主要步骤
+###### 启动集群主机
+启动集群主机： `node1`，`node2`，`node3`
+`Vagrantfile`
+@import "Vagrantfile" {as=ruby}
+
+###### 系统环境准备
+* 修改时区
+* 添加软件源，安装 `wget` `curl` `conntrack-tools` `vim` `net-tools`
+* 关闭 `selinux`
+* 调整 `iptable` 内核参数
+* 设置 `/etc/hosts`
+* 关闭 swap
+
+`provision-init.sh`
+@import "./provision-init.sh"
+
+###### etcd flannel docker
+* 创建用户组 docker，安装 docker, 添加镜像加速
+* 安装/设置/启动 etcd
+* 安装/设置/启动 etcd
+* 启动 docker
+
+`provision-docker-install.sh`
+@import "./provision-docker-install.sh"
+`provision-etcd.sh`
+@import "./provision-etcd.sh"
+`provision-flannel.sh`
+@import "./provision-flannel.sh"
+`provision-docker-start.sh`
+@import "./provision-docker-start.sh"
+
+###### Kubernetes
+`provision-kubenetes.sh`
+@import "./provision-kubenetes.sh"
+
+
+### Misc
 ###### Usage
 安装完成后的集群包含以下组件：
 * flannel（host-gw模式）
@@ -168,18 +220,10 @@ rm -rf .vagrant
 ###### Note
 Don't use it in production environment.
 
-### Reference
+### Kubernetes 主要组件
 * [Kubernetes Handbook - jimmysong.io](https://jimmysong.io/kubernetes-handbook/)
 * [duffqiu/centos-vagrant](https://github.com/duffqiu/centos-vagrant)
 * [kubernetes ipvs](https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs)
-
-
-###### Vagrantfile
-@import "Vagrantfile" {as=ruby}
-
-###### provision.sh
-@import "provision.sh"
-
 
 ###### etcd
 集群指南 [Clustering Guide](https://coreos.com/etcd/docs/latest/op-guide/clustering.html)
@@ -193,28 +237,6 @@ etcd 参数说明
 * `--advertise-client-urls` 告知客户端url, 也就是服务的url
 * `--initial-cluster-token` 集群的ID
 * `--initial-cluster` 集群中所有节点
-
-etcd.service
-```ini
-# /usr/lib/systemd/system/etcd.service
-[Unit]
-Description=Etcd Server
-After=network.target
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=notify
-WorkingDirectory=/var/lib/etcd/
-EnvironmentFile=-/etc/etcd/etcd.conf
-User=etcd
-ExecStart=/usr/bin/etcd --name $ETCD_NAME --data-dir=$ETCD_DATA_DIR --listen-client-urls $ETCD_LISTEN_CLIENT_URLS --advertise-client-urls $ETCD_ADVERTISE_CLIENT_URLS
-Restart=on-failure
-LimitNOFILE=65536
-
-[Install]
-WantedBy=multi-user.target
-```
 
 /etc/etcd/etcd.conf
 ```ini
@@ -232,10 +254,25 @@ ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
 ETCD_INITIAL_CLUSTER_STATE="new"
 ```
 
+/usr/lib/systemd/system/etcd.service
+@import "systemd/etcd.service" {as=ini}
+
 ###### flanneld
-flanneld.service
+/etc/sysconfig/flanneld
 ```ini
-# /usr/lib/systemd/system/flanneld.service
+# Flanneld configuration options
+FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
+FLANNEL_ETCD_PREFIX="/kube-centos/network"
+FLANNEL_OPTIONS="-iface=eth2"
+```
+
+/etc/sysconfig/docker-network
+```ini
+DOCKER_NETWORK_OPTIONS=
+```
+
+/usr/lib/systemd/system/flanneld.service
+```ini
 [Unit]
 Description=Flanneld overlay address etcd agent
 After=network.target
@@ -256,21 +293,10 @@ Restart=on-failure
 WantedBy=multi-user.target
 RequiredBy=docker.service
 ```
-/etc/sysconfig/flanneld
-```ini
-# Flanneld configuration options
-FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
-FLANNEL_ETCD_PREFIX="/kube-centos/network"
-FLANNEL_OPTIONS="-iface=eth2"
-```
+
 >**Tips**
 >`FLANNEL_OPTIONS="-iface=eth2"`
 
-/etc/sysconfig/docker-network
-```ini
-# /etc/sysconfig/docker-network
-DOCKER_NETWORK_OPTIONS=
-```
 /usr/bin/flanneld-start
 ```bash
 #!/bin/sh
@@ -279,6 +305,93 @@ exec /usr/bin/flanneld \
   -etcd-prefix=${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}} \
   "$@"
 ```
+
+###### Kubernetes overview
+```yaml
+## /etc/kubernetes/ssl (来自 /pki)
+ca-key.pem          ca.pem  
+admin-key.pem       admin.pem
+kubelet.crt         kubelet.key  
+kube-proxy-key.pem  kube-proxy.pem  
+kubernetes-key.pem  kubernetes.pem  
+scheduler-key.pem   scheduler.pem
+
+## /etc/kubernetes (来自 /conf)
+token.csv
+bootstrap.kubeconfig
+kube-proxy.kubeconfig
+kubelet.kubeconfig
+config
+apiserver
+controller-manager
+scheduler
+
+## ~/.kube/config (来自 /conf/admin.kubeconfig)
+~/.kube/config
+
+## /usr/lib/systemd/system (来自 /systemd)
+kube-apiserver.service
+kube-controller-manager.service
+kube-scheduler.service
+kubelet.service
+kube-proxy.service
+```
+
+###### Kubernetes config
+/etc/kubernetes/config
+这个配置文件同时被`kube-apiserver`、`kube-controller-manager`、`kube-scheduler`、`kubelet`、`kube-proxy`使用。
+@import "conf/config" {as=ini}
+
+###### Kubernetes apiserver 
+/etc/kubernetes/apiserver
+@import "conf/apiserver" {as=ini}
+/usr/lib/systemd/system/kube-apiserver.service
+@import "systemd/kube-apiserver.service" {as=ini}
+
+###### Kubernetes controller-manager 
+/etc/kubernetes/controller-manager
+@import "conf/controller-manager" {as=ini}
+/usr/lib/systemd/system/kube-controller-manager.service
+@import "systemd/kube-controller-manager.service" {as=ini}
+
+###### Kubernetes scheduler
+/etc/kubernetes/scheduler
+@import "conf/scheduler" {as=ini}
+/usr/lib/systemd/system/kube-scheduler.service
+@import "systemd/kube-scheduler.service" {as=ini}
+
+###### Kubernetes kube-proxy 
+/etc/kubernetes/proxy
+@import "node1/proxy" {as=ini}
+/usr/lib/systemd/system/kube-proxy.service
+@import "systemd/kube-proxy.service" {as=ini}
+
+###### Kubernetes kubelet 
+/etc/kubernetes/kubelet
+@import "node1/kubelet" {as=ini}
+/usr/lib/systemd/system/kubelet.service
+@import "systemd/kubelet.service" {as=ini}
+
+###### Kubernetes misc
+coredns / dashboard
+```bash
+echo "deploy coredns"
+cd /vagrant/addon/dns/
+./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 | kubectl apply -f -
+cd -
+
+echo "deploy kubernetes dashboard"
+kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+echo "create admin role token"
+kubectl apply -f /vagrant/yaml/admin-role.yaml
+echo "the admin role token is:"
+kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
+echo "login to dashboard with the above token"
+echo https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o=jsonpath='{.spec.ports[0].port}'`
+echo "install traefik ingress controller"
+kubectl apply -f /vagrant/addon/traefik-ingress/
+```
+
 
 
 ### 创建 kubeconfig 文件
@@ -289,12 +402,20 @@ exec /usr/bin/flanneld \
 使用kubeconfig文件来组织关于集群，用户，名称空间和身份验证机制的信息。`kubectl`命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。
 用于配置对群集的访问的文件称为 `kubeconfig` 文件。这是引用配置文件的通用方式。这并不意味着有一个名为的文件kubeconfig。
 默认情况下，kubectl 在 `$HOME/.kube` 目录中查找指定config的文件。您可以通过设置 `KUBECONFIG` 环境变量或设置 `--kubeconfig` 标志来指定其他kubeconfig文件。
-
 * 支持多个群集，用户和认证机制
 * 每个上下文有三个参数：集群，命名空间和用户。
 
+文件清单
+```yaml
+admin.kubeconfig          # (~/.kube/config) 
+kubelet.kubeconfig        # (同 admin.kubeconfig)
+bootstrap.kubeconfig
+kube-proxy.kubeconfig
+scheduler.kubeconfig
+```
 
-###### 创建 TLS Bootstrapping Token
+###### TLS Bootstrapping Token
+创建 TLS Bootstrapping Token (`token.csv`)
 ```bash
 export BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')
 cat > token.csv <<EOF
@@ -302,7 +423,8 @@ ${BOOTSTRAP_TOKEN},kubelet-bootstrap,10001,"system:kubelet-bootstrap"
 EOF
 ```
 
-###### 创建 kubectl kubeconfig 文件
+###### kubeconfig
+创建 kubectl kubeconfig 文件 (`admin.kubeconfig`、`kubelet.kubeconfig`，`~/.kube/config`)
 生成的 `kubeconfig` 被保存到 `~/.kube/config` 文件；
 ```bash
 export KUBE_APISERVER="https://192.168.99.91:6443"
@@ -324,7 +446,8 @@ kubectl config set-context kubernetes \
 kubectl config use-context kubernetes
 ```
 
-###### 创建 kubelet bootstrapping kubeconfig 文件
+###### bootstrapping
+创建 kubelet bootstrapping kubeconfig 文件 (`bootstrap.kubeconfig`)
 ```bash
 cd /etc/kubernetes
 export BOOTSTRAP_TOKEN="9c64d78dbd5afd42316e32d922e2da47"
@@ -348,7 +471,8 @@ kubectl config set-context default \
 kubectl config use-context default --kubeconfig=bootstrap.kubeconfig
 ```
 
-###### 创建 kube-proxy kubeconfig 文件
+###### kube-proxy 
+创建 kube-proxy kubeconfig 文件 (`kube-proxy.kubeconfig`)
 ```bash
 export KUBE_APISERVER="https://192.168.99.91:6443"
 # 设置集群参数
@@ -372,7 +496,8 @@ kubectl config set-context default \
 kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 ```
 
-###### 创建 scheduler kubeconfig 文件
+###### scheduler 
+创建 scheduler kubeconfig 文件 (`scheduler.conf`)
 ```bash
 export KUBE_APISERVER="https://192.168.99.91:6443"
 # 设置集群参数
@@ -395,3 +520,11 @@ kubectl config set-context system:kube-scheduler@kubernetes \
 # 设置默认上下文
 kubectl config use-context system:kube-scheduler@kubernetes --kubeconfig=scheduler.conf
 ```
+
+
+### File List
+###### Vagrantfile
+@import "Vagrantfile" {as=ruby}
+
+###### provision.sh
+@import "provision.sh"
