@@ -14,8 +14,10 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = "node#{i}"
       ip = "192.168.99.#{i+90}"
       node.vm.network "private_network", ip: ip
-      # node.vm.network "public_network"
-      node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true
+      node.vm.network "public_network"
+      # node.vm.network "public_network", bridge: "Killer Wireless-n/a/ac 1535 Wireless Network Adapter"
+      # node.vm.network "public_network", bridge: "Intel(R) Dual Band Wireless-AC 7265"  
+      # node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true
       #node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"
 
       config.ssh.insert_key = false
