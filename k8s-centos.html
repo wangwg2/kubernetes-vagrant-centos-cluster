@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
-      <link rel="stylesheet" href="file:///C:\Users\wangwg2\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      <link rel="stylesheet" href="file:///C:\Users\wangw\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
       
       
       
@@ -221,7 +221,7 @@ html body h6 {
 }
 html body pre,
 html body code {
-  font-family: "Microsoft YaHei Mono", "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
+  font-family: "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
 }
  
       </style>
@@ -235,10 +235,7 @@ html body code {
 <li><a href="https://www.gitbook.com/book/opsnull/follow-me-install-kubernetes-cluster/details">和我一步步部署 kubernetes 集群</a></li>
 <li><a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">rootsongjc/kubernetes-vagrant-centos-cluster</a></li>
 <li><a href="https://github.com/wangwg2/kubernetes-vagrant-centos-cluster">wangwg2/kubernetes-vagrant-centos-cluster</a></li>
-<li><a href="https://coreos.com/etcd/docs/latest/">etcd</a></li>
-<li><a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">etcd：Clustering Guide</a></li>
-<li><a href="http://www.infoq.com/cn/articles/etcd-interpretation-application-scenario-implement-principle">etcd：从应用场景到实现原理的全方位解读</a></li>
-<li><a href="http://www.cnblogs.com/breg/p/5728237.html">etcd集群部署与遇到的坑</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/">etcd documents</a></li>
 <li><a href="https://coreos.com/flannel/docs/latest/">flannel</a></li>
 <li><a href="http://www.cnblogs.com/xuxinkun/p/5696031.html">浅析flannel与docker结合的机制和原理</a></li>
 <li><a href="http://dockone.io/article/618">DockOne技术分享（十八）：一篇文章带你了解Flannel</a></li>
@@ -250,7 +247,7 @@ You don't have to create complicated ca files or configuration.</p>
 <h6 class="mume-header" id="why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</h6>
 
 <p>Because I want to setup the etcd, apiserver, controller, scheduler without docker container.</p>
-<h6 class="mume-header" id="architecture">Architecture</h6>
+<h6 class="mume-header" id="%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">集群主机</h6>
 
 <table>
 <thead>
@@ -280,21 +277,46 @@ You don't have to create complicated ca files or configuration.</p>
 </table>
 <p>以上的IP、主机名和组件都是固定在这些节点的，即使销毁后下次使用vagrant重建依然保持不变。<br>
 节点网络IP: <code>192.168.99.91 ~ 192.168.99.93</code>，公有网络IP由宿主机DHCP分配。</p>
-<ul>
-<li>NODE 网络：集群主机网段。<br>
-<code>192.168.99.91-93</code></li>
-<li>容器IP / POD 网络（Cluster CIDR）：部署前路由不可达，部署后路由可达 (flanneld 保证)<br>
-<code>170.33.0.0/16</code></li>
-<li>Kubernetes 服务网络（Service CIDR）：部署前路由不可达，部署后集群内使用 IP:Port 可达<br>
-<code>10.254.0.0/16</code></li>
-</ul>
+<h6 class="mume-header" id="%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</h6>
+
+<pre class="language-bash"><span class="token comment" spellcheck="true"># TLS Bootstrapping 使用的 Token，可以使用命令 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成</span>
+BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token string">"9c64d78dbd5afd42316e32d922e2da47"</span>
+
+<span class="token comment" spellcheck="true"># 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达</span>
+<span class="token comment" spellcheck="true">## kube-apiserver --service-cluster-ip-range=10.254.0.0/16</span>
+<span class="token comment" spellcheck="true">## kube-controller-manager --service-cluster-ip-range=10.254.0.0/16</span>
+SERVICE_CIDR<span class="token operator">=</span><span class="token string">"10.254.0.0/16"</span>
+
+<span class="token comment" spellcheck="true"># POD 网段 (Cluster CIDR），部署前路由不可达，部署后路由可达 (flanneld 保证)  (容器 IP)</span>
+CLUSTER_CIDR<span class="token operator">=</span><span class="token string">"172.33.0.0/16"</span>
+
+<span class="token comment" spellcheck="true"># 服务端口范围 (NodePort Range)</span>
+<span class="token comment" spellcheck="true"># kube-apiserver --service-node-port-range=30000-32767</span>
+NODE_PORT_RANGE<span class="token operator">=</span><span class="token string">"30000-32767"</span>
+
+<span class="token comment" spellcheck="true"># etcd 集群服务地址列表</span>
+ETCD_ENDPOINTS<span class="token operator">=</span><span class="token string">"https://192.168.99.91:2379"</span>
+<span class="token comment" spellcheck="true"># ETCD_ENDPOINTS="https://192.168.99.91:2379,https://192.168.99.92:2379,https://192.168.99.93:2379"</span>
+
+<span class="token comment" spellcheck="true"># flanneld 网络配置前缀</span>
+FLANNEL_ETCD_PREFIX<span class="token operator">=</span><span class="token string">"/kube-centos/network"</span>
+
+<span class="token comment" spellcheck="true"># kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)</span>
+CLUSTER_KUBERNETES_SVC_IP<span class="token operator">=</span><span class="token string">"10.254.0.1"</span>
+
+<span class="token comment" spellcheck="true"># 集群 DNS 服务 IP (从 SERVICE_CIDR 中预分配)</span>
+CLUSTER_DNS_SVC_IP<span class="token operator">=</span><span class="token string">"10.254.0.2"</span>
+
+<span class="token comment" spellcheck="true"># 集群 DNS 域名</span>
+CLUSTER_DNS_DOMAIN<span class="token operator">=</span><span class="token string">"cluster.local."</span>
+</pre>
 <h6 class="mume-header" id="%E5%91%BD%E4%BB%A4">命令</h6>
 
 <pre class="language-bash"><span class="token comment" spellcheck="true">## 验证 master 节点功能</span>
 kubectl get componentstatuses
 
 <span class="token comment" spellcheck="true">## node 验证测试</span>
-kubectl run nginx --replicas<span class="token operator">=</span>2 --labels<span class="token operator">=</span><span class="token string">"run=load-balancer-example"</span> --image<span class="token operator">=</span>nginx:1.9  --port<span class="token operator">=</span>80
+kubectl run nginx --replicas<span class="token operator">=</span>2 --labels<span class="token operator">=</span><span class="token string">"run=load-balancer-example"</span> --image<span class="token operator">=</span>nginx:1.9 --port<span class="token operator">=</span>80
 kubectl expose deployment nginx --type<span class="token operator">=</span>NodePort --name<span class="token operator">=</span>example-service
 kubectl describe svc example-service
 curl <span class="token string">"10.254.62.207:80"</span>
@@ -474,6 +496,7 @@ EOF</span>
   systemctl <span class="token function">enable</span> etcd
   systemctl start etcd
 
+  <span class="token comment" spellcheck="true">## POD 网段 (Cluster CIDR），部署前路由不可达，部署后路由可达 (flanneld 保证) </span>
   <span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
   etcdctl cluster-health
   etcdctl <span class="token function">mkdir</span> /kube-centos/network
@@ -725,26 +748,38 @@ Clean up the VMs.</p>
 <h6 class="mume-header" id="note">Note</h6>
 
 <p>Don't use it in production environment.</p>
-<h3 class="mume-header" id="kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</h3>
+<h3 class="mume-header" id="etcd">etcd</h3>
 
 <ul>
-<li><a href="https://jimmysong.io/kubernetes-handbook/">Kubernetes Handbook - jimmysong.io</a></li>
-<li><a href="https://github.com/duffqiu/centos-vagrant">duffqiu/centos-vagrant</a></li>
-<li><a href="https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs">kubernetes ipvs</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">etcd: Clustering Guide</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/op-guide/configuration.html">etcd: Configuration flags</a></li>
+<li><a href="https://github.com/doczhcn/etcd">Etcd官方文档中文版</a></li>
+<li><a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">etcd：Clustering Guide</a></li>
+<li><a href="http://www.infoq.com/cn/articles/etcd-interpretation-application-scenario-implement-principle">etcd：从应用场景到实现原理的全方位解读</a></li>
+<li><a href="http://www.cnblogs.com/breg/p/5728237.html">etcd集群部署与遇到的坑</a></li>
 </ul>
-<h6 class="mume-header" id="etcd">etcd</h6>
-
-<p>集群指南 <a href="https://coreos.com/etcd/docs/latest/op-guide/clustering.html">Clustering Guide</a></p>
+<p>etcd 可以通过命令行标记和环境变量来配置。命令行上设置的选项优先于环境变量。<br>
+对于标记 <code>--my-flag</code> 环境变量的格式是 <code>ETCD_MY_FLAG</code>。 如 <code>--name</code> 对应环境变量： <code>ETCD_NAME</code>。</p>
+<p>正式的ectd端口 是 <code>2379</code> 用于客户端连接，而 <code>2380</code> 用于伙伴通讯。etcd 端口可以设置为接受 TLS 通讯，non-TLS 通讯，或者同时有 TLS 和 non-TLS 通讯。</p>
+<p>为了在 linux 启动试使用自定义设置自动启动 etcd ，强烈推荐使用 <code>systemd</code> 单元。</p>
 <p>etcd 参数说明</p>
 <ul>
-<li><code>--data-dir</code> 指定节点的数据存储目录，这些数据包括节点ID，集群ID，集群初始化配置，Snapshot文件，若未指定 <code>--wal-dir</code>，还会存储WAL文件；</li>
-<li><code>--wal-dir</code> 指定节点的was文件的存储目录，若指定了该参数，wal文件会和其他数据文件分开存储。</li>
-<li><code>--name</code> 节点名称</li>
-<li><code>--initial-advertise-peer-urls</code> 告知集群其他节点url.</li>
-<li><code>--listen-peer-urls</code> 监听URL，用于与其他节点通讯</li>
-<li><code>--advertise-client-urls</code> 告知客户端url, 也就是服务的url</li>
+<li><code>--name</code> 成员的可读性的名字.</li>
+<li><code>--data-dir</code> 数据目录路径；</li>
+<li><code>--wal-dir</code> 专用wal目录路径，若指定了该参数，wal文件会和其他数据文件分开存储。</li>
+<li><code>--listen-peer-urls</code> 用于监听其他成员通讯的 peer URL<br>
+default: &quot;<code>http://localhost:2380</code>&quot;</li>
+<li><code>--listen-client-urls</code> 用于监听客户端通讯的 client URL列表。</li>
+<li><code>--advertise-client-urls</code> 列出这个成员的 client URL，通告给集群中的其他成员。<br>
+default: &quot;<code>http://localhost:2379</code>&quot;</li>
+<li><code>--initial-advertise-peer-urls</code> 列出这个成员的 peer URL 以便通告给集群的其他成员。</li>
 <li><code>--initial-cluster-token</code> 集群的ID</li>
-<li><code>--initial-cluster</code> 集群中所有节点</li>
+<li><code>--initial-cluster</code> 为启动初始化集群配置。<br>
+example: <code>--initial-cluster node1=http://10.0.1.10:2380,node2=http://10.0.1.11:2380,node3=http://10.0.1.12:2380</code></li>
+<li><code>--discovery</code> 用于启动集群的发现URL。默认: <code>none</code></li>
+<li><code>--initial-cluster-state</code> 初始化集群状态(&quot;new&quot; or &quot;existing&quot;)。<br>
+在初始化静态(initial static)或者 DNS 启动 (DNS bootstrapping) 期间为所有成员设置为 <code>new</code>。<br>
+如果这个选项被设置为 <code>existing</code>, etcd 将试图加入已有的集群。如果设置为错误的值，etcd 将尝试启动但安全失败。</li>
 </ul>
 <p>/etc/etcd/etcd.conf</p>
 <pre class="language-ini">#[Member]
@@ -780,7 +815,15 @@ Clean up the VMs.</p>
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
 
 </pre>
-<h6 class="mume-header" id="flanneld">flanneld</h6>
+<h3 class="mume-header" id="flanneld">flanneld</h3>
+
+<ul>
+<li><a href="https://coreos.com/flannel/docs/latest/">flannel</a></li>
+<li><a href="http://www.cnblogs.com/xuxinkun/p/5696031.html">浅析flannel与docker结合的机制和原理</a></li>
+<li><a href="http://dockone.io/article/618">DockOne技术分享（十八）：一篇文章带你了解Flannel</a></li>
+</ul>
+<p>所有的node节点都需要安装网络插件才能让所有的Pod加入到同一个局域网中。</p>
+<h6 class="mume-header" id="flannel-%E9%85%8D%E7%BD%AE">flannel 配置</h6>
 
 <p>/etc/sysconfig/flanneld</p>
 <pre class="language-ini"># Flanneld configuration options
@@ -823,6 +866,39 @@ Clean up the VMs.</p>
   -etcd-prefix<span class="token operator">=</span><span class="token variable">${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}</span><span class="token punctuation">}</span> \
   <span class="token string">"<span class="token variable">$@</span>"</span>
 </pre>
+<h6 class="mume-header" id="%E5%90%91-etcd-%E5%86%99%E5%85%A5%E9%9B%86%E7%BE%A4-pod-%E7%BD%91%E6%AE%B5%E4%BF%A1%E6%81%AF">向 etcd 写入集群 Pod 网段信息</h6>
+
+<p>在etcd中创建网络配置，docker分配IP地址段。（子网IP范围：172.33.0.0）<br>
+本步骤只需在第一次部署 Flannel 网络时执行，后续在其它节点上部署 Flannel 时无需再写入该信息！</p>
+<p><code>provision-etcd.sh</code> []</p>
+<pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
+etcdctl cluster-health
+etcdctl <span class="token function">mkdir</span> /kube-centos/network
+etcdctl mk /kube-centos/network/config <span class="token string">'{"Network":"172.33.0.0/16","SubnetLen":24,"Backend":{"Type":"host-gw"}}'</span>
+</pre>
+<p><code>etcdctl</code> 命令写入。环境变量：<code>ETCD_ENDPOINTS</code>,<code>FLANNEL_ETCD_PREFIX</code>,<code>CLUSTER_CIDR</code>,</p>
+<pre class="language-bash">etcdctl --endpoints<span class="token operator">=</span><span class="token variable">${ETCD_ENDPOINTS}</span> <span class="token keyword">set</span> <span class="token variable">${FLANNEL_ETCD_PREFIX}</span>/config \
+  <span class="token string">'{"Network":"'</span><span class="token variable">${CLUSTER_CIDR}</span><span class="token string">'", "SubnetLen": 24, "Backend": {"Type": "host-gw"}}'</span>
+</pre>
+<h6 class="mume-header" id="%E5%90%AF%E5%8A%A8-flannel">启动 flannel</h6>
+
+<pre class="language-">systemctl daemon-reload
+systemctl enable flanneld
+systemctl start flanneld
+systemctl status flanneld
+</pre>
+<h6 class="mume-header" id="%E6%9F%A5%E8%AF%A2-flannel-%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF">查询 flannel 网络信息</h6>
+
+<p><code>etcdctl --endpoints=${ETCD_ENDPOINTS} ls ${FLANNEL_ETCD_PREFIX}/subnets</code><br>
+<code>etcdctl ls /kube-centos/network/subnets</code><br>
+可在各节点查询子网网关，确认能ping通。</p>
+<h3 class="mume-header" id="kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</h3>
+
+<ul>
+<li><a href="https://jimmysong.io/kubernetes-handbook/">Kubernetes Handbook - jimmysong.io</a></li>
+<li><a href="https://github.com/duffqiu/centos-vagrant">duffqiu/centos-vagrant</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/tree/master/pkg/proxy/ipvs">kubernetes ipvs</a></li>
+</ul>
 <h6 class="mume-header" id="kubernetes-overview">Kubernetes overview</h6>
 
 <pre class="language-yaml"><span class="token comment" spellcheck="true">## /etc/kubernetes/ssl (来自 /pki)</span>
@@ -857,59 +933,60 @@ kube<span class="token punctuation">-</span>proxy.service
 
 <p>/etc/kubernetes/config<br>
 这个配置文件同时被<code>kube-apiserver</code>、<code>kube-controller-manager</code>、<code>kube-scheduler</code>、<code>kubelet</code>、<code>kube-proxy</code>使用。</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-# kubernetes system config
-#
-# The following values are used to configure various aspects of all
-# kubernetes services, including
-#
-#   kube-apiserver.service
-#   kube-controller-manager.service
-#   kube-scheduler.service
-#   kubelet.service
-#   kube-proxy.service
-# logging to stderr means we get it in the systemd journal
-<span class="token constant">KUBE_LOGTOSTDERR</span><span class="token attr-value"><span class="token punctuation">=</span>"--logtostderr=true"</span>
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true"># kubernetes system config</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># The following values are used to configure various aspects of all</span>
+<span class="token comment" spellcheck="true"># kubernetes services, including</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">#   kube-apiserver.service</span>
+<span class="token comment" spellcheck="true">#   kube-controller-manager.service</span>
+<span class="token comment" spellcheck="true">#   kube-scheduler.service</span>
+<span class="token comment" spellcheck="true">#   kubelet.service</span>
+<span class="token comment" spellcheck="true">#   kube-proxy.service</span>
+<span class="token comment" spellcheck="true"># logging to stderr means we get it in the systemd journal</span>
+KUBE_LOGTOSTDERR<span class="token operator">=</span><span class="token string">"--logtostderr=true"</span>
 
-# journal message level, 0 is debug
-<span class="token constant">KUBE_LOG_LEVEL</span><span class="token attr-value"><span class="token punctuation">=</span>"--v=0"</span>
+<span class="token comment" spellcheck="true"># journal message level, 0 is debug</span>
+KUBE_LOG_LEVEL<span class="token operator">=</span><span class="token string">"--v=0"</span>
 
-# Should this cluster be allowed to run privileged docker containers
-<span class="token constant">KUBE_ALLOW_PRIV</span><span class="token attr-value"><span class="token punctuation">=</span>"--allow-privileged=true"</span>
+<span class="token comment" spellcheck="true"># Should this cluster be allowed to run privileged docker containers</span>
+KUBE_ALLOW_PRIV<span class="token operator">=</span><span class="token string">"--allow-privileged=true"</span>
 
-# How the controller-manager, scheduler, and proxy find the apiserver
-<span class="token constant">KUBE_MASTER</span><span class="token attr-value"><span class="token punctuation">=</span>"--master=http://192.168.99.91:8080"</span>
+<span class="token comment" spellcheck="true"># How the controller-manager, scheduler, and proxy find the apiserver</span>
+KUBE_MASTER<span class="token operator">=</span><span class="token string">"--master=http://192.168.99.91:8080"</span>
 
 </pre>
 <h6 class="mume-header" id="kubernetes-apiserver">Kubernetes apiserver</h6>
 
 <p>/etc/kubernetes/apiserver</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-## kubernetes system config
-##
-## The following values are used to configure the kube-apiserver
-##
-#
-## The address on the local server to listen to.
-<span class="token constant">KUBE_API_ADDRESS</span><span class="token attr-value"><span class="token punctuation">=</span>"--advertise-address=192.168.99.91 --bind-address=192.168.99.91 --insecure-bind-address=192.168.99.91"</span>
-#
-## The port on the local server to listen on.
-<span class="token constant">#KUBE_API_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--port=8080"</span>
-#
-## Port minions listen on
-<span class="token constant">#KUBELET_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--kubelet-port=10250"</span>
-#
-## Comma separated list of nodes in the etcd cluster
-<span class="token constant">KUBE_ETCD_SERVERS</span><span class="token attr-value"><span class="token punctuation">=</span>"--etcd-servers=http://192.168.99.91:2379,http://192.168.99.92:2379,http://192.168.99.93:2379"</span>
-#
-## Address range to use for services
-<span class="token constant">KUBE_SERVICE_ADDRESSES</span><span class="token attr-value"><span class="token punctuation">=</span>"--service-cluster-ip-range=10.254.0.0/16"</span>
-#
-## default admission control policies
-<span class="token constant">KUBE_ADMISSION_CONTROL</span><span class="token attr-value"><span class="token punctuation">=</span>"--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"</span>
-#
-## Add your own!
-<span class="token constant">KUBE_API_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--authorization-mode=Node,RBAC --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true">## kubernetes system config</span>
+<span class="token comment" spellcheck="true">##</span>
+<span class="token comment" spellcheck="true">## The following values are used to configure the kube-apiserver</span>
+<span class="token comment" spellcheck="true">##</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## The address on the local server to listen to.</span>
+KUBE_API_ADDRESS<span class="token operator">=</span><span class="token string">"--advertise-address=192.168.99.91 --bind-address=192.168.99.91 --insecure-bind-address=192.168.99.91"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## The port on the local server to listen on.</span>
+<span class="token comment" spellcheck="true"># KUBE_API_PORT="--port=8080"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## Port minions listen on</span>
+<span class="token comment" spellcheck="true"># KUBELET_PORT="--kubelet-port=10250"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## Comma separated list of nodes in the etcd cluster</span>
+<span class="token comment" spellcheck="true"># KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.99.91:2379,http://192.168.99.92:2379,http://192.168.99.93:2379"</span>
+KUBE_ETCD_SERVERS<span class="token operator">=</span><span class="token string">"--etcd-servers=http://192.168.99.91:2379"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## Address range to use for services</span>
+KUBE_SERVICE_ADDRESSES<span class="token operator">=</span><span class="token string">"--service-cluster-ip-range=10.254.0.0/16"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## default admission control policies</span>
+KUBE_ADMISSION_CONTROL<span class="token operator">=</span><span class="token string">"--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## Add your own!</span>
+KUBE_API_ARGS<span class="token operator">=</span><span class="token string">"--authorization-mode=Node,RBAC --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
 
 </pre>
 <p>/usr/lib/systemd/system/kube-apiserver.service</p>
@@ -940,16 +1017,36 @@ kube<span class="token punctuation">-</span>proxy.service
 <span class="token selector">[Install]</span>
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
 </pre>
+<p><code>KUBE_API_ARGS</code></p>
+<pre class="language-">KUBE_API_ARGS=
+  --authorization-mode=Node,RBAC 
+  --runtime-config=rbac.authorization.k8s.io/v1beta1 
+  --kubelet-https=true 
+  --enable-bootstrap-token-auth 
+  --token-auth-file=/etc/kubernetes/token.csv 
+  --service-node-port-range=30000-32767 
+  --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem 
+  --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem 
+  --client-ca-file=/etc/kubernetes/ssl/ca.pem 
+  --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem 
+  --enable-swagger-ui=true 
+  --apiserver-count=3 
+  --audit-log-maxage=30 
+  --audit-log-maxbackup=3 
+  --audit-log-maxsize=100 
+  --audit-log-path=/var/lib/audit.log 
+  --event-ttl=1h --allow-privileged=true&quot;
+</pre>
 <h6 class="mume-header" id="kubernetes-controller-manager">Kubernetes controller-manager</h6>
 
 <p>/etc/kubernetes/controller-manager</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-# The following values are used to configure the kubernetes controller-manager
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true"># The following values are used to configure the kubernetes controller-manager</span>
 
-# defaults from config and apiserver should be adequate
+<span class="token comment" spellcheck="true"># defaults from config and apiserver should be adequate</span>
 
-# Add your own!
-<span class="token constant">KUBE_CONTROLLER_MANAGER_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--address=127.0.0.1 --service-cluster-ip-range=10.254.0.0/16 --cluster-name=kubernetes --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem --root-ca-file=/etc/kubernetes/ssl/ca.pem --leader-elect=true"</span>
+<span class="token comment" spellcheck="true"># Add your own!</span>
+KUBE_CONTROLLER_MANAGER_ARGS<span class="token operator">=</span><span class="token string">"--address=127.0.0.1 --service-cluster-ip-range=10.254.0.0/16 --cluster-name=kubernetes --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem --root-ca-file=/etc/kubernetes/ssl/ca.pem --leader-elect=true"</span>
 </pre>
 <p>/usr/lib/systemd/system/kube-controller-manager.service</p>
 <pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
@@ -971,17 +1068,28 @@ kube<span class="token punctuation">-</span>proxy.service
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
 
 </pre>
+<p><code>KUBE_CONTROLLER_MANAGER_ARGS</code></p>
+<pre class="language-">KUBE_CONTROLLER_MANAGER_ARGS=
+  --address=127.0.0.1 
+  --service-cluster-ip-range=10.254.0.0/16
+  --cluster-name=kubernetes
+  --cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem
+  --cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem
+  --service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem
+  --root-ca-file=/etc/kubernetes/ssl/ca.pem
+  --leader-elect=true
+</pre>
 <h6 class="mume-header" id="kubernetes-scheduler">Kubernetes scheduler</h6>
 
 <p>/etc/kubernetes/scheduler</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-# kubernetes scheduler config
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true"># kubernetes scheduler config</span>
 
-# default config should be adequate
+<span class="token comment" spellcheck="true"># default config should be adequate</span>
 
-# Add your own!
-<span class="token constant">KUBE_SCHEDULER_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--leader-elect=true --address=127.0.0.1"</span>
-<span class="token constant">KUBE_SCHEDULER_CONF</span><span class="token attr-value"><span class="token punctuation">=</span>"--kubeconfig=/etc/kubernetes/scheduler.conf"</span>
+<span class="token comment" spellcheck="true"># Add your own!</span>
+KUBE_SCHEDULER_ARGS<span class="token operator">=</span><span class="token string">"--leader-elect=true --address=127.0.0.1"</span>
+KUBE_SCHEDULER_CONF<span class="token operator">=</span><span class="token string">"--kubeconfig=/etc/kubernetes/scheduler.conf"</span>
 </pre>
 <p>/usr/lib/systemd/system/kube-scheduler.service</p>
 <pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
@@ -1006,14 +1114,14 @@ kube<span class="token punctuation">-</span>proxy.service
 </pre>
 <h6 class="mume-header" id="kubernetes-kube-proxy">Kubernetes kube-proxy</h6>
 
-<p>/etc/kubernetes/proxy</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-# kubernetes proxy config
+<p>/etc/kubernetes/proxy (node1)</p>
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true"># kubernetes proxy config</span>
 
-# default config should be adequate
+<span class="token comment" spellcheck="true"># default config should be adequate</span>
 
-# Add your own!
-<span class="token constant">KUBE_PROXY_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--bind-address=192.168.99.91 --hostname-override=192.168.99.91 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --cluster-cidr=10.254.0.0/16 --hostname-override=node1"</span>
+<span class="token comment" spellcheck="true"># Add your own!</span>
+KUBE_PROXY_ARGS<span class="token operator">=</span><span class="token string">"--bind-address=192.168.99.91 --hostname-override=192.168.99.91 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig --cluster-cidr=10.254.0.0/16 --hostname-override=node1"</span>
 
 </pre>
 <p>/usr/lib/systemd/system/kube-proxy.service</p>
@@ -1037,30 +1145,38 @@ kube<span class="token punctuation">-</span>proxy.service
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
 
 </pre>
+<p><code>KUBE_PROXY_ARGS</code> (<code>node1</code>)</p>
+<pre class="language-">KUBE_PROXY_ARGS=
+  --bind-address=192.168.99.91 
+  --hostname-override=192.168.99.91 
+  --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig 
+  --cluster-cidr=10.254.0.0/16 
+  --hostname-override=node1
+</pre>
 <h6 class="mume-header" id="kubernetes-kubelet">Kubernetes kubelet</h6>
 
-<p>/etc/kubernetes/kubelet</p>
-<pre class="language-ini {as=&quot;ini&quot;}">###
-## kubernetes kubelet (minion) config
-#
-## The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
-<span class="token constant">KUBELET_ADDRESS</span><span class="token attr-value"><span class="token punctuation">=</span>"--address=192.168.99.91"</span>
-#
-## The port for the info server to serve on
-<span class="token constant">#KUBELET_PORT</span><span class="token attr-value"><span class="token punctuation">=</span>"--port=10250"</span>
-#
-## You may leave this blank to use the actual hostname
-<span class="token constant">KUBELET_HOSTNAME</span><span class="token attr-value"><span class="token punctuation">=</span>"--hostname-override=node1"</span>
-#
-## location of the api-server
-## COMMENT THIS ON KUBERNETES 1.8+
-# KUBELET_API_SERVER<span class="token attr-value"><span class="token punctuation">=</span>"--api-servers=http://172.20.0.113:8080"</span>
-#
-## pod infrastructure container
-<span class="token constant">KUBELET_POD_INFRA_CONTAINER</span><span class="token attr-value"><span class="token punctuation">=</span>"--pod-infra-container-image=docker.io/openshift/origin-pod"</span>
-#
-## Add your own!
-<span class="token constant">KUBELET_ARGS</span><span class="token attr-value"><span class="token punctuation">=</span>"--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice --cgroup-driver=systemd --cluster-dns=10.254.0.2 --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig --kubeconfig=/etc/kubernetes/kubelet.kubeconfig --require-kubeconfig --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --hairpin-mode promiscuous-bridge --serialize-image-pulls=false --allow-privileged=true"</span>
+<p>/etc/kubernetes/kubelet (node1)</p>
+<pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
+<span class="token comment" spellcheck="true">## kubernetes kubelet (minion) config</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)</span>
+KUBELET_ADDRESS<span class="token operator">=</span><span class="token string">"--address=192.168.99.91"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## The port for the info server to serve on</span>
+<span class="token comment" spellcheck="true">#KUBELET_PORT="--port=10250"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## You may leave this blank to use the actual hostname</span>
+KUBELET_HOSTNAME<span class="token operator">=</span><span class="token string">"--hostname-override=node1"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## location of the api-server</span>
+<span class="token comment" spellcheck="true">## COMMENT THIS ON KUBERNETES 1.8+</span>
+<span class="token comment" spellcheck="true"># KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## pod infrastructure container</span>
+KUBELET_POD_INFRA_CONTAINER<span class="token operator">=</span><span class="token string">"--pod-infra-container-image=docker.io/openshift/origin-pod"</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">## Add your own!</span>
+KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice --cgroup-driver=systemd --cluster-dns=10.254.0.2 --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig --kubeconfig=/etc/kubernetes/kubelet.kubeconfig --require-kubeconfig --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --hairpin-mode promiscuous-bridge --serialize-image-pulls=false --allow-privileged=true"</span>
 
 </pre>
 <p>/usr/lib/systemd/system/kubelet.service</p>
@@ -1088,6 +1204,21 @@ kube<span class="token punctuation">-</span>proxy.service
 
 <span class="token selector">[Install]</span>
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
+</pre>
+<p><code>KUBELET_ARGS</code> (<code>node1</code>)</p>
+<pre class="language-">KUBELET_ARGS=
+  --runtime-cgroups=/systemd/system.slice
+  --kubelet-cgroups=/systemd/system.slice
+  --cgroup-driver=systemd 
+  --cluster-dns=10.254.0.2 
+  --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig 
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig 
+  --require-kubeconfig 
+  --cert-dir=/etc/kubernetes/ssl 
+  --cluster-domain=cluster.local 
+  --hairpin-mode promiscuous-bridge 
+  --serialize-image-pulls=false 
+  --allow-privileged=true
 </pre>
 <h6 class="mume-header" id="kubernetes-misc">Kubernetes misc</h6>
 
@@ -1132,7 +1263,8 @@ scheduler.kubeconfig
 <h6 class="mume-header" id="tls-bootstrapping-token">TLS Bootstrapping Token</h6>
 
 <p>创建 TLS Bootstrapping Token (<code>token.csv</code>)</p>
-<pre class="language-bash"><span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token punctuation">$(</span>head -c 16 /dev/urandom <span class="token operator">|</span> od -An -t x <span class="token operator">|</span> <span class="token function">tr</span> -d <span class="token string">' '</span><span class="token punctuation">)</span>
+<pre class="language-bash"><span class="token comment" spellcheck="true"># export BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')</span>
+<span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token string">"9c64d78dbd5afd42316e32d922e2da47"</span>
 <span class="token function">cat</span> <span class="token operator">></span> token.csv <span class="token operator">&lt;&lt;</span><span class="token string">EOF
 <span class="token variable">${BOOTSTRAP_TOKEN}</span>,kubelet-bootstrap,10001,"system:kubelet-bootstrap"
 EOF</span>
@@ -1497,7 +1629,8 @@ systemctl start docker
 <ul>
 <li><a href="#get-start">Get Start</a><br>
 * <a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a><br>
-* <a href="#architecture">Architecture</a><br>
+* <a href="#%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">集群主机</a><br>
+* <a href="#%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</a><br>
 * <a href="#%E5%91%BD%E4%BB%A4">命令</a></li>
 <li><a href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4">主要步骤</a><br>
 * <a href="#%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">启动集群主机</a><br>
@@ -1513,9 +1646,13 @@ systemctl start docker
 <li><a href="#service-mesh">Service Mesh</a></li>
 <li><a href="#operation">Operation</a><br>
 * <a href="#note">Note</a></li>
+<li><a href="#etcd">etcd</a></li>
+<li><a href="#flanneld">flanneld</a><br>
+* <a href="#flannel-%E9%85%8D%E7%BD%AE">flannel 配置</a><br>
+* <a href="#%E5%90%91-etcd-%E5%86%99%E5%85%A5%E9%9B%86%E7%BE%A4-pod-%E7%BD%91%E6%AE%B5%E4%BF%A1%E6%81%AF">向 etcd 写入集群 Pod 网段信息</a><br>
+* <a href="#%E5%90%AF%E5%8A%A8-flannel">启动 flannel</a><br>
+* <a href="#%E6%9F%A5%E8%AF%A2-flannel-%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF">查询 flannel 网络信息</a></li>
 <li><a href="#kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</a><br>
-* <a href="#etcd">etcd</a><br>
-* <a href="#flanneld">flanneld</a><br>
 * <a href="#kubernetes-overview">Kubernetes overview</a><br>
 * <a href="#kubernetes-config">Kubernetes config</a><br>
 * <a href="#kubernetes-apiserver">Kubernetes apiserver</a><br>

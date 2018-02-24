@@ -26,6 +26,7 @@ EOF
   systemctl enable etcd
   systemctl start etcd
 
+  ## POD 网段 (Cluster CIDR），部署前路由不可达，部署后路由可达 (flanneld 保证) 
   echo 'create kubernetes ip range for flannel on 172.33.0.0/16'
   etcdctl cluster-health
   etcdctl mkdir /kube-centos/network
