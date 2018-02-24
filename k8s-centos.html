@@ -1239,6 +1239,190 @@ kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span c
 <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
 kubectl apply -f /vagrant/addon/traefik-ingress/
 </pre>
+<h6 class="mume-header" id="coredns">coredns</h6>
+
+<pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRole
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">kubernetes.io/bootstrapping</span><span class="token punctuation">:</span> rbac<span class="token punctuation">-</span>defaults
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">rules</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token string">""</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> endpoints
+  <span class="token punctuation">-</span> services
+  <span class="token punctuation">-</span> pods
+  <span class="token punctuation">-</span> namespaces
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> list
+  <span class="token punctuation">-</span> watch
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRoleBinding
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">annotations</span><span class="token punctuation">:</span>
+    <span class="token key atrule">rbac.authorization.kubernetes.io/autoupdate</span><span class="token punctuation">:</span> <span class="token string">"true"</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">kubernetes.io/bootstrapping</span><span class="token punctuation">:</span> rbac<span class="token punctuation">-</span>defaults
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">roleRef</span><span class="token punctuation">:</span>
+  <span class="token key atrule">apiGroup</span><span class="token punctuation">:</span> rbac.authorization.k8s.io
+  <span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRole
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">subjects</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ConfigMap
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">data</span><span class="token punctuation">:</span>
+  <span class="token key atrule">Corefile</span><span class="token punctuation">:</span> <span class="token punctuation">|</span><span class="token scalar string">
+    .:53 {
+        errors
+        log
+        health
+        kubernetes CLUSTER_DOMAIN SERVICE_CIDR POD_CIDR {
+          pods insecure
+          upstream /etc/resolv.conf
+        }
+        prometheus :9153
+        proxy . /etc/resolv.conf
+        cache 30
+    }</span>
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> extensions/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">kubernetes.io/name</span><span class="token punctuation">:</span> <span class="token string">"CoreDNS"</span>
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">replicas</span><span class="token punctuation">:</span> <span class="token number">2</span>
+  <span class="token key atrule">strategy</span><span class="token punctuation">:</span>
+    <span class="token key atrule">type</span><span class="token punctuation">:</span> RollingUpdate
+    <span class="token key atrule">rollingUpdate</span><span class="token punctuation">:</span>
+      <span class="token key atrule">maxUnavailable</span><span class="token punctuation">:</span> <span class="token number">1</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">matchLabels</span><span class="token punctuation">:</span>
+      <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">serviceAccountName</span><span class="token punctuation">:</span> coredns
+      <span class="token key atrule">tolerations</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> node<span class="token punctuation">-</span>role.kubernetes.io/master
+          <span class="token key atrule">effect</span><span class="token punctuation">:</span> NoSchedule
+        <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> <span class="token string">"CriticalAddonsOnly"</span>
+          <span class="token key atrule">operator</span><span class="token punctuation">:</span> <span class="token string">"Exists"</span>
+      <span class="token key atrule">affinity</span><span class="token punctuation">:</span>
+        <span class="token key atrule">podAntiAffinity</span><span class="token punctuation">:</span>
+          <span class="token key atrule">preferredDuringSchedulingIgnoredDuringExecution</span><span class="token punctuation">:</span>
+          <span class="token punctuation">-</span> <span class="token key atrule">weight</span><span class="token punctuation">:</span> <span class="token number">100</span>
+            <span class="token key atrule">podAffinityTerm</span><span class="token punctuation">:</span>
+              <span class="token key atrule">labelSelector</span><span class="token punctuation">:</span>
+                <span class="token key atrule">matchExpressions</span><span class="token punctuation">:</span>
+                <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> k8s<span class="token punctuation">-</span>app
+                  <span class="token key atrule">operator</span><span class="token punctuation">:</span> In
+                  <span class="token key atrule">values</span><span class="token punctuation">:</span>
+                  <span class="token punctuation">-</span> coredns
+              <span class="token key atrule">topologyKey</span><span class="token punctuation">:</span> kubernetes.io/hostname
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+        <span class="token key atrule">image</span><span class="token punctuation">:</span> coredns/coredns<span class="token punctuation">:</span>1.0.4
+        <span class="token key atrule">imagePullPolicy</span><span class="token punctuation">:</span> IfNotPresent
+        <span class="token key atrule">args</span><span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token string">"-conf"</span><span class="token punctuation">,</span> <span class="token string">"/etc/coredns/Corefile"</span> <span class="token punctuation">]</span>
+        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> config<span class="token punctuation">-</span>volume
+          <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /etc/coredns
+        <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">53</span>
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> dns
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> UDP
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">53</span>
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> dns<span class="token punctuation">-</span>tcp
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+        <span class="token key atrule">livenessProbe</span><span class="token punctuation">:</span>
+          <span class="token key atrule">httpGet</span><span class="token punctuation">:</span>
+            <span class="token key atrule">path</span><span class="token punctuation">:</span> /health
+            <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8080</span>
+            <span class="token key atrule">scheme</span><span class="token punctuation">:</span> HTTP
+          <span class="token key atrule">initialDelaySeconds</span><span class="token punctuation">:</span> <span class="token number">60</span>
+          <span class="token key atrule">timeoutSeconds</span><span class="token punctuation">:</span> <span class="token number">5</span>
+          <span class="token key atrule">successThreshold</span><span class="token punctuation">:</span> <span class="token number">1</span>
+          <span class="token key atrule">failureThreshold</span><span class="token punctuation">:</span> <span class="token number">5</span>
+      <span class="token key atrule">dnsPolicy</span><span class="token punctuation">:</span> Default
+      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> config<span class="token punctuation">-</span>volume
+          <span class="token key atrule">configMap</span><span class="token punctuation">:</span>
+            <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+            <span class="token key atrule">items</span><span class="token punctuation">:</span>
+            <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> Corefile
+              <span class="token key atrule">path</span><span class="token punctuation">:</span> Corefile
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>dns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">kubernetes.io/cluster-service</span><span class="token punctuation">:</span> <span class="token string">"true"</span>
+    <span class="token key atrule">kubernetes.io/name</span><span class="token punctuation">:</span> <span class="token string">"CoreDNS"</span>
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">clusterIP</span><span class="token punctuation">:</span> CLUSTER_DNS_IP
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> dns
+    <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">53</span>
+    <span class="token key atrule">protocol</span><span class="token punctuation">:</span> UDP
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> dns<span class="token punctuation">-</span>tcp
+    <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">53</span>
+    <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+
+</pre>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true"># Deploys CoreDNS to a cluster currently running Kube-DNS.</span>
+
+SERVICE_CIDR<span class="token operator">=</span><span class="token variable">$1</span>
+POD_CIDR<span class="token operator">=</span><span class="token variable">$2</span>
+CLUSTER_DNS_IP<span class="token operator">=</span><span class="token variable">$3</span>
+CLUSTER_DOMAIN<span class="token operator">=</span><span class="token variable">${4:-cluster.local}</span>
+YAML_TEMPLATE<span class="token operator">=</span>$<span class="token punctuation">{</span>5:-<span class="token variable"><span class="token variable">`</span><span class="token function">pwd</span><span class="token variable">`</span></span>/coredns.yaml.sed<span class="token punctuation">}</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> -z <span class="token variable">$SERVICE_CIDR</span> <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+	<span class="token keyword">echo</span> <span class="token string">"Usage: <span class="token variable">$0</span> SERVICE-CIDR [ POD-CIDR ] [ DNS-IP ] [ CLUSTER-DOMAIN ] [ YAML-TEMPLATE ]"</span>
+	<span class="token keyword">exit</span> 1
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> -z <span class="token variable">$CLUSTER_DNS_IP</span> <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+  CLUSTER_DNS_IP<span class="token operator">=</span><span class="token punctuation">$(</span>kubectl get <span class="token function">service</span> --namespace kube-system kube-dns -o jsonpath<span class="token operator">=</span><span class="token string">"{.spec.clusterIP}"</span><span class="token punctuation">)</span>
+  <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+      <span class="token operator">></span><span class="token operator">&amp;</span>2 <span class="token keyword">echo</span> <span class="token string">"Error! The IP address for DNS service couldn't be determined automatically. Please specify the DNS-IP in paramaters."</span>
+      <span class="token keyword">exit</span> 2
+  <span class="token keyword">fi</span>
+<span class="token keyword">fi</span>
+
+<span class="token function">sed</span> -e s/CLUSTER_DNS_IP/<span class="token variable">$CLUSTER_DNS_IP</span>/g -e s/CLUSTER_DOMAIN/<span class="token variable">$CLUSTER_DOMAIN</span>/g -e s?SERVICE_CIDR?<span class="token variable">$SERVICE_CIDR?g</span> -e s?POD_CIDR?<span class="token variable">$POD_CIDR?g</span> <span class="token variable">$YAML_TEMPLATE</span>
+
+</pre>
 <h3 class="mume-header" id="%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</h3>
 
 <ul>
@@ -1660,7 +1844,8 @@ systemctl start docker
 * <a href="#kubernetes-scheduler">Kubernetes scheduler</a><br>
 * <a href="#kubernetes-kube-proxy">Kubernetes kube-proxy</a><br>
 * <a href="#kubernetes-kubelet">Kubernetes kubelet</a><br>
-* <a href="#kubernetes-misc">Kubernetes misc</a></li>
+* <a href="#kubernetes-misc">Kubernetes misc</a><br>
+* <a href="#coredns">coredns</a></li>
 <li><a href="#%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</a><br>
 * <a href="#tls-bootstrapping-token">TLS Bootstrapping Token</a><br>
 * <a href="#kubeconfig">kubeconfig</a><br>
