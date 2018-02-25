@@ -522,13 +522,14 @@ KUBELET_ARGS=
 
 
 ###### Kubernetes misc
-coredns / dashboard
 ```bash
+## coredns
 echo "deploy coredns"
 cd /vagrant/addon/dns/
 ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 | kubectl apply -f -
 cd -
 
+## dashboard
 echo "deploy kubernetes dashboard"
 kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
 echo "create admin role token"
@@ -537,13 +538,24 @@ echo "the admin role token is:"
 kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
 echo "login to dashboard with the above token"
 echo https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o=jsonpath='{.spec.ports[0].port}'`
+
+## traefik ingress controller
 echo "install traefik ingress controller"
 kubectl apply -f /vagrant/addon/traefik-ingress/
 ```
 
 ###### coredns
+```bash
+echo "deploy coredns"
+cd /vagrant/addon/dns/
+./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 | kubectl apply -f -
+cd -
+```
+`addon/dns/coredns.yaml.sed`
 @import "addon/dns/coredns.yaml.sed" {as=yaml}
+`addon/dns/dns-deploy.sh`
 @import "addon/dns/dns-deploy.sh"
+
 
 
 ### 创建 kubeconfig 文件

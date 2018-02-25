@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
-      <link rel="stylesheet" href="file:///C:\Users\wangw\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      <link rel="stylesheet" href="file:///C:\Users\wangwg2\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
       
       
       
@@ -221,7 +221,7 @@ html body h6 {
 }
 html body pre,
 html body code {
-  font-family: "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
+  font-family: "Microsoft YaHei Mono", "Monaco", "Courier New", "Microsoft YaHei", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", sans-serif;
 }
  
       </style>
@@ -1222,12 +1222,13 @@ KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--r
 </pre>
 <h6 class="mume-header" id="kubernetes-misc">Kubernetes misc</h6>
 
-<p>coredns / dashboard</p>
-<pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+<pre class="language-bash"><span class="token comment" spellcheck="true">## coredns</span>
+<span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
 <span class="token function">cd</span> /vagrant/addon/dns/
 ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
 <span class="token function">cd</span> -
 
+<span class="token comment" spellcheck="true">## dashboard</span>
 <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
 kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
 <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
@@ -1236,11 +1237,19 @@ kubectl apply -f /vagrant/yaml/admin-role.yaml
 kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
 <span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
 <span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+
+<span class="token comment" spellcheck="true">## traefik ingress controller</span>
 <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
 kubectl apply -f /vagrant/addon/traefik-ingress/
 </pre>
 <h6 class="mume-header" id="coredns">coredns</h6>
 
+<pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+<span class="token function">cd</span> /vagrant/addon/dns/
+./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
+<span class="token function">cd</span> -
+</pre>
+<p><code>addon/dns/coredns.yaml.sed</code></p>
 <pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
 <span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
 <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
@@ -1397,6 +1406,7 @@ kubectl apply -f /vagrant/addon/traefik-ingress/
     <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
 
 </pre>
+<p><code>addon/dns/dns-deploy.sh</code></p>
 <pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
 
 <span class="token comment" spellcheck="true"># Deploys CoreDNS to a cluster currently running Kube-DNS.</span>
