@@ -242,11 +242,61 @@ html body code {
 </ul>
 <p>使用Vagrant和Virtualbox安装包含3个节点的kubernetes集群，其中master节点同时作为node节点。<br>
 You don't have to create complicated ca files or configuration.</p>
+<h3 class="mume-header" id="%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">常用命令</h3>
+
+<h6 class="mume-header" id="kubectl-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8">Kubectl 自动补全</h6>
+
+<pre class="language-bash"><span class="token function">source</span> <span class="token operator">&lt;</span><span class="token punctuation">(</span>kubectl completion bash<span class="token punctuation">)</span>  <span class="token comment" spellcheck="true"># setup autocomplete in bash, bash-completion package should be installed.</span>
+<span class="token function">source</span> <span class="token operator">&lt;</span><span class="token punctuation">(</span>kubectl completion zsh<span class="token punctuation">)</span>   <span class="token comment" spellcheck="true"># setup autocomplete in zsh</span>
+</pre>
+<h6 class="mume-header" id="%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4-1">常用命令</h6>
+
+<pre class="language-bash"><span class="token comment" spellcheck="true">## 验证 master 节点功能</span>
+kubectl get componentstatuses
+kubectl get cs
+
+<span class="token comment" spellcheck="true">## -v</span>
+kubectl -v<span class="token operator">=</span>8 get cs
+
+<span class="token comment" spellcheck="true">## namespace</span>
+kubectl get namespaces
+kubectl get ns
+kubectl get ns -o yaml
+
+<span class="token comment" spellcheck="true">## nodes</span>
+kubectl get nodes
+kubectl get no
+kubectl get no node1 -o yaml
+kubectl describe no node1
+
+<span class="token comment" spellcheck="true">## pod 详情</span>
+kubectl get po --all-namespaces
+kubectl get po --namespace<span class="token operator">=</span>kube-system
+kubectl get po coredns-xxxx -o yaml --namespace<span class="token operator">=</span>kube-system
+kubectl describe po coredns-xxxx --namespace<span class="token operator">=</span>kube-system
+kubectl logs coredns-xxxx --namespace<span class="token operator">=</span>kube-system
+
+<span class="token comment" spellcheck="true">## service</span>
+kubectl get svc --all-namespaces
+kubectl get svc kube-dns --namespace<span class="token operator">=</span>kube-system -o yaml
+
+kubectl get po --all-namespaces
+kubectl get po --namespace<span class="token operator">=</span>kube-system
+
+<span class="token comment" spellcheck="true">## 显示对象详情</span>
+kubectl describe no node1
+kubectl describe po coredns --namespace<span class="token operator">=</span>kube-system
+kubectl describe svc kube-dns --namespace<span class="token operator">=</span>kube-system
+kubectl describe deploy coredns --namespace<span class="token operator">=</span>kube-system
+
+<span class="token comment" spellcheck="true">## node 验证测试</span>
+kubectl run nginx --replicas<span class="token operator">=</span>2 --labels<span class="token operator">=</span><span class="token string">"run=load-balancer-example"</span> --image<span class="token operator">=</span>nginx:1.9 --port<span class="token operator">=</span>80
+kubectl expose deployment nginx --type<span class="token operator">=</span>NodePort --name<span class="token operator">=</span>example-service
+kubectl describe svc example-service
+curl <span class="token string">"10.254.62.207:80"</span>
+</pre>
 <h3 class="mume-header" id="get-start">Get Start</h3>
 
-<h6 class="mume-header" id="why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</h6>
-
-<p>Because I want to setup the etcd, apiserver, controller, scheduler without docker container.</p>
 <h6 class="mume-header" id="%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">集群主机</h6>
 
 <table>
@@ -312,15 +362,6 @@ CLUSTER_DNS_DOMAIN<span class="token operator">=</span><span class="token string
 </pre>
 <h6 class="mume-header" id="%E5%91%BD%E4%BB%A4">命令</h6>
 
-<pre class="language-bash"><span class="token comment" spellcheck="true">## 验证 master 节点功能</span>
-kubectl get componentstatuses
-
-<span class="token comment" spellcheck="true">## node 验证测试</span>
-kubectl run nginx --replicas<span class="token operator">=</span>2 --labels<span class="token operator">=</span><span class="token string">"run=load-balancer-example"</span> --image<span class="token operator">=</span>nginx:1.9 --port<span class="token operator">=</span>80
-kubectl expose deployment nginx --type<span class="token operator">=</span>NodePort --name<span class="token operator">=</span>example-service
-kubectl describe svc example-service
-curl <span class="token string">"10.254.62.207:80"</span>
-</pre>
 <h3 class="mume-header" id="%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4">主要步骤</h3>
 
 <h6 class="mume-header" id="%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">启动集群主机</h6>
@@ -643,7 +684,7 @@ systemctl start docker
   kubectl apply -f /vagrant/addon/traefik-ingress/
 <span class="token keyword">fi</span>
 </pre>
-<h3 class="mume-header" id="misc">Misc</h3>
+<h3 class="mume-header" id="%E5%AE%89%E8%A3%85%E8%AF%B4%E6%98%8E">安装说明</h3>
 
 <h6 class="mume-header" id="usage">Usage</h6>
 
@@ -658,46 +699,37 @@ systemctl start docker
 </ul>
 <h6 class="mume-header" id="support-addon">Support Addon</h6>
 
-<p><strong>Required</strong></p>
+<p>Required</p>
 <ul>
 <li>CoreDNS</li>
 <li>Dashboard</li>
 <li>Traefik</li>
 </ul>
-<p><strong>Optional</strong></p>
+<p>Optional</p>
 <ul>
 <li>Heapster + InfluxDB + Grafana</li>
 <li>ElasticSearch + Fluentd + Kibana</li>
 <li>Istio service mesh</li>
 </ul>
-<h6 class="mume-header" id="setup">Setup</h6>
-
-<pre class="language-bash"><span class="token function">git</span> clone https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster.git
-<span class="token function">cd</span> kubernetes-vagrant-centos-cluster
-vagrant up
-</pre>
-<p>Wait about 10 minutes the kubernetes cluster will be setup automatically.</p>
 <h6 class="mume-header" id="connect-to-kubernetes-cluster">Connect to kubernetes cluster</h6>
 
 <p>There are 3 ways to access the kubernetes cluster.</p>
-<p><strong>local</strong><br>
-Copy <code>conf/admin.kubeconfig</code> to <code>~/.kube/config</code>, using <code>kubectl</code> CLI to access the cluster.</p>
-<p>We recommend this way.</p>
-<p><strong>VM</strong><br>
-Login to the virtual machine to access and debug the cluster.</p>
+<p><strong>local</strong>: Copy <code>conf/admin.kubeconfig</code> to <code>~/.kube/config</code>, using <code>kubectl</code> CLI to access the cluster.<br>
+We recommend this way.</p>
+<p><strong>VM</strong>: Login to the virtual machine to access and debug the cluster.</p>
 <pre class="language-bash">vagrant <span class="token function">ssh</span> node1
 <span class="token function">sudo</span> -i
 kubectl get nodes
 </pre>
-<p><strong>Kubernetes dashbaord</strong><br>
-Kubernetes dashboard URL: <a href="https://192.168.99.91:8443">https://192.168.99.91:8443</a></p>
+<h6 class="mume-header" id="kubernetes-dashbaord">Kubernetes dashbaord</h6>
+
+<p>Kubernetes dashboard URL: <a href="https://192.168.99.91:8443">https://192.168.99.91:8443</a></p>
 <p>Get the token:</p>
 <pre class="language-bash">kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
 </pre>
 <p><strong>Note</strong>: You can see the token message from <code>vagrant up</code> logs.</p>
-<h3 class="mume-header" id="components">Components</h3>
+<h6 class="mume-header" id="heapster-monitoring">Heapster monitoring</h6>
 
-<p><strong>Heapster monitoring</strong></p>
 <p>Run this command on you local machine.</p>
 <pre class="language-bash">kubectl apply -f addon/heapster/
 </pre>
@@ -705,49 +737,45 @@ Kubernetes dashboard URL: <a href="https://192.168.99.91:8443">https://192.168.9
 <pre class="language-ini">192.168.99.92 grafana.jimmysong.io
 </pre>
 <p>Open the URL in your browser: <a href="http://grafana.jimmysong.io">http://grafana.jimmysong.io</a></p>
-<p><strong>Treafik ingress</strong><br>
-Run this command on you local machine.</p>
+<h6 class="mume-header" id="treafik-ingress">Treafik ingress</h6>
+
+<p>Run this command on you local machine.</p>
 <pre class="language-bash">kubectl apply -f addon/traefik-ingress
 </pre>
 <p>Append the following item to you local <code>/etc/hosts</code> file.</p>
 <pre class="language-ini">192.168.99.92 traefik.jimmysong.io
 </pre>
 <p>Traefik UI URL: <a href="http://traefik.jimmysong.io">http://traefik.jimmysong.io</a></p>
-<p><strong>EFK</strong><br>
-Run this command on your local machine.</p>
+<h6 class="mume-header" id="efk">EFK</h6>
+
+<p>Run this command on your local machine.</p>
 <pre class="language-bash">kubectl apply -f addon/heapster/
 </pre>
 <p><strong>Note</strong>: Powerful CPU and memory allocation required. At least 4G per virtual machine.</p>
-<h3 class="mume-header" id="service-mesh">Service Mesh</h3>
+<h6 class="mume-header" id="service-mesh">Service Mesh</h6>
 
 <p>We use <a href="https://istio.io">istio</a> as the default service mesh.</p>
-<p><strong>Installation</strong></p>
+<p>Installation</p>
 <pre class="language-bash">kubectl apply -f addon/istio/
 </pre>
-<p><strong>Run sample</strong></p>
+<p>Run sample</p>
 <pre class="language-bash">kubectl apply -f yaml/istio-bookinfo
 kubectl apply -n default -f <span class="token operator">&lt;</span><span class="token punctuation">(</span>istioctl kube-inject -f yaml/istio-bookinfo/bookinfo.yaml<span class="token punctuation">)</span>
 </pre>
 <p>More detail see <a href="https://istio.io/docs/guides/bookinfo.html">https://istio.io/docs/guides/bookinfo.html</a></p>
-<h3 class="mume-header" id="operation">Operation</h3>
+<h6 class="mume-header" id="operation">Operation</h6>
 
 <p>Execute the following commands under the current git repo root directory.</p>
-<p><strong>Suspend</strong><br>
-Suspend the current state of VMs.</p>
+<p><strong>Suspend</strong>： Suspend the current state of VMs.</p>
 <pre class="language-bash">vagrant <span class="token function">suspend</span>
 </pre>
-<p><strong>Resume</strong><br>
-Resume the last state of VMs.</p>
+<p><strong>Resume</strong>： Resume the last state of VMs.</p>
 <pre class="language-bash">vagrant resume
 </pre>
-<p><strong>Clean</strong><br>
-Clean up the VMs.</p>
+<p><strong>Clean</strong>： Clean up the VMs.</p>
 <pre class="language-bash">vagrant destroy
 <span class="token function">rm</span> -rf .vagrant
 </pre>
-<h6 class="mume-header" id="note">Note</h6>
-
-<p>Don't use it in production environment.</p>
 <h3 class="mume-header" id="etcd">etcd</h3>
 
 <ul>
@@ -976,8 +1004,8 @@ KUBE_API_ADDRESS<span class="token operator">=</span><span class="token string">
 <span class="token comment" spellcheck="true"># KUBELET_PORT="--kubelet-port=10250"</span>
 <span class="token comment" spellcheck="true">#</span>
 <span class="token comment" spellcheck="true">## Comma separated list of nodes in the etcd cluster</span>
-<span class="token comment" spellcheck="true"># KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.99.91:2379,http://192.168.99.92:2379,http://192.168.99.93:2379"</span>
 KUBE_ETCD_SERVERS<span class="token operator">=</span><span class="token string">"--etcd-servers=http://192.168.99.91:2379"</span>
+<span class="token comment" spellcheck="true"># KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.99.91:2379,http://192.168.99.92:2379,http://192.168.99.93:2379"</span>
 <span class="token comment" spellcheck="true">#</span>
 <span class="token comment" spellcheck="true">## Address range to use for services</span>
 KUBE_SERVICE_ADDRESSES<span class="token operator">=</span><span class="token string">"--service-cluster-ip-range=10.254.0.0/16"</span>
@@ -1039,6 +1067,7 @@ KUBE_API_ARGS<span class="token operator">=</span><span class="token string">"--
 </pre>
 <h6 class="mume-header" id="kubernetes-controller-manager">Kubernetes controller-manager</h6>
 
+<p>kube-scheduler 服务依赖 etcd 和 kube-apiserver 服务</p>
 <p>/etc/kubernetes/controller-manager</p>
 <pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
 <span class="token comment" spellcheck="true"># The following values are used to configure the kubernetes controller-manager</span>
@@ -1081,6 +1110,7 @@ KUBE_CONTROLLER_MANAGER_ARGS<span class="token operator">=</span><span class="to
 </pre>
 <h6 class="mume-header" id="kubernetes-scheduler">Kubernetes scheduler</h6>
 
+<p>kube-scheduler 服务依赖 etcd 和 kube-apiserver 服务</p>
 <p>/etc/kubernetes/scheduler</p>
 <pre class="language-bash {as=&quot;bash&quot;}"><span class="token comment" spellcheck="true">###</span>
 <span class="token comment" spellcheck="true"># kubernetes scheduler config</span>
@@ -1111,6 +1141,28 @@ KUBE_SCHEDULER_CONF<span class="token operator">=</span><span class="token strin
 <span class="token selector">[Install]</span>
 <span class="token constant">WantedBy</span><span class="token attr-value"><span class="token punctuation">=</span>multi-user.target</span>
 
+</pre>
+<p>/etc/kubernetes/config</p>
+<pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">clusters</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">cluster</span><span class="token punctuation">:</span>
+    <span class="token key atrule">certificate-authority-data</span><span class="token punctuation">:</span> LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR6RENDQXJTZ0F3SUJBZ0lVY1pNLzJ4UmNaZElmQTRIZWJzeEwwQm5IbVBnd0RRWUpLb1pJaHZjTkFRRUwKQlFBd2JERUxNQWtHQTFVRUJoTUNRMDR4RURBT0JnTlZCQWdUQjBwcFlXNW5VM1V4RURBT0JnTlZCQWNUQjA1aApia3BwYm1jeEV6QVJCZ05WQkFvVENrdDFZbVZ5Ym1WMFpYTXhEekFOQmdOVkJBc1RCbE41YzNSbGJURVRNQkVHCkExVUVBeE1LYTNWaVpYSnVaWFJsY3pBZUZ3MHhPREF5TWpRd05EQXlNREJhRncweU16QXlNak13TkRBeU1EQmEKTUd3eEN6QUpCZ05WQkFZVEFrTk9NUkF3RGdZRFZRUUlFd2RLYVdGdVoxTjFNUkF3RGdZRFZRUUhFd2RPWVc1SwphVzVuTVJNd0VRWURWUVFLRXdwTGRXSmxjbTVsZEdWek1ROHdEUVlEVlFRTEV3WlRlWE4wWlcweEV6QVJCZ05WCkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFQKa25tMHd5Z0xlaXVJYWplK0FLdG9EM3NxRElYQ3NFVld1ckhMNWZtZFJWNEgvV3hiMFR6ZklKeTRmd3BzQStVdAp4aGJCdG9Ndko5dGNtSkJOZVMxdFB6TE9Ub1lxWkJ6Z0gvdVQ5S1k0aGdyTXpjQjR4c00zQytRWGxBN1VYUTRaCk9SRXk5M0h2SEVvRWZIcHdjaDVTZE1vU1RPSU41Sm93UUF3dkVaRDcyN3pYQm43TzV3Ykk1OHlMZ0VUd2NHVVcKQjhoWDd6UGl4NTV6WEUyam14dkdXcGN4SnJaTVdma1BpdUJWOW1NV2VDT0ZrQlNwRWNPNERhYW1wNHBscm04ZgpNNmhabjNtellOTWVVZGxvMkRUb1dJNnJ3aUFRaVAxdWpOMk50dzVCT1ZZNEtJNWlPUlJHV0wreUZwV1VGbThHCjdzaEFOSXh2d1gveFRrQW1zMEZYQWdNQkFBR2paakJrTUE0R0ExVWREd0VCL3dRRUF3SUJCakFTQmdOVkhSTUIKQWY4RUNEQUdBUUgvQWdFQ01CMEdBMVVkRGdRV0JCVG92TWQzb1BhL2paWDF5RndHQjRJOCt4ZWRrakFmQmdOVgpIU01FR0RBV2dCVG92TWQzb1BhL2paWDF5RndHQjRJOCt4ZWRrakFOQmdrcWhraUc5dzBCQVFzRkFBT0NBUUVBCklWNkhCeUZFL1FXZlAybUhUUjRlSTR5eUQ1ZU16aWQxbFY4RHZqMWIyYXRPdDkxR1hMSkVrU2FmYmQzdEd6TXIKQlRuYWJSM2Z5QVZkSGhsZjNtM2g0Y3BvRzBsWXloeFd0bWdhMEExc2NkY2RRVHBzOUphY3VMRmo3encxWXVMMQptZUpQUG9KQnpMcklML0Z6Y0hlTGVVNjZjUExnc2x2Q1dMa2Vya3doUVVVVFVpaXU1Y0lJQ1dxMko5clpCN0RNCk85N0xXNUdnQ2FlVVd4VTYrQi83bEpKLzhwcjdPUUt4R0pJWXVRb2lxZEtHMlh3SnRvNXR5cDJwYnY3aENmencKSGl6VTlmdEVsdHJtOFRnKzkzaWt5enQxNmJvTjVsRDRMRVAxdi9maFBpMy9wQ093Ty9pbkVsd01CckJoZEhGTQpQeWk2RkFiUC9iNlhZcUNQdjFGNWFnPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    <span class="token key atrule">server</span><span class="token punctuation">:</span> https<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">6443</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes
+<span class="token key atrule">contexts</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">context</span><span class="token punctuation">:</span>
+    <span class="token key atrule">cluster</span><span class="token punctuation">:</span> kubernetes
+    <span class="token key atrule">user</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>kube<span class="token punctuation">-</span>scheduler
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>kube<span class="token punctuation">-</span>scheduler@kubernetes
+<span class="token key atrule">current-context</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>kube<span class="token punctuation">-</span>scheduler@kubernetes
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Config
+<span class="token key atrule">preferences</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token key atrule">users</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>kube<span class="token punctuation">-</span>scheduler
+  <span class="token key atrule">user</span><span class="token punctuation">:</span>
+    <span class="token key atrule">as-user-extra</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+    <span class="token key atrule">client-certificate-data</span><span class="token punctuation">:</span> LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUQvRENDQXVTZ0F3SUJBZ0lVSjlnZmVhbUlKSFZPTkFTeFpvdThQb2o5VXQ4d0RRWUpLb1pJaHZjTkFRRUwKQlFBd2JERUxNQWtHQTFVRUJoTUNRMDR4RURBT0JnTlZCQWdUQjBwcFlXNW5VM1V4RURBT0JnTlZCQWNUQjA1aApia3BwYm1jeEV6QVJCZ05WQkFvVENrdDFZbVZ5Ym1WMFpYTXhEekFOQmdOVkJBc1RCbE41YzNSbGJURVRNQkVHCkExVUVBeE1LYTNWaVpYSnVaWFJsY3pBZUZ3MHhPREF5TWpRd05EQXpNREJhRncweU9EQXlNakl3TkRBek1EQmEKTUlHQ01Rc3dDUVlEVlFRR0V3SkRUakVRTUE0R0ExVUVDQk1IU21saGJtZFRkVEVRTUE0R0ExVUVCeE1IVG1GdQpTbWx1WnpFZU1Cd0dBMVVFQ2hNVmMzbHpkR1Z0T210MVltVXRjMk5vWldSMWJHVnlNUTh3RFFZRFZRUUxFd1pUCmVYTjBaVzB4SGpBY0JnTlZCQU1URlhONWMzUmxiVHByZFdKbExYTmphR1ZrZFd4bGNqQ0NBU0l3RFFZSktvWkkKaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFNa0lYem9wa2lnS2ZOd0JXWjBSdVVTQ3Rha21pU1dwUlBsdwpFOUZIdGNCbDlWSHo3K2xNSk5xdEc4T2kvc3duS1BkU1F0Z0JQSGxkUzB5VGdFT1Zwdk1NUnJ4WGRndWRSRmdEClNJaDRpQy8xcEM3aVVnT2xsd1owR1JlVnJsMW1LaklmYVN2Ym9kQWlHamprSWRiRTVTb1dGb2xRT0FTazNvMVkKblFJanNycktuYTlqUkRiZ1daYXpydjdlRUt0Q1Z0U3B5YzR2VEp5NmwrODFuWDV2andDQ2hIeHJzNVF1MUN4RQoyVzRpYWRhSTVFSlBhVHlkckJlQzhDMGZ6MG9ISHovU1A1UHJ4djBwNFA5RGhSTmJnRldneWhRZ1o5QUYyWWFIClpnZGZsN05Ta2h6YUlyOXJnbE1PTUN0QTZQZ0FFNkVOcVkrdzFVZ0p2aUpISG44TWFpTUNBd0VBQWFOL01IMHcKRGdZRFZSMFBBUUgvQkFRREFnV2dNQjBHQTFVZEpRUVdNQlFHQ0NzR0FRVUZCd01CQmdnckJnRUZCUWNEQWpBTQpCZ05WSFJNQkFmOEVBakFBTUIwR0ExVWREZ1FXQkJSZFRRS1NtZE5uR3NoY1AwMEpDZzNQa095N2NUQWZCZ05WCkhTTUVHREFXZ0JUb3ZNZDNvUGEvalpYMXlGd0dCNEk4K3hlZGtqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUEKd1FWeDJIbnRmZExoS3pJUVhkV3BlYlJneU9Od0xkUWhHWHhFQWRNNHZrTS9VMGpQTXVUOEVUZGxVSW5GUysvbQpyaVdZMUl6ZkFSRDUvM1NjbWovc21CbElieHpnNE4rZVdPOXExYzlNdmdiS1BMQXp4UmdVUU5uaTJ1TFREdHRaCkFVZEpqQ0lCejh1RG1OWCtDS0xwNXh6R1NMY3NYQTRPODJ5RXV1bjdNemxUSGI5QTIyRnIxb2VDMTFGcjRmRDYKU081ZHIvQ0ZSMkwyMWlCNlBQKzBjZ1FxS2dVVUdVdnk3VThEblFsbk5xcEdUaXVhYTNhckcxd2czK0NnOTdkaApscDhXUmZBSHVJMVI3aURUZjFsY2tKVU8rYUNyYTM4NDA4YVVXSlFiRnpSeHRCL1RReDZhYVN0YWs1M0hYNGhVCmxjMmk0bTJTY0xLdENaQmgzdkdsSHc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    <span class="token key atrule">client-key-data</span><span class="token punctuation">:</span> LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBeVFoZk9pbVNLQXA4M0FGWm5SRzVSSUsxcVNhSkphbEUrWEFUMFVlMXdHWDFVZlB2CjZVd2sycTBidzZMK3pDY285MUpDMkFFOGVWMUxUSk9BUTVXbTh3eEd2RmQyQzUxRVdBTklpSGlJTC9Xa0x1SlMKQTZXWEJuUVpGNVd1WFdZcU1oOXBLOXVoMENJYU9PUWgxc1RsS2hZV2lWQTRCS1RlalZpZEFpT3l1c3FkcjJORQpOdUJabHJPdS90NFFxMEpXMUtuSnppOU1uTHFYN3pXZGZtK1BBSUtFZkd1emxDN1VMRVRaYmlKcDFvamtRazlwClBKMnNGNEx3TFIvUFNnY2ZQOUkvayt2Ry9TbmcvME9GRTF1QVZhREtGQ0JuMEFYWmhvZG1CMStYczFLU0hOb2kKdjJ1Q1V3NHdLMERvK0FBVG9RMnBqN0RWU0FtK0lrY2Vmd3hxSXdJREFRQUJBb0lCQVFDMTBqYWVtajZ3ckZ1bAplQ3NlM29yY0pnUTdpcmo4TVE1TE5FMFlPVzF2S0VncTZTQVJ0MmFWeVgrVS8vVEhuSnQycFJZRDI0cGdranFxCmRiWEthcTNtb1RIUTRxSEhlMlAyM25GWnpQb1B0bkhhWGFPajNMNnRmWSs4UHdySE9zSHJOM0dkMHpXVTAyTTQKRlUxdHZBTXdmMjIrbjZrcXVocjNhREFKWVZRamo4Y3pGcjFKcjNjYkdBZ25XNnVqLy9yQWxIM3F4MGUwcU9ZQQpKM2pvV0xMQlNnMGRRZHdYc0x5Qm5FQ0g1OEs0RDFYR3R4dk1xTHhoK2JlY1l3MVh0L0k0cEgxTlExZThKSGdPCjNMMUNhd2RScWNYMWJQd0R0WGprb0lGZGNaVVBmZW8yWHJpTTMxUmFiR21kbXNobk5kTVZlZlRCWTczL01CeVUKZjIwOE1KclJBb0dCQU5rOVFTVVJ2NUFSekhBVHMvc1hNYS9zWnMwdk91aCs3OEdMWUxnQ2llQ0hZaGxqTWtuUApGRnRwNCthK1ozd1BsYmppRnJDeGJkWldYTkZBd2JoSjlQT0FSZWV0SWVrb0J3UXRvMVFaUm9sTGNSUWJpdUR2Cmt0OHdwYXF5SGM4WXhQMks5Zzl6WitnM1hEdG9IbXRHeGRjQk1GVlYyTUdoRUdtR0Q5MU41U3JkQW9HQkFPem0KMjFtaFRYVnZscnhSSW81d3pHQUtPR2M5dHBPWEc3eVo5NkllUDAvUG5TeFFIMHVNVEJ6VFBJd25pMmpINnNZdQo1MzBCQmFrVnlEcW90RktiVks2L1VoQmp5dkVqOER3NkVBUXpyNzA1UWdpSStwNDR6SjV2Mjc3cS82aWZLNHJCCmpQRC9ibkF5eWhsR1BRSllBOGhUMUdlMUJydUI4V2tkSlBYNXFoai9Bb0dCQUw3cXNtSGRvemorSzJra0o3eTMKdVpjZWI0cEx3NzJvTVJVclpLalNzbEY5S1oyZUxBZnAwYjQwNVhGWVRLSWZJRG9IbUdGWXpXcmRJMTFUUit5cQpNbmY5ZDNJUUdnbEtnRUFQeThhUklBaHhJTVBISU5wbU1mR3NVeXdjdFUzWU91ZUlSSTkzb1EzWCtWck1PaytWCk56R3BmY3pCVVdsNkgyNWR2M3VDaGJDUkFvR0FmNC9iZ3dySkk3Z2ZpVzJDMXdKRCtsN21laWtQMjY4ZFAxUUUKdEtYbTMzbmludzdSbXlPRGhHMzJCMTN2d2s4THl3Vk1udEhqRTJYb09EWEpTMFhhdG5ITXBZaW1xV3Y1bXVTRQo1VTVUamVkNytBNlNMSXBYRytVTmhXTVNvT0I4V0szWno1Y3JCMzFCdDVSTG02eDY5TzYyeTlUOU9CQkRScDlyCjNJdEFIVThDZ1lFQW5WNGQrNWdoeC9yYTlsV0ZpeDFPMnMva05uVzJtNzdPaEVQU05WWTA4SXZ3aXphOVR3RGkKVW83N3VrOHYraEdpdjVSdS9CU2M0UTdiMFRyemc3Q3Rza0dDWDZxVnRLZXM1NVFsR254RTlVbHgvZVJVQ3JTbgpKa1dwU3VNNTl5NExlZ24va2lQSjZ1aE9pYWY0Q2ViMmxQdjZhSVE4V0RDcndFZG00bUtmOENVPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
 </pre>
 <h6 class="mume-header" id="kubernetes-kube-proxy">Kubernetes kube-proxy</h6>
 
@@ -1220,7 +1272,7 @@ KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--r
   --serialize-image-pulls=false 
   --allow-privileged=true
 </pre>
-<h6 class="mume-header" id="kubernetes-misc">Kubernetes misc</h6>
+<h3 class="mume-header" id="kubernetes-addon">Kubernetes addon</h3>
 
 <pre class="language-bash"><span class="token comment" spellcheck="true">## coredns</span>
 <span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
@@ -1433,6 +1485,184 @@ YAML_TEMPLATE<span class="token operator">=</span>$<span class="token punctuatio
 <span class="token function">sed</span> -e s/CLUSTER_DNS_IP/<span class="token variable">$CLUSTER_DNS_IP</span>/g -e s/CLUSTER_DOMAIN/<span class="token variable">$CLUSTER_DOMAIN</span>/g -e s?SERVICE_CIDR?<span class="token variable">$SERVICE_CIDR?g</span> -e s?POD_CIDR?<span class="token variable">$POD_CIDR?g</span> <span class="token variable">$YAML_TEMPLATE</span>
 
 </pre>
+<h6 class="mume-header" id="dashboard">dashboard</h6>
+
+<p><code>addon/dashboard/kubernetes-dashboard.yaml</code></p>
+<pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token comment" spellcheck="true"># Copyright 2017 The Kubernetes Authors.</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="token comment" spellcheck="true"># you may not use this file except in compliance with the License.</span>
+<span class="token comment" spellcheck="true"># You may obtain a copy of the License at</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="token comment" spellcheck="true"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="token comment" spellcheck="true"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="token comment" spellcheck="true"># See the License for the specific language governing permissions and</span>
+<span class="token comment" spellcheck="true"># limitations under the License.</span>
+
+<span class="token comment" spellcheck="true"># Configuration to deploy release version of the Dashboard UI compatible with</span>
+<span class="token comment" spellcheck="true"># Kubernetes 1.8.</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Example usage: kubectl create -f &lt;this_file></span>
+
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Secret ------------------- #</span>
+
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Secret
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">type</span><span class="token punctuation">:</span> Opaque
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Service Account ------------------- #</span>
+
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Role &amp; Role Binding ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Role
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">rules</span><span class="token punctuation">:</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"secrets"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"create"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to create 'kubernetes-dashboard-settings' config map.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"configmaps"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"create"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get, update and delete Dashboard exclusive secrets.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"secrets"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"kubernetes-dashboard-key-holder"</span><span class="token punctuation">,</span> <span class="token string">"kubernetes-dashboard-certs"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">,</span> <span class="token string">"update"</span><span class="token punctuation">,</span> <span class="token string">"delete"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"configmaps"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"kubernetes-dashboard-settings"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">,</span> <span class="token string">"update"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get metrics from heapster.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"services"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"heapster"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"proxy"</span><span class="token punctuation">]</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"services/proxy"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"heapster"</span><span class="token punctuation">,</span> <span class="token string">"http:heapster:"</span><span class="token punctuation">,</span> <span class="token string">"https:heapster:"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">]</span>
+
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> RoleBinding
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">roleRef</span><span class="token punctuation">:</span>
+  <span class="token key atrule">apiGroup</span><span class="token punctuation">:</span> rbac.authorization.k8s.io
+  <span class="token key atrule">kind</span><span class="token punctuation">:</span> Role
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+<span class="token key atrule">subjects</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Deployment ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> apps/v1beta2
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">replicas</span><span class="token punctuation">:</span> <span class="token number">1</span>
+  <span class="token key atrule">revisionHistoryLimit</span><span class="token punctuation">:</span> <span class="token number">10</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">matchLabels</span><span class="token punctuation">:</span>
+      <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">hostNetwork</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+      <span class="token key atrule">nodeSelector</span><span class="token punctuation">:</span>
+        <span class="token key atrule">kubernetes.io/hostname</span><span class="token punctuation">:</span> <span class="token string">"node1"</span>
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+        <span class="token key atrule">image</span><span class="token punctuation">:</span> jimmysong/kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>amd64<span class="token punctuation">:</span>v1.8.2
+        <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+          <span class="token key atrule">hostPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+        <span class="token key atrule">args</span><span class="token punctuation">:</span>
+          <span class="token punctuation">-</span> <span class="token punctuation">-</span><span class="token punctuation">-</span>auto<span class="token punctuation">-</span>generate<span class="token punctuation">-</span>certificates
+          <span class="token comment" spellcheck="true"># Uncomment the following line to manually specify Kubernetes API server Host</span>
+          <span class="token comment" spellcheck="true"># If not specified, Dashboard will attempt to auto discover the API server and connect</span>
+          <span class="token comment" spellcheck="true"># to it. Uncomment only if the default does not work.</span>
+          <span class="token comment" spellcheck="true"># - --apiserver-host=http://my-address:port</span>
+        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+          <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /certs
+          <span class="token comment" spellcheck="true"># Create on-disk volume to store exec logs</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /tmp
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> tmp<span class="token punctuation">-</span>volume
+        <span class="token key atrule">livenessProbe</span><span class="token punctuation">:</span>
+          <span class="token key atrule">httpGet</span><span class="token punctuation">:</span>
+            <span class="token key atrule">scheme</span><span class="token punctuation">:</span> HTTPS
+            <span class="token key atrule">path</span><span class="token punctuation">:</span> /
+            <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+          <span class="token key atrule">initialDelaySeconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+          <span class="token key atrule">timeoutSeconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+        <span class="token key atrule">secret</span><span class="token punctuation">:</span>
+          <span class="token key atrule">secretName</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> tmp<span class="token punctuation">-</span>volume
+        <span class="token key atrule">emptyDir</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+      <span class="token key atrule">serviceAccountName</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+      <span class="token comment" spellcheck="true"># Comment the following tolerations if Dashboard must not be deployed on master</span>
+      <span class="token key atrule">tolerations</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> node<span class="token punctuation">-</span>role.kubernetes.io/master
+        <span class="token key atrule">effect</span><span class="token punctuation">:</span> NoSchedule
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Service ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+      <span class="token key atrule">targetPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+
+</pre>
+<h6 class="mume-header" id="traefik-ingress-controller">traefik ingress controller</h6>
+
 <h3 class="mume-header" id="%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</h3>
 
 <ul>
@@ -1440,7 +1670,7 @@ YAML_TEMPLATE<span class="token operator">=</span>$<span class="token punctuatio
 <li><a href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Configure Access to Multiple Clusters</a></li>
 <li><a href="https://jimmysong.io/kubernetes-handbook/practice/create-kubeconfig.html">创建 kubeconfig 文件</a></li>
 </ul>
-<p>使用kubeconfig文件来组织关于集群，用户，名称空间和身份验证机制的信息。<code>kubectl</code>命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。<br>
+<p>使用kubeconfig文件来组织关于集群，用户，命名空间和身份验证机制的信息。<code>kubectl</code>命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。<br>
 用于配置对群集的访问的文件称为 <code>kubeconfig</code> 文件。这是引用配置文件的通用方式。这并不意味着有一个名为的文件kubeconfig。<br>
 默认情况下，kubectl 在 <code>$HOME/.kube</code> 目录中查找指定config的文件。您可以通过设置 <code>KUBECONFIG</code> 环境变量或设置 <code>--kubeconfig</code> 标志来指定其他kubeconfig文件。</p>
 <ul>
@@ -1821,8 +2051,10 @@ systemctl start docker
       <div class="md-sidebar-toc"><ul>
 <li><a href="#setting-up-a-kubernetes-cluster-with-vagrant-and-virtualbox">Setting up a kubernetes cluster with Vagrant and Virtualbox</a>
 <ul>
+<li><a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">常用命令</a><br>
+* <a href="#kubectl-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8">Kubectl 自动补全</a><br>
+* <a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4-1">常用命令</a></li>
 <li><a href="#get-start">Get Start</a><br>
-* <a href="#why-dont-do-that-with-kubeadm">Why don't do that with kubeadm</a><br>
 * <a href="#%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">集群主机</a><br>
 * <a href="#%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</a><br>
 * <a href="#%E5%91%BD%E4%BB%A4">命令</a></li>
@@ -1831,15 +2063,16 @@ systemctl start docker
 * <a href="#%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">系统环境准备</a><br>
 * <a href="#etcd-flannel-docker">etcd flannel docker</a><br>
 * <a href="#kubernetes">Kubernetes</a></li>
-<li><a href="#misc">Misc</a><br>
+<li><a href="#%E5%AE%89%E8%A3%85%E8%AF%B4%E6%98%8E">安装说明</a><br>
 * <a href="#usage">Usage</a><br>
 * <a href="#support-addon">Support Addon</a><br>
-* <a href="#setup">Setup</a><br>
-* <a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a></li>
-<li><a href="#components">Components</a></li>
-<li><a href="#service-mesh">Service Mesh</a></li>
-<li><a href="#operation">Operation</a><br>
-* <a href="#note">Note</a></li>
+* <a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a><br>
+* <a href="#kubernetes-dashbaord">Kubernetes dashbaord</a><br>
+* <a href="#heapster-monitoring">Heapster monitoring</a><br>
+* <a href="#treafik-ingress">Treafik ingress</a><br>
+* <a href="#efk">EFK</a><br>
+* <a href="#service-mesh">Service Mesh</a><br>
+* <a href="#operation">Operation</a></li>
 <li><a href="#etcd">etcd</a></li>
 <li><a href="#flanneld">flanneld</a><br>
 * <a href="#flannel-%E9%85%8D%E7%BD%AE">flannel 配置</a><br>
@@ -1853,9 +2086,11 @@ systemctl start docker
 * <a href="#kubernetes-controller-manager">Kubernetes controller-manager</a><br>
 * <a href="#kubernetes-scheduler">Kubernetes scheduler</a><br>
 * <a href="#kubernetes-kube-proxy">Kubernetes kube-proxy</a><br>
-* <a href="#kubernetes-kubelet">Kubernetes kubelet</a><br>
-* <a href="#kubernetes-misc">Kubernetes misc</a><br>
-* <a href="#coredns">coredns</a></li>
+* <a href="#kubernetes-kubelet">Kubernetes kubelet</a></li>
+<li><a href="#kubernetes-addon">Kubernetes addon</a><br>
+* <a href="#coredns">coredns</a><br>
+* <a href="#dashboard">dashboard</a><br>
+* <a href="#traefik-ingress-controller">traefik ingress controller</a></li>
 <li><a href="#%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</a><br>
 * <a href="#tls-bootstrapping-token">TLS Bootstrapping Token</a><br>
 * <a href="#kubeconfig">kubeconfig</a><br>

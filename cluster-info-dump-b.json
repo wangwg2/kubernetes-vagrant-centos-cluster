@@ -1,0 +1,163 @@
+{
+    "selfLink": "/api/v1/nodes",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/api/v1/namespaces/kube-system/events",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/api/v1/namespaces/kube-system/replicationcontrollers",
+    "resourceVersion": "4241",
+    "Items": []
+}
+{
+    "selfLink": "/api/v1/namespaces/kube-system/services",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/kube-system/daemonsets",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/kube-system/deployments",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/kube-system/replicasets",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/api/v1/namespaces/kube-system/pods",
+    "resourceVersion": "4241",
+    "Items": [
+    ]
+}
+==== START logs for container coredns of pod kube-system/coredns-5984fb8cbb-fw45p ====
+.:53
+CoreDNS-1.0.4
+linux/amd64, go1.9.2, f1c8bdae
+2018/02/24 05:35:10 [INFO] CoreDNS-1.0.4
+2018/02/24 05:35:10 [INFO] linux/amd64, go1.9.2, f1c8bdae
+==== END logs for container coredns of pod kube-system/coredns-5984fb8cbb-fw45p ====
+==== START logs for container coredns of pod kube-system/coredns-5984fb8cbb-qrvpf ====
+2018/02/24 05:35:17 [INFO] CoreDNS-1.0.4
+2018/02/24 05:35:17 [INFO] linux/amd64, go1.9.2, f1c8bdae
+.:53
+CoreDNS-1.0.4
+linux/amd64, go1.9.2, f1c8bdae
+==== END logs for container coredns of pod kube-system/coredns-5984fb8cbb-qrvpf ====
+==== START logs for container kubernetes-dashboard of pod kube-system/kubernetes-dashboard-65486f5fdf-xlcl4 ====
+2018/02/24 05:35:21 Using in-cluster config to connect to apiserver
+2018/02/24 05:35:21 Starting overwatch
+2018/02/24 05:35:21 Using service account token for csrf signing
+2018/02/24 05:35:21 No request provided. Skipping authorization
+2018/02/24 05:35:21 Successful initial request to the apiserver, version: v1.9.1
+2018/02/24 05:35:21 Generating JWE encryption key
+2018/02/24 05:35:21 New synchronizer has been registered: kubernetes-dashboard-key-holder-kube-system. Starting
+2018/02/24 05:35:21 Starting secret synchronizer for kubernetes-dashboard-key-holder in namespace kube-system
+2018/02/24 05:35:22 Storing encryption key in a secret
+2018/02/24 05:35:22 Creating in-cluster Heapster client
+2018/02/24 05:35:22 Auto-generating certificates
+2018/02/24 05:35:22 Successfuly created and stored certificates
+2018/02/24 05:35:22 Serving securely on HTTPS port: 8443
+2018/02/24 05:35:22 Metric client health check failed: the server could not find the requested resource (get services heapster). Retrying in 30 seconds.
+2018/02/24 06:18:52 Metric client health check failed: the server could not find the requested resource (get services heapster). Retrying in 30 seconds.
+==== END logs for container kubernetes-dashboard of pod kube-system/kubernetes-dashboard-65486f5fdf-xlcl4 ====
+==== START logs for container traefik-ingress-lb of pod kube-system/traefik-ingress-controller-djl85 ====
+time="2018-02-24T05:35:09Z" level=info msg="Traefik version v1.5.2 built on 2018-02-12_10:56:31AM" 
+time="2018-02-24T05:35:09Z" level=info msg="
+Stats collection is disabled.
+Help us improve Traefik by turning this feature on :)
+More details on: https://docs.traefik.io/basics/#collected-data
+" 
+time="2018-02-24T05:35:09Z" level=debug msg="Global configuration loaded {"LifeCycle":{"RequestAcceptGraceTimeout":0,"GraceTimeOut":0},"GraceTimeOut":0,"Debug":true,"CheckNewVersion":true,"SendAnonymousUsage":false,"AccessLogsFile":"","AccessLog":null,"TraefikLogsFile":"","TraefikLog":null,"LogLevel":"DEBUG","EntryPoints":{"http":{"Network":"","Address":":80","TLS":null,"Redirect":null,"Auth":null,"WhitelistSourceRange":null,"Compress":false,"ProxyProtocol":null,"ForwardedHeaders":{"Insecure":true,"TrustedIPs":null}},"traefik":{"Network":"","Address":":8080","TLS":null,"Redirect":null,"Auth":null,"WhitelistSourceRange":null,"Compress":false,"ProxyProtocol":null,"ForwardedHeaders":{"Insecure":true,"TrustedIPs":null}}},"Cluster":null,"Constraints":[],"ACME":null,"DefaultEntryPoints":["http"],"ProvidersThrottleDuration":2000000000,"MaxIdleConnsPerHost":200,"IdleTimeout":0,"InsecureSkipVerify":false,"RootCAs":null,"Retry":null,"HealthCheck":{"Interval":30000000000},"RespondingTimeouts":null,"ForwardingTimeouts":null,"Web":null,"Docker":null,"File":null,"Marathon":null,"Consul":null,"ConsulCatalog":null,"Etcd":null,"Zookeeper":null,"Boltdb":null,"Kubernetes":{"Watch":true,"Filename":"","Constraints":[],"Trace":false,"DebugLogGeneratedTemplate":false,"Endpoint":"","Token":"","CertAuthFilePath":"","DisablePassHostHeaders":false,"EnablePassTLSCert":false,"Namespaces":null,"LabelSelector":""},"Mesos":null,"Eureka":null,"ECS":null,"Rancher":null,"DynamoDB":null,"ServiceFabric":null,"Rest":null,"API":{"EntryPoint":"traefik","Dashboard":true,"Debug":true,"CurrentConfigurations":null,"Statistics":null},"Metrics":null,"Ping":null}" 
+time="2018-02-24T05:35:09Z" level=info msg="Preparing server http &{Network: Address::80 TLS:<nil> Redirect:<nil> Auth:<nil> WhitelistSourceRange:[] Compress:false ProxyProtocol:<nil> ForwardedHeaders:0xc4205ba720} with readTimeout=0s writeTimeout=0s idleTimeout=3m0s" 
+time="2018-02-24T05:35:09Z" level=info msg="Preparing server traefik &{Network: Address::8080 TLS:<nil> Redirect:<nil> Auth:<nil> WhitelistSourceRange:[] Compress:false ProxyProtocol:<nil> ForwardedHeaders:0xc4205ba740} with readTimeout=0s writeTimeout=0s idleTimeout=3m0s" 
+time="2018-02-24T05:35:09Z" level=info msg="Starting provider *kubernetes.Provider {"Watch":true,"Filename":"","Constraints":[],"Trace":false,"DebugLogGeneratedTemplate":false,"Endpoint":"","Token":"","CertAuthFilePath":"","DisablePassHostHeaders":false,"EnablePassTLSCert":false,"Namespaces":null,"LabelSelector":""}" 
+time="2018-02-24T05:35:09Z" level=info msg="Starting server on :80" 
+time="2018-02-24T05:35:09Z" level=info msg="Starting server on :8080" 
+time="2018-02-24T05:35:09Z" level=info msg="Creating in-cluster Provider client" 
+time="2018-02-24T05:35:09Z" level=debug msg="Using label selector: ''" 
+time="2018-02-24T05:35:09Z" level=debug msg="Received Kubernetes event kind *v1.Secret" 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load traefik.frontend.entryPoints annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/whitelist-source-range annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/allowed-hosts annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/proxy-headers annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load traefik.frontend.entryPoints annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/whitelist-source-range annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/allowed-hosts annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=debug msg="Could not load ingress.kubernetes.io/proxy-headers annotation, skipping..." 
+time="2018-02-24T05:35:09Z" level=error msg="Service not found for kube-system/monitoring-grafana" 
+time="2018-02-24T05:35:10Z" level=debug msg="Configuration received from provider kubernetes: {"backends":{"grafana.jimmysong.io/":{"loadBalancer":{"method":"wrr"}},"traefik.jimmysong.io/":{"servers":{"traefik-ingress-controller-djl85":{"url":"http://192.168.99.92:8080","weight":1}},"loadBalancer":{"method":"wrr"}}},"frontends":{"traefik.jimmysong.io/":{"entryPoints":["http"],"backend":"traefik.jimmysong.io/","routes":{"/":{"rule":"PathPrefix:/"},"traefik.jimmysong.io":{"rule":"Host:traefik.jimmysong.io"}},"passHostHeader":true,"priority":0,"basicAuth":[],"headers":{}}}}" 
+time="2018-02-24T06:19:06Z" level=debug msg="Received Kubernetes event kind *v1.Endpoints" 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load traefik.frontend.entryPoints annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/whitelist-source-range annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/allowed-hosts annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/proxy-headers annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load traefik.frontend.entryPoints annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/whitelist-source-range annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/allowed-hosts annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=debug msg="Could not load ingress.kubernetes.io/proxy-headers annotation, skipping..." 
+time="2018-02-24T06:19:06Z" level=error msg="Service not found for kube-system/monitoring-grafana" 
+time="2018-02-24T06:19:06Z" level=debug msg="Skipping Kubernetes event kind *v1.Endpoints" 
+==== END logs for container traefik-ingress-lb of pod kube-system/traefik-ingress-controller-djl85 ====
+{
+    "selfLink": "/api/v1/namespaces/default/events",
+    "resourceVersion": "4243",
+    "Items": [    
+    ]
+}
+{
+    "selfLink": "/api/v1/namespaces/default/replicationcontrollers",
+    "resourceVersion": "4243",
+    "Items": []
+}
+{
+    "selfLink": "/api/v1/namespaces/default/services",
+    "resourceVersion": "4243",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/default/daemonsets",
+    "resourceVersion": "4243",
+    "Items": []
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments",
+    "resourceVersion": "4243",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/apis/extensions/v1beta1/namespaces/default/replicasets",
+    "resourceVersion": "4243",
+    "Items": [
+    ]
+}
+{
+    "selfLink": "/api/v1/namespaces/default/pods",
+    "resourceVersion": "4243",
+    "Items": [
+    ]
+}
+==== START logs for container nginx of pod default/nginx-5fc794bbf8-9jjxd ====
+172.33.61.1 - - [24/Feb/2018:05:37:41 +0000] "GET / HTTP/1.1" 200 612 "-" "curl/7.29.0" "-"
+==== END logs for container nginx of pod default/nginx-5fc794bbf8-9jjxd ====
+==== START logs for container nginx of pod default/nginx-5fc794bbf8-pfscn ====
+==== END logs for container nginx of pod default/nginx-5fc794bbf8-pfscn ====
+Cluster info dumped to standard output
+                        

@@ -11,10 +11,62 @@
 使用Vagrant和Virtualbox安装包含3个节点的kubernetes集群，其中master节点同时作为node节点。
 You don't have to create complicated ca files or configuration.
 
-### Get Start
-###### Why don't do that with kubeadm
-Because I want to setup the etcd, apiserver, controller, scheduler without docker container.
+### 常用命令
 
+######  Kubectl 自动补全
+```bash
+source <(kubectl completion bash)  # setup autocomplete in bash, bash-completion package should be installed.
+source <(kubectl completion zsh)   # setup autocomplete in zsh
+```
+
+###### 常用命令
+```bash
+## 验证 master 节点功能
+kubectl get componentstatuses
+kubectl get cs
+
+## -v
+kubectl -v=8 get cs
+
+## namespace
+kubectl get namespaces
+kubectl get ns
+kubectl get ns -o yaml
+
+## nodes
+kubectl get nodes
+kubectl get no
+kubectl get no node1 -o yaml
+kubectl describe no node1
+
+## pod 详情
+kubectl get po --all-namespaces
+kubectl get po --namespace=kube-system
+kubectl get po coredns-xxxx -o yaml --namespace=kube-system
+kubectl describe po coredns-xxxx --namespace=kube-system
+kubectl logs coredns-xxxx --namespace=kube-system
+
+## service
+kubectl get svc --all-namespaces
+kubectl get svc kube-dns --namespace=kube-system -o yaml
+
+kubectl get po --all-namespaces
+kubectl get po --namespace=kube-system
+
+## 显示对象详情
+kubectl describe no node1
+kubectl describe po coredns --namespace=kube-system
+kubectl describe svc kube-dns --namespace=kube-system
+kubectl describe deploy coredns --namespace=kube-system
+
+## node 验证测试
+kubectl run nginx --replicas=2 --labels="run=load-balancer-example" --image=nginx:1.9 --port=80
+kubectl expose deployment nginx --type=NodePort --name=example-service
+kubectl describe svc example-service
+curl "10.254.62.207:80"
+```
+
+### Get Start
 ###### 集群主机
 | IP           | 主机名    | 组件                                     |
 | ------------ | -------- | ---------------------------------------- |
@@ -61,16 +113,6 @@ CLUSTER_DNS_DOMAIN="cluster.local."
 
 
 ###### 命令
-```bash
-## 验证 master 节点功能
-kubectl get componentstatuses
-
-## node 验证测试
-kubectl run nginx --replicas=2 --labels="run=load-balancer-example" --image=nginx:1.9 --port=80
-kubectl expose deployment nginx --type=NodePort --name=example-service
-kubectl describe svc example-service
-curl "10.254.62.207:80"
-```
 
 
 ### 主要步骤
@@ -109,8 +151,7 @@ curl "10.254.62.207:80"
 `provision-kubernetes.sh`
 @import "./provision-kubernetes.sh"
 
-
-### Misc
+### 安装说明
 ###### Usage
 安装完成后的集群包含以下组件：
 * flannel（host-gw模式）
@@ -121,54 +162,39 @@ curl "10.254.62.207:80"
 * kubernetes（版本根据下载的kubernetes安装包而定）
 
 ###### Support Addon
-**Required**
+Required
 - CoreDNS
 - Dashboard
 - Traefik
 
-**Optional**
+Optional
 - Heapster + InfluxDB + Grafana
 - ElasticSearch + Fluentd + Kibana
 - Istio service mesh
 
-###### Setup
-```bash
-git clone https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster.git
-cd kubernetes-vagrant-centos-cluster
-vagrant up
-```
-
-Wait about 10 minutes the kubernetes cluster will be setup automatically.
-
 ###### Connect to kubernetes cluster
 There are 3 ways to access the kubernetes cluster.
 
-**local**
-Copy `conf/admin.kubeconfig` to `~/.kube/config`, using `kubectl` CLI to access the cluster.
-
+**local**: Copy `conf/admin.kubeconfig` to `~/.kube/config`, using `kubectl` CLI to access the cluster.
 We recommend this way.
 
-**VM**
-Login to the virtual machine to access and debug the cluster.
-
+**VM**: Login to the virtual machine to access and debug the cluster.
 ```bash
 vagrant ssh node1
 sudo -i
 kubectl get nodes
 ```
 
-**Kubernetes dashbaord**
+###### Kubernetes dashbaord
 Kubernetes dashboard URL: <https://192.168.99.91:8443>
 
 Get the token:
 ```bash
 kubectl -n kube-system describe secret `kubectl -n kube-system get secret|grep admin-token|cut -d " " -f1`|grep "token:"|tr -s " "|cut -d " " -f2
 ```
-
 **Note**: You can see the token message from `vagrant up` logs.
 
-### Components
-**Heapster monitoring**
+###### Heapster monitoring
 Run this command on you local machine.
 ```bash
 kubectl apply -f addon/heapster/
@@ -181,7 +207,7 @@ Append the following item to you local `/etc/hosts` file.
 
 Open the URL in your browser: <http://grafana.jimmysong.io>
 
-**Treafik ingress**
+###### Treafik ingress
 Run this command on you local machine.
 ```bash
 kubectl apply -f addon/traefik-ingress
@@ -194,7 +220,7 @@ Append the following item to you local `/etc/hosts` file.
 
 Traefik UI URL: <http://traefik.jimmysong.io>
 
-**EFK**
+###### EFK
 Run this command on your local machine.
 ```bash
 kubectl apply -f addon/heapster/
@@ -202,45 +228,39 @@ kubectl apply -f addon/heapster/
 
 **Note**: Powerful CPU and memory allocation required. At least 4G per virtual machine.
 
-### Service Mesh
+###### Service Mesh
 We use [istio](https://istio.io) as the default service mesh.
 
-**Installation**
+Installation
 ```bash
 kubectl apply -f addon/istio/
 ```
 
-**Run sample**
+Run sample
 ```bash
 kubectl apply -f yaml/istio-bookinfo
 kubectl apply -n default -f <(istioctl kube-inject -f yaml/istio-bookinfo/bookinfo.yaml)
 ```
 More detail see https://istio.io/docs/guides/bookinfo.html
 
-### Operation
+###### Operation
 Execute the following commands under the current git repo root directory.
 
-**Suspend**
-Suspend the current state of VMs.
+**Suspend**： Suspend the current state of VMs.
 ```bash
 vagrant suspend
 ```
 
-**Resume**
-Resume the last state of VMs.
+**Resume**： Resume the last state of VMs.
 ```bash
 vagrant resume
 ```
 
-**Clean**
-Clean up the VMs.
+**Clean**： Clean up the VMs.
 ```bash
 vagrant destroy
 rm -rf .vagrant
 ```
-
-###### Note
-Don't use it in production environment.
 
 
 ### etcd
@@ -523,8 +543,8 @@ KUBELET_ARGS=
   --allow-privileged=true
 ```
 
+### Kubernetes addon
 
-###### Kubernetes misc
 ```bash
 ## coredns
 echo "deploy coredns"
@@ -559,163 +579,12 @@ cd -
 `addon/dns/dns-deploy.sh`
 @import "addon/dns/dns-deploy.sh"
 
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: coredns
-  namespace: kube-system
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRole
-metadata:
-  labels:
-    kubernetes.io/bootstrapping: rbac-defaults
-  name: system:coredns
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - endpoints
-  - services
-  - pods
-  - namespaces
-  verbs:
-  - list
-  - watch
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  annotations:
-    rbac.authorization.kubernetes.io/autoupdate: "true"
-  labels:
-    kubernetes.io/bootstrapping: rbac-defaults
-  name: system:coredns
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:coredns
-subjects:
-- kind: ServiceAccount
-  name: coredns
-  namespace: kube-system
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: coredns
-  namespace: kube-system
-data:
-  Corefile: |
-    .:53 {
-        errors
-        log
-        health
-        kubernetes CLUSTER_DOMAIN SERVICE_CIDR POD_CIDR {
-          pods insecure
-          upstream /etc/resolv.conf
-        }
-        prometheus :9153
-        proxy . /etc/resolv.conf
-        cache 30
-    }
----
-apiVersion: extensions/v1beta1
-kind: Deployment
-metadata:
-  name: coredns
-  namespace: kube-system
-  labels:
-    k8s-app: coredns
-    kubernetes.io/name: "CoreDNS"
-spec:
-  replicas: 2
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-  selector:
-    matchLabels:
-      k8s-app: coredns
-  template:
-    metadata:
-      labels:
-        k8s-app: coredns
-    spec:
-      serviceAccountName: coredns
-      tolerations:
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
-        - key: "CriticalAddonsOnly"
-          operator: "Exists"
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: k8s-app
-                  operator: In
-                  values:
-                  - coredns
-              topologyKey: kubernetes.io/hostname
-      containers:
-      - name: coredns
-        image: coredns/coredns:1.0.4
-        imagePullPolicy: IfNotPresent
-        args: [ "-conf", "/etc/coredns/Corefile" ]
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/coredns
-        ports:
-        - containerPort: 53
-          name: dns
-          protocol: UDP
-        - containerPort: 53
-          name: dns-tcp
-          protocol: TCP
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-            scheme: HTTP
-          initialDelaySeconds: 60
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 5
-      dnsPolicy: Default
-      volumes:
-        - name: config-volume
-          configMap:
-            name: coredns
-            items:
-            - key: Corefile
-              path: Corefile
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kube-dns
-  namespace: kube-system
-  labels:
-    k8s-app: coredns
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: "CoreDNS"
-spec:
-  selector:
-    k8s-app: coredns
-  clusterIP: CLUSTER_DNS_IP
-  ports:
-  - name: dns
-    port: 53
-    protocol: UDP
-  - name: dns-tcp
-    port: 53
-    protocol: TCP
-```
+###### dashboard
+`addon/dashboard/kubernetes-dashboard.yaml`
+@import "addon/dashboard/kubernetes-dashboard.yaml" {as=yaml}
 
+
+###### traefik ingress controller
 
 
 ### 创建 kubeconfig 文件
@@ -723,7 +592,7 @@ spec:
 * [Configure Access to Multiple Clusters](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
 * [创建 kubeconfig 文件](https://jimmysong.io/kubernetes-handbook/practice/create-kubeconfig.html)
 
-使用kubeconfig文件来组织关于集群，用户，名称空间和身份验证机制的信息。`kubectl`命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。
+使用kubeconfig文件来组织关于集群，用户，命名空间和身份验证机制的信息。`kubectl`命令行工具使用kubeconfig文件，找到它需要选择的一个集群，与集群的API服务器进行通信。
 用于配置对群集的访问的文件称为 `kubeconfig` 文件。这是引用配置文件的通用方式。这并不意味着有一个名为的文件kubeconfig。
 默认情况下，kubectl 在 `$HOME/.kube` 目录中查找指定config的文件。您可以通过设置 `KUBECONFIG` 环境变量或设置 `--kubeconfig` 标志来指定其他kubeconfig文件。
 * 支持多个群集，用户和认证机制
