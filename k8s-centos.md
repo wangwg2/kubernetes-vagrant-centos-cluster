@@ -1,4 +1,4 @@
-## Setting up a kubernetes cluster with Vagrant and Virtualbox
+## Kubernetes cluster with Vagrant and Virtualbox
 * [在CentOS上部署kubernetes集群](https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html)
 * [和我一步步部署 kubernetes 集群](https://www.gitbook.com/book/opsnull/follow-me-install-kubernetes-cluster/details)
 * [rootsongjc/kubernetes-vagrant-centos-cluster](https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster)
@@ -10,6 +10,11 @@
 
 使用Vagrant和Virtualbox安装包含3个节点的kubernetes集群，其中master节点同时作为node节点。
 You don't have to create complicated ca files or configuration.
+
+节点网络IP: `192.168.99.91 ~ 192.168.99.93`
+容器IP范围：`172.33.0.0/16`
+Kubernetes service IP范围：`10.254.0.0/16`
+
 
 ### 常用命令
 
@@ -77,6 +82,24 @@ curl "10.254.62.207:80"
 以上的IP、主机名和组件都是固定在这些节点的，即使销毁后下次使用vagrant重建依然保持不变。
 节点网络IP: `192.168.99.91 ~ 192.168.99.93`，公有网络IP由宿主机DHCP分配。
 
+###### 证书
+生成的 CA 证书和秘钥文件如下：
+```
+ca.pem              ca-key.pem
+kubernetes.pem      kubernetes-key.pem
+kube-proxy.pem      kube-proxy-key.pem
+admin.pem           admin-key.pem
+```
+使用证书的组件如下：
+```
+etcd：                   使用 ca.pem、kubernetes-key.pem、kubernetes.pem；
+kube-apiserver：         使用 ca.pem、kubernetes-key.pem、kubernetes.pem；
+kubelet：                使用 ca.pem；
+kube-proxy：             使用 ca.pem、kube-proxy-key.pem、kube-proxy.pem；
+kubectl：                使用 ca.pem、admin-key.pem、admin.pem；
+kube-controller-manager：使用 ca-key.pem、ca.pem
+```
+
 ###### 主要环境变量
 ```bash
 # TLS Bootstrapping 使用的 Token，可以使用命令 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成
@@ -110,9 +133,6 @@ CLUSTER_DNS_SVC_IP="10.254.0.2"
 # 集群 DNS 域名
 CLUSTER_DNS_DOMAIN="cluster.local."
 ```
-
-
-###### 命令
 
 
 ### 主要步骤
@@ -271,7 +291,6 @@ rm -rf .vagrant
 * [etcd：从应用场景到实现原理的全方位解读](http://www.infoq.com/cn/articles/etcd-interpretation-application-scenario-implement-principle)
 * [etcd集群部署与遇到的坑](http://www.cnblogs.com/breg/p/5728237.html)
 
-
 etcd 可以通过命令行标记和环境变量来配置。命令行上设置的选项优先于环境变量。
 对于标记 `--my-flag` 环境变量的格式是 `ETCD_MY_FLAG`。 如 `--name` 对应环境变量： `ETCD_NAME`。
 
@@ -279,25 +298,37 @@ etcd 可以通过命令行标记和环境变量来配置。命令行上设置的
 
 为了在 linux 启动试使用自定义设置自动启动 etcd ，强烈推荐使用 `systemd` 单元。
 
-etcd 参数说明
-* `--name` 成员的可读性的名字.
-* `--data-dir` 数据目录路径；
-* `--wal-dir` 专用wal目录路径，若指定了该参数，wal文件会和其他数据文件分开存储。
-* `--listen-peer-urls` 用于监听其他成员通讯的 peer URL 
+###### etcd 参数说明
+* `--name`
+  成员的可读性的名字.
+* `--data-dir`
+  数据目录路径；
+* `--wal-dir` 
+  专用wal目录路径，若指定了该参数，wal文件会和其他数据文件分开存储。
+* `--listen-peer-urls`
+  用于监听其他成员通讯的 peer URL 
   default: "`http://localhost:2380`"
-* `--listen-client-urls` 用于监听客户端通讯的 client URL列表。
-* `--advertise-client-urls` 列出这个成员的 client URL，通告给集群中的其他成员。
+* `--listen-client-urls`
+  用于监听客户端通讯的 client URL列表。
+* `--advertise-client-urls`
+  列出这个成员的 client URL，通告给集群中的其他成员。
   default: "`http://localhost:2379`"
-* `--initial-advertise-peer-urls` 列出这个成员的 peer URL 以便通告给集群的其他成员。
-* `--initial-cluster-token` 集群的ID 
-* `--initial-cluster` 为启动初始化集群配置。
+* `--initial-advertise-peer-urls`
+  列出这个成员的 peer URL 以便通告给集群的其他成员。
+* `--initial-cluster-token`
+  集群的ID 
+* `--initial-cluster`
+  为启动初始化集群配置。
   example: `--initial-cluster node1=http://10.0.1.10:2380,node2=http://10.0.1.11:2380,node3=http://10.0.1.12:2380`
-* `--discovery` 用于启动集群的发现URL。默认: `none`
-* `--initial-cluster-state` 初始化集群状态("new" or "existing")。
+* `--discovery`
+  用于启动集群的发现URL。默认: `none`
+* `--initial-cluster-state`
+  初始化集群状态("`new`" or "`existing`")。
   在初始化静态(initial static)或者 DNS 启动 (DNS bootstrapping) 期间为所有成员设置为 `new`。
   如果这个选项被设置为 `existing`, etcd 将试图加入已有的集群。如果设置为错误的值，etcd 将尝试启动但安全失败。
 
-/etc/etcd/etcd.conf
+
+###### /etc/etcd/etcd.conf
 ```ini
 #[Member]
 ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
@@ -313,8 +344,19 @@ ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
 ETCD_INITIAL_CLUSTER_STATE="new"
 ```
 
-/usr/lib/systemd/system/etcd.service
+###### /usr/lib/systemd/system/etcd.service
 @import "systemd/etcd.service" {as=ini}
+
+###### etcd 启动参数
+```yaml
+--name "node1"                              # 成员名字.
+--data-dir=/var/lib/etcd/default.etcd       # 数据目录路径
+
+# 用于监听客户端通讯的 client URL列表。
+--listen-client-urls "http://192.168.99.91:2379,http://localhost:2379"
+# 列出这个成员的 client URL，通告给集群中的其他成员。
+--advertise-client-urls "http://192.168.99.91:2379"
+```
 
 
 ### flanneld
@@ -323,6 +365,13 @@ ETCD_INITIAL_CLUSTER_STATE="new"
 * [DockOne技术分享（十八）：一篇文章带你了解Flannel](http://dockone.io/article/618)
 
 所有的node节点都需要安装网络插件才能让所有的Pod加入到同一个局域网中。
+
+###### flanneld 参数说明
+* `-iface string`
+  监听的网卡；使用（IP或名称）进行主机间通信的网络接口。
+* `-public-ip string`
+  IP可被其他节点访问以进行主机间通信。
+
 
 ###### flannel 配置
 /etc/sysconfig/flanneld
@@ -369,15 +418,22 @@ RequiredBy=docker.service
 #!/bin/sh
 exec /usr/bin/flanneld \
   -etcd-endpoints=${FLANNEL_ETCD_ENDPOINTS:-${FLANNEL_ETCD}} \
-  -etcd-prefix=${FLANNEL_ETCD_PREFIX:-${FLANNEL_ETCD_KEY}} \
+  -etcd-prefix=${/kube-centos/network:-${FLANNEL_ETCD_KEY}} \
   "$@"
+```
+
+###### flanneld 启动参数
+```yaml
+-etcd-endpoints=http://192.168.99.91:2379      # etcd 的地址
+-etcd-prefix=/kube-centos/network              # 在 etcd 中配置的网络参数的 key
+-iface=eth2                                    # 监听的网卡
 ```
 
 ###### 向 etcd 写入集群 Pod 网段信息
 在etcd中创建网络配置，docker分配IP地址段。（子网IP范围：172.33.0.0）
 本步骤只需在第一次部署 Flannel 网络时执行，后续在其它节点上部署 Flannel 时无需再写入该信息！
 
-`provision-etcd.sh` []
+`provision-etcd.sh`
 ```bash
 echo 'create kubernetes ip range for flannel on 172.33.0.0/16'
 etcdctl cluster-health
@@ -474,8 +530,53 @@ KUBE_API_ARGS=
   --event-ttl=1h --allow-privileged=true"
 ```
 
+kube-apiserver 启动参数
+```yaml
+## 必须项 ------------
+--service-cluster-ip-range=10.254.0.0/16    # service 要使用的网段，使用 CIDR 格式，参考 service 的定义
+--etcd-servers=http://192.168.99.91:2379    # 以逗号分隔的 etcd 服务列表，与 `--etcd-config` 互斥
+
+## 可选项 -------------
+## HTTP/HTTPS 监听的IP与端口
+--apiserver-count=3                         # apiservers 数量 (默认1) 
+--advertise-address=192.168.99.91           # 通过该 ip 地址向集群其他节点公布 api server 的信息
+--bind-address=192.168.99.91                # HTTPS 安全端口监听的IP (默认 0.0.0.0)
+--secure-port=6443                          # HTTPS 安全端口 (默认 6443)
+--insecure-bind-address=192.168.99.91       # HTTP 非安全端口监听的IP (默认 127.0.0.1)
+--insecure-port=8080                        # HTTP 非安全端口监听的端口 (默认 8080)
+--service-node-port-range=30000-32767       # Service 的 NodePort 所能使用的主机端口号范围
+--runtime-config=rbac.authorization.k8s.io/v1beta1  # 打开或关闭针对某个api版本支持
+
+## 证书
+# HTTPS密钥与证书
+--tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem
+--tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem
+# 认证: 证书认证 + Token 认证
+--client-ca-file=/etc/kubernetes/ssl/ca.pem # 证书认证: client证书文件
+--token-auth-file=/etc/kubernetes/token.csv # tocken 认证: token文件
+# 授权模式： 安全接口上的授权
+--authorization-mode=Node,RBAC              
+# 准入控制： 一串用逗号连接的有序的准入模块列表
+--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota
+
+--service-account-key-file=/etc/kubernetes/ssl/ca-key.pem
+--enable-bootstrap-token-auth               # 启动引导令牌认证（Bootstrap Tokens）
+--allow-privileged=true                     # 是否允许 privileged 容器运行
+--kubelet-https=true                        # 指定 kubelet 是否使用 HTTPS 连接
+--enable-swagger-ui=true                    # 开启 Swagger UI
+
+## 日志
+--logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
+--v=0                                       # 日志级别
+--event-ttl=1h                              # 各种事件在系统中的保存时间
+--audit-log-path=/var/lib/audit.log         # 审计日志路径
+--audit-log-maxage=30                       # 旧日志最长保留天数
+--audit-log-maxbackup=3                     # 旧日志文件最多保留个数
+--audit-log-maxsize=100                     # 日志文件最大大小（单位MB）
+```
+
 ###### Kubernetes controller-manager 
-kube-scheduler 服务依赖 etcd 和 kube-apiserver 服务
+kube-controller-manager 服务依赖 etcd 和 kube-apiserver 服务
 
 /etc/kubernetes/controller-manager
 @import "conf/controller-manager" {as=bash}
@@ -495,6 +596,26 @@ KUBE_CONTROLLER_MANAGER_ARGS=
   --leader-elect=true
 ```
 
+kube-controller-manager 启动参数
+```yaml
+--logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
+--v=0                                       # 日志级别
+--leader-elect=true                         # 启动选举
+
+--master=http://192.168.99.91:8080          # Kubernetes master apiserver 地址
+--address=127.0.0.1                         # 绑定主机 IP 地址，apiserver 与 controller-manager在同一主机
+--service-cluster-ip-range=10.254.0.0/16    # service 要使用的网段，使用 CIDR 格式，参考 service 的定义
+--cluster-name=kubernetes                   # Kubernetes 集群名，也表现为实例化的前缀
+--root-ca-file=/etc/kubernetes/ssl/ca.pem   # 用来对 kube-apiserver 证书进行校验，被用于 Service Account。
+
+# 用于给 Service Account Token 签名的 PEM 编码的 RSA 或 ECDSA 私钥文件。
+--service-account-private-key-file=/etc/kubernetes/ssl/ca-key.pem
+
+# 指定的证书和私钥文件用来签名为 TLS BootStrap 创建的证书和私钥；
+--cluster-signing-cert-file=/etc/kubernetes/ssl/ca.pem
+--cluster-signing-key-file=/etc/kubernetes/ssl/ca-key.pem
+```
+
 ###### Kubernetes scheduler
 kube-scheduler 服务依赖 etcd 和 kube-apiserver 服务
 
@@ -505,6 +626,15 @@ kube-scheduler 服务依赖 etcd 和 kube-apiserver 服务
 /etc/kubernetes/config
 @import "conf/scheduler.conf" {as=yaml}
 
+kube-scheduler 启动参数
+```yaml
+--logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
+--v=0                                       # 日志级别
+--leader-elect=true                         # 启动选举
+--master=http://192.168.99.91:8080          # Kubernetes master apiserver 地址
+--address=127.0.0.1                         # 绑定主机 IP 地址，apiserver 与 controller-manager在同一主机 
+--kubeconfig=/etc/kubernetes/scheduler.conf # kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息
+```
 
 ###### Kubernetes kube-proxy 
 /etc/kubernetes/proxy (node1)
@@ -519,6 +649,19 @@ KUBE_PROXY_ARGS=
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig 
   --cluster-cidr=10.254.0.0/16 
   --hostname-override=node1
+```
+
+kube-proxy 启动参数
+```yaml
+--logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
+--v=0                                       # 日志级别
+--master=http://192.168.99.91:8080          # Kubernetes master apiserver 地址
+--bind-address=192.168.99.91                # 主机绑定的IP地址。
+--cluster-cidr=10.254.0.0/16                # kube-proxy 根据此判断集群内部和外部流量
+--hostname-override=192.168.99.91           # 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node 
+--hostname-override=node1                   # 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node 
+# kubeconfig 配置文件
+--kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig
 ```
 
 ###### Kubernetes kubelet 
@@ -541,6 +684,37 @@ KUBELET_ARGS=
   --hairpin-mode promiscuous-bridge 
   --serialize-image-pulls=false 
   --allow-privileged=true
+```
+
+kubelet 启动参数
+```yaml
+```yaml
+--logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
+--v=0                                       # 日志级别
+--allow-privileged=true                     # 是否允许容器运行在 privileged 模式
+--address=192.168.99.91                     # 绑定主机 IP 地址
+--hostname-override=node1                   # 
+--pod-infra-container-image=docker.io/openshift/origin-pod   # 基础镜像容器
+--runtime-cgroups=/systemd/system.slice     # 如果使用systemd方式启动，增加此参数
+--kubelet-cgroups=/systemd/system.slice     # 如果使用systemd方式启动，增加此参数
+--cgroup-driver=systemd                     # 配置成 systemd，不要使用 cgroup，否则在 CentOS 系统中 kubelet将启动失败
+--cluster-dns=10.254.0.2                    # 指定 kubedns 的 Service IP, --cluster-domain 指定域名后缀，这两个参数同时指定后才会生效；
+--cluster-domain=cluster.local              # 指定 pod 启动时 /etc/resolve.conf 文件中的 search domain
+
+# kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；
+--bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig 
+--require-kubeconfig                        # 如果未指定 --apiservers 选项，则必须指定此选项后才从配置文件读取 kube-apiserver 地址 
+# kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息
+--kubeconfig=/etc/kubernetes/kubelet.kubeconfig
+
+--cert-dir=/etc/kubernetes/ssl              # TLS证书所在的目录。
+--hairpin-mode promiscuous-bridge           # kubelet应该如何设置 hairpin NAT。
+--serialize-image-pulls=false               # 一次拉出一个镜像。
+--allow-privileged=true                     # 是否允许 privileged 容器运行
+
+## 未使用
+# $KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"
+# $KUBELET_PORT="--port=10250"
 ```
 
 ### Kubernetes addon
