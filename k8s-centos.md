@@ -688,7 +688,6 @@ KUBELET_ARGS=
 
 kubelet 启动参数
 ```yaml
-```yaml
 --logtostderr=true                          # 输出到 `stderr`,不输到日志文件。
 --v=0                                       # 日志级别
 --allow-privileged=true                     # 是否允许容器运行在 privileged 模式
@@ -756,7 +755,6 @@ cd -
 ###### dashboard
 `addon/dashboard/kubernetes-dashboard.yaml`
 @import "addon/dashboard/kubernetes-dashboard.yaml" {as=yaml}
-
 
 ###### traefik ingress controller
 

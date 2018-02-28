@@ -1408,8 +1408,7 @@ KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--r
   --allow-privileged=true
 </pre>
 <p>kubelet 启动参数</p>
-<pre class="language-yaml">```yaml
-<span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
 <span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
 <span class="token punctuation">-</span><span class="token punctuation">-</span>allow<span class="token punctuation">-</span>privileged=true                     <span class="token comment" spellcheck="true"># 是否允许容器运行在 privileged 模式</span>
 <span class="token punctuation">-</span><span class="token punctuation">-</span>address=192.168.99.91                     <span class="token comment" spellcheck="true"># 绑定主机 IP 地址</span>
@@ -1422,13 +1421,9 @@ KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--r
 <span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>domain=cluster.local              <span class="token comment" spellcheck="true"># 指定 pod 启动时 /etc/resolve.conf 文件中的 search domain</span>
 
 <span class="token comment" spellcheck="true"># kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；</span>
-&lt;p class="mume<span class="token punctuation">-</span>header " id="kubelet<span class="token punctuation">-</span>使用该文件中的用户名和<span class="token punctuation">-</span>token<span class="token punctuation">-</span>向<span class="token punctuation">-</span>kube<span class="token punctuation">-</span>apiserver<span class="token punctuation">-</span>发送<span class="token punctuation">-</span>tls<span class="token punctuation">-</span>bootstrapping<span class="token punctuation">-</span>请求"<span class="token punctuation">></span>&lt;/p<span class="token punctuation">></span>
-
 <span class="token punctuation">-</span><span class="token punctuation">-</span>bootstrap<span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/bootstrap.kubeconfig 
 <span class="token punctuation">-</span><span class="token punctuation">-</span>require<span class="token punctuation">-</span>kubeconfig                        <span class="token comment" spellcheck="true"># 如果未指定 --apiservers 选项，则必须指定此选项后才从配置文件读取 kube-apiserver 地址 </span>
 <span class="token comment" spellcheck="true"># kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息</span>
-&lt;p class="mume<span class="token punctuation">-</span>header " id="kubeconfig<span class="token punctuation">-</span>配置文件在配置文件中包含<span class="token punctuation">-</span>master<span class="token punctuation">-</span>地址信息和必要的认证信息"<span class="token punctuation">></span>&lt;/p<span class="token punctuation">></span>
-
 <span class="token punctuation">-</span><span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/kubelet.kubeconfig
 
 <span class="token punctuation">-</span><span class="token punctuation">-</span>cert<span class="token punctuation">-</span>dir=/etc/kubernetes/ssl              <span class="token comment" spellcheck="true"># TLS证书所在的目录。</span>
@@ -1437,27 +1432,18 @@ KUBELET_ARGS<span class="token operator">=</span><span class="token string">"--r
 <span class="token punctuation">-</span><span class="token punctuation">-</span>allow<span class="token punctuation">-</span>privileged=true                     <span class="token comment" spellcheck="true"># 是否允许 privileged 容器运行</span>
 
 <span class="token comment" spellcheck="true">## 未使用</span>
-&lt;p class="mume<span class="token punctuation">-</span>header " id="未使用"<span class="token punctuation">></span>&lt;/p<span class="token punctuation">></span>
-
 <span class="token comment" spellcheck="true"># $KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"</span>
-&lt;p class="mume<span class="token punctuation">-</span>header " id="kubelet_api_server<span class="token punctuation">-</span>api<span class="token punctuation">-</span>servershttp1722001138080"<span class="token punctuation">></span>&lt;/p<span class="token punctuation">></span>
-
 <span class="token comment" spellcheck="true"># $KUBELET_PORT="--port=10250"</span>
-&lt;p class="mume<span class="token punctuation">-</span>header " id="kubelet_port<span class="token punctuation">-</span>port10250"<span class="token punctuation">></span>&lt;/p<span class="token punctuation">></span>
-
 </pre>
-<h3>Kubernetes addon</h3>
-<pre class="language-bash"><span class="token comment" spellcheck="true">## coredns</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"coredns"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
+<h3 class="mume-header" id="kubernetes-addon">Kubernetes addon</h3>
 
+<pre class="language-bash"><span class="token comment" spellcheck="true">## coredns</span>
 <span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
 <span class="token function">cd</span> /vagrant/addon/dns/
 ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
 <span class="token function">cd</span> -
 
 <span class="token comment" spellcheck="true">## dashboard</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"dashboard"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
 kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
 <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
@@ -1468,26 +1454,380 @@ kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span c
 <span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
 
 <span class="token comment" spellcheck="true">## traefik ingress controller</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"traefik-ingress-controller"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
 kubectl apply -f /vagrant/addon/traefik-ingress/
 </pre>
-<h6>coredns</h6>
+<h6 class="mume-header" id="coredns">coredns</h6>
+
 <pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
 <span class="token function">cd</span> /vagrant/addon/dns/
 ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
 <span class="token function">cd</span> -
 </pre>
-<p><code>addon/dns/coredns.yaml.sed</code><br>
-@import &quot;addon/dns/coredns.yaml.sed&quot; {as=yaml}<br>
-<code>addon/dns/dns-deploy.sh</code><br>
-@import &quot;addon/dns/dns-deploy.sh&quot;</p>
-<h6>dashboard</h6>
-<p><code>addon/dashboard/kubernetes-dashboard.yaml</code><br>
-@import &quot;addon/dashboard/kubernetes-dashboard.yaml&quot; {as=yaml}</p>
-<h6>traefik ingress controller</h6>
-<h3>创建 kubeconfig 文件</h3>
+<p><code>addon/dns/coredns.yaml.sed</code></p>
+<pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRole
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">kubernetes.io/bootstrapping</span><span class="token punctuation">:</span> rbac<span class="token punctuation">-</span>defaults
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">rules</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token string">""</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> endpoints
+  <span class="token punctuation">-</span> services
+  <span class="token punctuation">-</span> pods
+  <span class="token punctuation">-</span> namespaces
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> list
+  <span class="token punctuation">-</span> watch
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRoleBinding
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">annotations</span><span class="token punctuation">:</span>
+    <span class="token key atrule">rbac.authorization.kubernetes.io/autoupdate</span><span class="token punctuation">:</span> <span class="token string">"true"</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">kubernetes.io/bootstrapping</span><span class="token punctuation">:</span> rbac<span class="token punctuation">-</span>defaults
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">roleRef</span><span class="token punctuation">:</span>
+  <span class="token key atrule">apiGroup</span><span class="token punctuation">:</span> rbac.authorization.k8s.io
+  <span class="token key atrule">kind</span><span class="token punctuation">:</span> ClusterRole
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> system<span class="token punctuation">:</span>coredns
+<span class="token key atrule">subjects</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ConfigMap
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">data</span><span class="token punctuation">:</span>
+  <span class="token key atrule">Corefile</span><span class="token punctuation">:</span> <span class="token punctuation">|</span><span class="token scalar string">
+    .:53 {
+        errors
+        log
+        health
+        kubernetes CLUSTER_DOMAIN SERVICE_CIDR POD_CIDR {
+          pods insecure
+          upstream /etc/resolv.conf
+        }
+        prometheus :9153
+        proxy . /etc/resolv.conf
+        cache 30
+    }</span>
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> extensions/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">kubernetes.io/name</span><span class="token punctuation">:</span> <span class="token string">"CoreDNS"</span>
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">replicas</span><span class="token punctuation">:</span> <span class="token number">2</span>
+  <span class="token key atrule">strategy</span><span class="token punctuation">:</span>
+    <span class="token key atrule">type</span><span class="token punctuation">:</span> RollingUpdate
+    <span class="token key atrule">rollingUpdate</span><span class="token punctuation">:</span>
+      <span class="token key atrule">maxUnavailable</span><span class="token punctuation">:</span> <span class="token number">1</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">matchLabels</span><span class="token punctuation">:</span>
+      <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">serviceAccountName</span><span class="token punctuation">:</span> coredns
+      <span class="token key atrule">tolerations</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> node<span class="token punctuation">-</span>role.kubernetes.io/master
+          <span class="token key atrule">effect</span><span class="token punctuation">:</span> NoSchedule
+        <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> <span class="token string">"CriticalAddonsOnly"</span>
+          <span class="token key atrule">operator</span><span class="token punctuation">:</span> <span class="token string">"Exists"</span>
+      <span class="token key atrule">affinity</span><span class="token punctuation">:</span>
+        <span class="token key atrule">podAntiAffinity</span><span class="token punctuation">:</span>
+          <span class="token key atrule">preferredDuringSchedulingIgnoredDuringExecution</span><span class="token punctuation">:</span>
+          <span class="token punctuation">-</span> <span class="token key atrule">weight</span><span class="token punctuation">:</span> <span class="token number">100</span>
+            <span class="token key atrule">podAffinityTerm</span><span class="token punctuation">:</span>
+              <span class="token key atrule">labelSelector</span><span class="token punctuation">:</span>
+                <span class="token key atrule">matchExpressions</span><span class="token punctuation">:</span>
+                <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> k8s<span class="token punctuation">-</span>app
+                  <span class="token key atrule">operator</span><span class="token punctuation">:</span> In
+                  <span class="token key atrule">values</span><span class="token punctuation">:</span>
+                  <span class="token punctuation">-</span> coredns
+              <span class="token key atrule">topologyKey</span><span class="token punctuation">:</span> kubernetes.io/hostname
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+        <span class="token key atrule">image</span><span class="token punctuation">:</span> coredns/coredns<span class="token punctuation">:</span>1.0.4
+        <span class="token key atrule">imagePullPolicy</span><span class="token punctuation">:</span> IfNotPresent
+        <span class="token key atrule">args</span><span class="token punctuation">:</span> <span class="token punctuation">[</span> <span class="token string">"-conf"</span><span class="token punctuation">,</span> <span class="token string">"/etc/coredns/Corefile"</span> <span class="token punctuation">]</span>
+        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> config<span class="token punctuation">-</span>volume
+          <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /etc/coredns
+        <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">53</span>
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> dns
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> UDP
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">53</span>
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> dns<span class="token punctuation">-</span>tcp
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+        <span class="token key atrule">livenessProbe</span><span class="token punctuation">:</span>
+          <span class="token key atrule">httpGet</span><span class="token punctuation">:</span>
+            <span class="token key atrule">path</span><span class="token punctuation">:</span> /health
+            <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8080</span>
+            <span class="token key atrule">scheme</span><span class="token punctuation">:</span> HTTP
+          <span class="token key atrule">initialDelaySeconds</span><span class="token punctuation">:</span> <span class="token number">60</span>
+          <span class="token key atrule">timeoutSeconds</span><span class="token punctuation">:</span> <span class="token number">5</span>
+          <span class="token key atrule">successThreshold</span><span class="token punctuation">:</span> <span class="token number">1</span>
+          <span class="token key atrule">failureThreshold</span><span class="token punctuation">:</span> <span class="token number">5</span>
+      <span class="token key atrule">dnsPolicy</span><span class="token punctuation">:</span> Default
+      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> config<span class="token punctuation">-</span>volume
+          <span class="token key atrule">configMap</span><span class="token punctuation">:</span>
+            <span class="token key atrule">name</span><span class="token punctuation">:</span> coredns
+            <span class="token key atrule">items</span><span class="token punctuation">:</span>
+            <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> Corefile
+              <span class="token key atrule">path</span><span class="token punctuation">:</span> Corefile
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>dns
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+    <span class="token key atrule">kubernetes.io/cluster-service</span><span class="token punctuation">:</span> <span class="token string">"true"</span>
+    <span class="token key atrule">kubernetes.io/name</span><span class="token punctuation">:</span> <span class="token string">"CoreDNS"</span>
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> coredns
+  <span class="token key atrule">clusterIP</span><span class="token punctuation">:</span> CLUSTER_DNS_IP
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> dns
+    <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">53</span>
+    <span class="token key atrule">protocol</span><span class="token punctuation">:</span> UDP
+  <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> dns<span class="token punctuation">-</span>tcp
+    <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">53</span>
+    <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+
+</pre>
+<p><code>addon/dns/dns-deploy.sh</code></p>
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true"># Deploys CoreDNS to a cluster currently running Kube-DNS.</span>
+
+SERVICE_CIDR<span class="token operator">=</span><span class="token variable">$1</span>
+POD_CIDR<span class="token operator">=</span><span class="token variable">$2</span>
+CLUSTER_DNS_IP<span class="token operator">=</span><span class="token variable">$3</span>
+CLUSTER_DOMAIN<span class="token operator">=</span><span class="token variable">${4:-cluster.local}</span>
+YAML_TEMPLATE<span class="token operator">=</span>$<span class="token punctuation">{</span>5:-<span class="token variable"><span class="token variable">`</span><span class="token function">pwd</span><span class="token variable">`</span></span>/coredns.yaml.sed<span class="token punctuation">}</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> -z <span class="token variable">$SERVICE_CIDR</span> <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+	<span class="token keyword">echo</span> <span class="token string">"Usage: <span class="token variable">$0</span> SERVICE-CIDR [ POD-CIDR ] [ DNS-IP ] [ CLUSTER-DOMAIN ] [ YAML-TEMPLATE ]"</span>
+	<span class="token keyword">exit</span> 1
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> -z <span class="token variable">$CLUSTER_DNS_IP</span> <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+  CLUSTER_DNS_IP<span class="token operator">=</span><span class="token punctuation">$(</span>kubectl get <span class="token function">service</span> --namespace kube-system kube-dns -o jsonpath<span class="token operator">=</span><span class="token string">"{.spec.clusterIP}"</span><span class="token punctuation">)</span>
+  <span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span><span class="token punctuation">;</span> <span class="token keyword">then</span>
+      <span class="token operator">></span><span class="token operator">&amp;</span>2 <span class="token keyword">echo</span> <span class="token string">"Error! The IP address for DNS service couldn't be determined automatically. Please specify the DNS-IP in paramaters."</span>
+      <span class="token keyword">exit</span> 2
+  <span class="token keyword">fi</span>
+<span class="token keyword">fi</span>
+
+<span class="token function">sed</span> -e s/CLUSTER_DNS_IP/<span class="token variable">$CLUSTER_DNS_IP</span>/g -e s/CLUSTER_DOMAIN/<span class="token variable">$CLUSTER_DOMAIN</span>/g -e s?SERVICE_CIDR?<span class="token variable">$SERVICE_CIDR?g</span> -e s?POD_CIDR?<span class="token variable">$POD_CIDR?g</span> <span class="token variable">$YAML_TEMPLATE</span>
+
+</pre>
+<h6 class="mume-header" id="dashboard">dashboard</h6>
+
+<p><code>addon/dashboard/kubernetes-dashboard.yaml</code></p>
+<pre class="language-yaml {as=&quot;yaml&quot;}"><span class="token comment" spellcheck="true"># Copyright 2017 The Kubernetes Authors.</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Licensed under the Apache License, Version 2.0 (the "License");</span>
+<span class="token comment" spellcheck="true"># you may not use this file except in compliance with the License.</span>
+<span class="token comment" spellcheck="true"># You may obtain a copy of the License at</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="token comment" spellcheck="true"># distributed under the License is distributed on an "AS IS" BASIS,</span>
+<span class="token comment" spellcheck="true"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="token comment" spellcheck="true"># See the License for the specific language governing permissions and</span>
+<span class="token comment" spellcheck="true"># limitations under the License.</span>
+
+<span class="token comment" spellcheck="true"># Configuration to deploy release version of the Dashboard UI compatible with</span>
+<span class="token comment" spellcheck="true"># Kubernetes 1.8.</span>
+<span class="token comment" spellcheck="true">#</span>
+<span class="token comment" spellcheck="true"># Example usage: kubectl create -f &lt;this_file></span>
+
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Secret ------------------- #</span>
+
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Secret
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">type</span><span class="token punctuation">:</span> Opaque
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Service Account ------------------- #</span>
+
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Role &amp; Role Binding ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Role
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">rules</span><span class="token punctuation">:</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to create 'kubernetes-dashboard-key-holder' secret.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"secrets"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"create"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to create 'kubernetes-dashboard-settings' config map.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"configmaps"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"create"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get, update and delete Dashboard exclusive secrets.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"secrets"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"kubernetes-dashboard-key-holder"</span><span class="token punctuation">,</span> <span class="token string">"kubernetes-dashboard-certs"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">,</span> <span class="token string">"update"</span><span class="token punctuation">,</span> <span class="token string">"delete"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get and update 'kubernetes-dashboard-settings' config map.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"configmaps"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"kubernetes-dashboard-settings"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">,</span> <span class="token string">"update"</span><span class="token punctuation">]</span>
+  <span class="token comment" spellcheck="true"># Allow Dashboard to get metrics from heapster.</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"services"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"heapster"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"proxy"</span><span class="token punctuation">]</span>
+<span class="token punctuation">-</span> <span class="token key atrule">apiGroups</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">""</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resources</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"services/proxy"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">resourceNames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"heapster"</span><span class="token punctuation">,</span> <span class="token string">"http:heapster:"</span><span class="token punctuation">,</span> <span class="token string">"https:heapster:"</span><span class="token punctuation">]</span>
+  <span class="token key atrule">verbs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"get"</span><span class="token punctuation">]</span>
+
+<span class="token punctuation">---</span>
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> rbac.authorization.k8s.io/v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> RoleBinding
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">roleRef</span><span class="token punctuation">:</span>
+  <span class="token key atrule">apiGroup</span><span class="token punctuation">:</span> rbac.authorization.k8s.io
+  <span class="token key atrule">kind</span><span class="token punctuation">:</span> Role
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>minimal
+<span class="token key atrule">subjects</span><span class="token punctuation">:</span>
+<span class="token punctuation">-</span> <span class="token key atrule">kind</span><span class="token punctuation">:</span> ServiceAccount
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Deployment ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> apps/v1beta2
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">replicas</span><span class="token punctuation">:</span> <span class="token number">1</span>
+  <span class="token key atrule">revisionHistoryLimit</span><span class="token punctuation">:</span> <span class="token number">10</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">matchLabels</span><span class="token punctuation">:</span>
+      <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">hostNetwork</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+      <span class="token key atrule">nodeSelector</span><span class="token punctuation">:</span>
+        <span class="token key atrule">kubernetes.io/hostname</span><span class="token punctuation">:</span> <span class="token string">"node1"</span>
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+        <span class="token key atrule">image</span><span class="token punctuation">:</span> jimmysong/kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>amd64<span class="token punctuation">:</span>v1.8.2
+        <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+          <span class="token key atrule">hostPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+        <span class="token key atrule">args</span><span class="token punctuation">:</span>
+          <span class="token punctuation">-</span> <span class="token punctuation">-</span><span class="token punctuation">-</span>auto<span class="token punctuation">-</span>generate<span class="token punctuation">-</span>certificates
+          <span class="token comment" spellcheck="true"># Uncomment the following line to manually specify Kubernetes API server Host</span>
+          <span class="token comment" spellcheck="true"># If not specified, Dashboard will attempt to auto discover the API server and connect</span>
+          <span class="token comment" spellcheck="true"># to it. Uncomment only if the default does not work.</span>
+          <span class="token comment" spellcheck="true"># - --apiserver-host=http://my-address:port</span>
+        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+          <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /certs
+          <span class="token comment" spellcheck="true"># Create on-disk volume to store exec logs</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /tmp
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> tmp<span class="token punctuation">-</span>volume
+        <span class="token key atrule">livenessProbe</span><span class="token punctuation">:</span>
+          <span class="token key atrule">httpGet</span><span class="token punctuation">:</span>
+            <span class="token key atrule">scheme</span><span class="token punctuation">:</span> HTTPS
+            <span class="token key atrule">path</span><span class="token punctuation">:</span> /
+            <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+          <span class="token key atrule">initialDelaySeconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+          <span class="token key atrule">timeoutSeconds</span><span class="token punctuation">:</span> <span class="token number">30</span>
+      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+        <span class="token key atrule">secret</span><span class="token punctuation">:</span>
+          <span class="token key atrule">secretName</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard<span class="token punctuation">-</span>certs
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> tmp<span class="token punctuation">-</span>volume
+        <span class="token key atrule">emptyDir</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+      <span class="token key atrule">serviceAccountName</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+      <span class="token comment" spellcheck="true"># Comment the following tolerations if Dashboard must not be deployed on master</span>
+      <span class="token key atrule">tolerations</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">key</span><span class="token punctuation">:</span> node<span class="token punctuation">-</span>role.kubernetes.io/master
+        <span class="token key atrule">effect</span><span class="token punctuation">:</span> NoSchedule
+
+<span class="token punctuation">---</span>
+<span class="token comment" spellcheck="true"># ------------------- Dashboard Service ------------------- #</span>
+
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+  <span class="token key atrule">namespace</span><span class="token punctuation">:</span> kube<span class="token punctuation">-</span>system
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">port</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+      <span class="token key atrule">targetPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
+
+</pre>
+<h6 class="mume-header" id="traefik-ingress-controller">traefik ingress controller</h6>
+
+<h3 class="mume-header" id="%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</h3>
+
 <ul>
 <li><a href="https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/">Organizing Cluster Access Using kubeconfig Files</a></li>
 <li><a href="https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/">Configure Access to Multiple Clusters</a></li>
@@ -1507,221 +1847,430 @@ bootstrap.kubeconfig
 kube<span class="token punctuation">-</span>proxy.kubeconfig
 scheduler.kubeconfig
 </pre>
-<h6>TLS Bootstrapping Token</h6>
+<h6 class="mume-header" id="tls-bootstrapping-token">TLS Bootstrapping Token</h6>
+
 <p>创建 TLS Bootstrapping Token (<code>token.csv</code>)</p>
 <pre class="language-bash"><span class="token comment" spellcheck="true"># export BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"export-bootstrap_tokenhead-c-16-devurandom-od-an-t-x-tr-d"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 <span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token string">"9c64d78dbd5afd42316e32d922e2da47"</span>
 <span class="token function">cat</span> <span class="token operator">></span> token.csv <span class="token operator">&lt;&lt;</span><span class="token string">EOF
 <span class="token variable">${BOOTSTRAP_TOKEN}</span>,kubelet-bootstrap,10001,"system:kubelet-bootstrap"
 EOF</span>
 </pre>
-<h6>kubeconfig</h6>
+<h6 class="mume-header" id="kubeconfig">kubeconfig</h6>
+
 <p>创建 kubectl kubeconfig 文件 (<code>admin.kubeconfig</code>、<code>kubelet.kubeconfig</code>，<code>~/.kube/config</code>)<br>
 生成的 <code>kubeconfig</code> 被保存到 <code>~/.kube/config</code> 文件；</p>
 <pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
 <span class="token comment" spellcheck="true"># 设置集群参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置集群参数"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-cluster kubernetes \
   --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
   --embed-certs<span class="token operator">=</span>true \
   --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span>
 <span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置客户端认证参数"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-credentials admin \
   --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/admin.pem \
   --embed-certs<span class="token operator">=</span>true \
   --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/admin-key.pem
 <span class="token comment" spellcheck="true"># 设置上下文参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置上下文参数"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-context kubernetes \
   --cluster<span class="token operator">=</span>kubernetes \
   --user<span class="token operator">=</span>admin
 <span class="token comment" spellcheck="true"># 设置默认上下文</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置默认上下文"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config use-context kubernetes
 </pre>
-<h6>bootstrapping</h6>
+<h6 class="mume-header" id="bootstrapping">bootstrapping</h6>
+
 <p>创建 kubelet bootstrapping kubeconfig 文件 (<code>bootstrap.kubeconfig</code>)</p>
 <pre class="language-bash"><span class="token function">cd</span> /etc/kubernetes
 <span class="token function">export</span> BOOTSTRAP_TOKEN<span class="token operator">=</span><span class="token string">"9c64d78dbd5afd42316e32d922e2da47"</span>
 <span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
 <span class="token comment" spellcheck="true"># 设置集群参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置集群参数-1"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-cluster kubernetes \
   --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
   --embed-certs<span class="token operator">=</span>true \
   --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
   --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
 <span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置客户端认证参数-1"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-credentials kubelet-bootstrap \
   --token<span class="token operator">=</span><span class="token variable">${BOOTSTRAP_TOKEN}</span> \
   --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
 <span class="token comment" spellcheck="true"># 设置上下文参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置上下文参数-1"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-context default \
   --cluster<span class="token operator">=</span>kubernetes \
   --user<span class="token operator">=</span>kubelet-bootstrap \
   --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
 <span class="token comment" spellcheck="true"># 设置默认上下文</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置默认上下文-1"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config use-context default --kubeconfig<span class="token operator">=</span>bootstrap.kubeconfig
 </pre>
-<h6>kube-proxy</h6>
+<h6 class="mume-header" id="kube-proxy">kube-proxy</h6>
+
 <p>创建 kube-proxy kubeconfig 文件 (<code>kube-proxy.kubeconfig</code>)</p>
 <pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
 <span class="token comment" spellcheck="true"># 设置集群参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置集群参数-2"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-cluster kubernetes \
   --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
   --embed-certs<span class="token operator">=</span>true \
   --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
   --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
 <span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置客户端认证参数-2"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-credentials kube-proxy \
   --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/kube-proxy.pem \
   --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/kube-proxy-key.pem \
   --embed-certs<span class="token operator">=</span>true \
   --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
 <span class="token comment" spellcheck="true"># 设置上下文参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置上下文参数-2"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-context default \
   --cluster<span class="token operator">=</span>kubernetes \
   --user<span class="token operator">=</span>kube-proxy \
   --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
 <span class="token comment" spellcheck="true"># 设置默认上下文</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置默认上下文-2"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config use-context default --kubeconfig<span class="token operator">=</span>kube-proxy.kubeconfig
 </pre>
-<h6>scheduler</h6>
+<h6 class="mume-header" id="scheduler">scheduler</h6>
+
 <p>创建 scheduler kubeconfig 文件 (<code>scheduler.conf</code>)</p>
 <pre class="language-bash"><span class="token function">export</span> KUBE_APISERVER<span class="token operator">=</span><span class="token string">"https://192.168.99.91:6443"</span>
 <span class="token comment" spellcheck="true"># 设置集群参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置集群参数-3"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-cluster kubernetes \
   --certificate-authority<span class="token operator">=</span>/etc/kubernetes/ssl/ca.pem \
   --embed-certs<span class="token operator">=</span>true \
   --server<span class="token operator">=</span><span class="token variable">${KUBE_APISERVER}</span> \
   --kubeconfig<span class="token operator">=</span>scheduler.conf
 <span class="token comment" spellcheck="true"># 设置客户端认证参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置客户端认证参数-3"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-credentials system:kube-scheduler \
   --client-certificate<span class="token operator">=</span>/etc/kubernetes/ssl/scheduler.pem \
   --client-key<span class="token operator">=</span>/etc/kubernetes/ssl/scheduler-key.pem \
   --embed-certs<span class="token operator">=</span>true \
   --kubeconfig<span class="token operator">=</span>scheduler.conf
 <span class="token comment" spellcheck="true"># 设置上下文参数</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置上下文参数-3"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config set-context system:kube-scheduler@kubernetes \
   --cluster<span class="token operator">=</span>kubernetes \
   --user<span class="token operator">=</span>system:kube-scheduler \
   --kubeconfig<span class="token operator">=</span>scheduler.conf
 <span class="token comment" spellcheck="true"># 设置默认上下文</span>
-<span class="token operator">&lt;</span>p class<span class="token operator">=</span><span class="token string">"mume-header "</span> id<span class="token operator">=</span><span class="token string">"设置默认上下文-3"</span><span class="token operator">></span><span class="token operator">&lt;</span>/p<span class="token operator">></span>
-
 kubectl config use-context system:kube-scheduler@kubernetes --kubeconfig<span class="token operator">=</span>scheduler.conf
 </pre>
-<h3>File List</h3>
-<h6>Vagrantfile</h6>
-<p>@import &quot;Vagrantfile&quot; {as=ruby}</p>
-<h6><a href="http://provision.sh">provision.sh</a></h6>
-<p>@import &quot;<a href="http://provision.sh">provision.sh</a>&quot;</p>
+<h3 class="mume-header" id="file-list">File List</h3>
+
+<h6 class="mume-header" id="vagrantfile">Vagrantfile</h6>
+
+<pre class="language-ruby {as=&quot;ruby&quot;}"><span class="token comment" spellcheck="true"># -*- mode: ruby -*-</span>
+<span class="token comment" spellcheck="true"># vi: set ft=ruby :</span>
+
+<span class="token constant">Vagrant</span><span class="token punctuation">.</span><span class="token function">configure</span><span class="token punctuation">(</span><span class="token string">"2"</span><span class="token punctuation">)</span> <span class="token keyword">do</span> <span class="token operator">|</span>config<span class="token operator">|</span>
+  config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box_check_update <span class="token operator">=</span> <span class="token keyword">false</span>
+  <span class="token variable">$num_instances</span> <span class="token operator">=</span> <span class="token number">3</span>
+
+  <span class="token comment" spellcheck="true"># curl https://discovery.etcd.io/new?size=3</span>
+  <span class="token variable">$etcd_cluster</span> <span class="token operator">=</span> <span class="token string">"node1=http://192.168.99.91:2380"</span>
+
+  <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token variable">$num_instances</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token keyword">each</span> <span class="token keyword">do</span> <span class="token operator">|</span>i<span class="token operator">|</span>
+    config<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>define <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span> <span class="token keyword">do</span> <span class="token operator">|</span>node<span class="token operator">|</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>box <span class="token operator">=</span> <span class="token string">"centos/7"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>hostname <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      ip <span class="token operator">=</span> <span class="token string">"192.168.99.<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token operator">+</span><span class="token number">90</span><span class="token delimiter tag">}</span></span>"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"private_network"</span><span class="token punctuation">,</span> ip<span class="token punctuation">:</span> ip
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>network <span class="token string">"public_network"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Killer Wireless-n/a/ac 1535 Wireless Network Adapter"</span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "Intel(R) Dual Band Wireless-AC 7265"  </span>
+      <span class="token comment" spellcheck="true"># node.vm.network "public_network", bridge: "en0: Wi-Fi (AirPort)", auto_config: true</span>
+      <span class="token comment" spellcheck="true">#node.vm.synced_folder "/Users/DuffQiu/share", "/home/vagrant/share"</span>
+
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>insert_key <span class="token operator">=</span> <span class="token keyword">false</span>
+      config<span class="token punctuation">.</span>ssh<span class="token punctuation">.</span>forward_agent <span class="token operator">=</span> <span class="token keyword">true</span>
+
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provider <span class="token string">"virtualbox"</span> <span class="token keyword">do</span> <span class="token operator">|</span>vb<span class="token operator">|</span>
+        vb<span class="token punctuation">.</span>memory <span class="token operator">=</span> <span class="token string">"2048"</span>
+        vb<span class="token punctuation">.</span>cpus <span class="token operator">=</span> <span class="token number">1</span>
+        vb<span class="token punctuation">.</span>name <span class="token operator">=</span> <span class="token string">"node<span class="token interpolation"><span class="token delimiter tag">#{</span>i<span class="token delimiter tag">}</span></span>"</span>
+      <span class="token keyword">end</span>
+
+      <span class="token comment" spellcheck="true"># node.vm.provision :shell, :path => "provision.sh", :args => [i, ip, $etcd_cluster]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-init.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-install.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-etcd.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-flannel.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-docker-start.sh"</span>
+      node<span class="token punctuation">.</span>vm<span class="token punctuation">.</span>provision <span class="token symbol">:shell</span><span class="token punctuation">,</span> <span class="token symbol">:path</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token string">"provision-kubernetes.sh"</span><span class="token punctuation">,</span> <span class="token symbol">:args</span> <span class="token operator">=</span><span class="token operator">></span> <span class="token punctuation">[</span>i<span class="token punctuation">,</span> ip<span class="token punctuation">,</span> <span class="token variable">$etcd_cluster</span><span class="token punctuation">]</span>
+    <span class="token keyword">end</span>  
+  <span class="token keyword">end</span>
+<span class="token keyword">end</span>
+</pre>
+<h6 class="mume-header" id="provisionsh"><a href="http://provision.sh">provision.sh</a></h6>
+
+<pre class="language-sh"><span class="token shebang important">#!/bin/bash</span>
+
+<span class="token comment" spellcheck="true">## 修改时区</span>
+<span class="token function">cp</span> /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+timedatectl set-timezone Asia/Shanghai
+
+<span class="token comment" spellcheck="true">## 添加软件源，安装 wget curl conntrack-tools vim net-tools</span>
+<span class="token function">cp</span> /vagrant/yum/*.* /etc/yum.repos.d/
+yum <span class="token function">install</span> -y <span class="token function">wget</span> curl conntrack-tools vim net-tools
+
+<span class="token comment" spellcheck="true">## 关闭 selinux</span>
+<span class="token keyword">echo</span> <span class="token string">'disable selinux'</span>
+setenforce 0
+<span class="token function">sed</span> -i <span class="token string">'s/=enforcing/=disabled/g'</span> /etc/selinux/config
+
+<span class="token comment" spellcheck="true">## 调整 iptable 内核参数</span>
+<span class="token keyword">echo</span> <span class="token string">'enable iptable kernel parameter'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/sysctl.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+net.ipv4.ip_forward=1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+EOF</span>
+sysctl -p
+
+<span class="token comment" spellcheck="true">## 设置 /etc/hosts</span>
+<span class="token keyword">echo</span> <span class="token string">'set host name resolution'</span>
+<span class="token function">cat</span> <span class="token operator">>></span> /etc/hosts <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+192.168.99.91 node1
+192.168.99.92 node2
+192.168.99.93 node3
+EOF</span>
+
+<span class="token function">cat</span> /etc/hosts
+
+<span class="token comment" spellcheck="true">## 关闭 swap</span>
+<span class="token keyword">echo</span> <span class="token string">'disable swap'</span>
+swapoff -a
+<span class="token function">sed</span> -i <span class="token string">'/swap/s/^/#/'</span> /etc/fstab
+
+<span class="token comment" spellcheck="true">## -------------------------------------------------</span>
+
+<span class="token comment" spellcheck="true">## 创建用户组 docker，安装 docker </span>
+<span class="token comment" spellcheck="true">#create group if not exists</span>
+<span class="token function">egrep</span> <span class="token string">"^docker"</span> /etc/group <span class="token operator">></span><span class="token operator">&amp;</span> /dev/null
+<span class="token keyword">if</span> <span class="token punctuation">[</span> <span class="token variable">$?</span> -ne 0 <span class="token punctuation">]</span>
+<span class="token keyword">then</span>
+  <span class="token function">groupadd</span> docker
+<span class="token keyword">fi</span>
+
+<span class="token function">usermod</span> -aG docker vagrant
+<span class="token function">rm</span> -rf ~/.docker/
+yum <span class="token function">install</span> -y docker.x86_64
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/docker/daemon.json <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+{
+  "registry-mirrors" : ["https://4ue5z1dy.mirror.aliyuncs.com/"]
+}
+EOF</span>
+
+<span class="token comment" spellcheck="true">## 安装设置 etcd</span>
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+    yum <span class="token function">install</span> -y etcd
+<span class="token function">cat</span> <span class="token operator">></span> /etc/etcd/etcd.conf <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+#[Member]
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_LISTEN_CLIENT_URLS="http://<span class="token variable">$2</span>:2379,http://localhost:2379"
+ETCD_NAME="node<span class="token variable">$1</span>"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://<span class="token variable">$2</span>:2380"
+ETCD_ADVERTISE_CLIENT_URLS="http://<span class="token variable">$2</span>:2379"
+ETCD_INITIAL_CLUSTER="<span class="token variable">$3</span>"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+EOF</span>
+
+  <span class="token function">cat</span> /etc/etcd/etcd.conf
+  <span class="token function">sleep</span> 5
+
+  <span class="token keyword">echo</span> <span class="token string">'start etcd...'</span>
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> etcd
+  systemctl start etcd
+
+  <span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
+  etcdctl cluster-health
+  etcdctl <span class="token function">mkdir</span> /kube-centos/network
+  etcdctl mk /kube-centos/network/config <span class="token string">'{"Network":"172.33.0.0/16","SubnetLen":24,"Backend":{"Type":"host-gw"}}'</span>
+<span class="token keyword">fi</span>
+
+<span class="token comment" spellcheck="true">## 安装配置 flannel</span>
+<span class="token keyword">echo</span> <span class="token string">'install flannel...'</span>
+yum <span class="token function">install</span> -y flannel
+
+<span class="token keyword">echo</span> <span class="token string">'create flannel config file...'</span>
+
+<span class="token function">cat</span> <span class="token operator">></span> /etc/sysconfig/flanneld <span class="token operator">&lt;&lt;</span><span class="token string">EOF
+# Flanneld configuration options
+FLANNEL_ETCD_ENDPOINTS="http://192.168.99.91:2379"
+FLANNEL_ETCD_PREFIX="/kube-centos/network"
+FLANNEL_OPTIONS="-iface=eth2"
+EOF</span>
+
+<span class="token function">sleep</span> 5
+
+<span class="token keyword">echo</span> <span class="token string">'enable flannel with host-gw backend'</span>
+<span class="token function">rm</span> -rf /run/flannel/
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> flanneld
+systemctl start flanneld
+
+<span class="token comment" spellcheck="true">## 启动 docker</span>
+<span class="token keyword">echo</span> <span class="token string">'enable docker, but you need to start docker after start flannel'</span>
+systemctl daemon-reload
+systemctl <span class="token function">enable</span> docker
+systemctl start docker
+
+<span class="token comment" spellcheck="true">## -------------------------------------------------</span>
+
+<span class="token keyword">echo</span> <span class="token string">"copy pem, token files"</span>
+<span class="token function">mkdir</span> -p /etc/kubernetes/ssl
+<span class="token function">cp</span> /vagrant/pki/*.pem /etc/kubernetes/ssl/
+<span class="token function">cp</span> /vagrant/conf/token.csv /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/bootstrap.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kube-proxy.kubeconfig /etc/kubernetes/
+<span class="token function">cp</span> /vagrant/conf/kubelet.kubeconfig /etc/kubernetes/
+
+<span class="token keyword">echo</span> <span class="token string">"get kubernetes files..."</span>
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-client-linux-amd64.tar.gz -O /vagrant/kubernetes-client-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-client-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/client/bin/* /usr/bin
+
+<span class="token comment" spellcheck="true">#wget https://storage.googleapis.com/kubernetes-release-mehdy/release/v1.9.2/kubernetes-server-linux-amd64.tar.gz -O /vagrant/kubernetes-server-linux-amd64.tar.gz</span>
+<span class="token function">tar</span> -xzvf /vagrant/kubernetes-server-linux-amd64.tar.gz -C /vagrant
+<span class="token function">cp</span> /vagrant/kubernetes/server/bin/* /usr/bin
+
+<span class="token function">cp</span> /vagrant/systemd/*.service /usr/lib/systemd/system/
+<span class="token function">mkdir</span> -p /var/lib/kubelet
+<span class="token function">mkdir</span> -p ~/.kube
+<span class="token function">cp</span> /vagrant/conf/admin.kubeconfig ~/.kube/config
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 1 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure master and node1"</span>
+
+  <span class="token function">cp</span> /vagrant/conf/apiserver /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/config /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/controller-manager /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/scheduler.conf /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/node1/* /etc/kubernetes/
+
+  systemctl daemon-reload
+  systemctl <span class="token function">enable</span> kube-apiserver
+  systemctl start kube-apiserver
+
+  systemctl <span class="token function">enable</span> kube-controller-manager
+  systemctl start kube-controller-manager
+
+  systemctl <span class="token function">enable</span> kube-scheduler
+  systemctl start kube-scheduler
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 2 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node2"</span>
+  <span class="token function">cp</span> /vagrant/node2/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+<span class="token keyword">fi</span>
+
+<span class="token keyword">if</span> <span class="token punctuation">[</span><span class="token punctuation">[</span> <span class="token variable">$1</span> -eq 3 <span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">;</span><span class="token keyword">then</span>
+  <span class="token keyword">echo</span> <span class="token string">"configure node3"</span>
+  <span class="token function">cp</span> /vagrant/node3/* /etc/kubernetes/
+
+  systemctl daemon-reload
+
+  systemctl <span class="token function">enable</span> kubelet
+  systemctl start kubelet
+  systemctl <span class="token function">enable</span> kube-proxy
+  systemctl start kube-proxy
+
+  <span class="token function">sleep</span> 10
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy coredns"</span>
+  <span class="token function">cd</span> /vagrant/addon/dns/
+  ./dns-deploy.sh 10.254.0.0/16 172.33.0.0/16 10.254.0.2 <span class="token operator">|</span> kubectl apply -f -
+  <span class="token function">cd</span> -
+
+  <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
+  kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+  <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
+  kubectl apply -f /vagrant/yaml/admin-role.yaml
+  <span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
+  kubectl -n kube-system describe secret `kubectl -n kube-system get secret<span class="token operator">|</span><span class="token function">grep</span> admin-token<span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f1`<span class="token operator">|</span><span class="token function">grep</span> <span class="token string">"token:"</span><span class="token operator">|</span><span class="token function">tr</span> -s <span class="token string">" "</span><span class="token operator">|</span><span class="token function">cut</span> -d <span class="token string">" "</span> -f2
+  <span class="token keyword">echo</span> <span class="token string">"login to dashboard with the above token"</span>
+  <span class="token keyword">echo</span> https://192.168.99.91:`kubectl -n kube-system get svc kubernetes-dashboard -o<span class="token operator">=</span>jsonpath<span class="token operator">=</span><span class="token string">'{.spec.ports[0].port}'</span>`
+  <span class="token keyword">echo</span> <span class="token string">"install traefik ingress controller"</span>
+  kubectl apply -f /vagrant/addon/traefik-ingress/
+<span class="token keyword">fi</span>
+</pre>
 
       </div>
-      <div class="md-sidebar-toc"><pre><code>* [Kubernetes cluster with Vagrant and Virtualbox](#kubernetes-cluster-with-vagrant-and-virtualbox)
-	* [常用命令](#常用命令)
-				* [Kubectl 自动补全](#kubectl-自动补全)
-				* [常用命令](#常用命令-1)
-	* [Get Start](#get-start)
-				* [集群主机](#集群主机)
-				* [证书](#证书)
-				* [主要环境变量](#主要环境变量)
-	* [主要步骤](#主要步骤)
-				* [启动集群主机](#启动集群主机)
-				* [系统环境准备](#系统环境准备)
-				* [etcd flannel docker](#etcd-flannel-docker)
-				* [Kubernetes](#kubernetes)
-	* [安装说明](#安装说明)
-				* [Usage](#usage)
-				* [Support Addon](#support-addon)
-				* [Connect to kubernetes cluster](#connect-to-kubernetes-cluster)
-				* [Kubernetes dashbaord](#kubernetes-dashbaord)
-				* [Heapster monitoring](#heapster-monitoring)
-				* [Treafik ingress](#treafik-ingress)
-				* [EFK](#efk)
-				* [Service Mesh](#service-mesh)
-				* [Operation](#operation)
-	* [etcd](#etcd)
-				* [etcd 参数说明](#etcd-参数说明)
-				* [/etc/etcd/etcd.conf](#etcetcdetcdconf)
-				* [/usr/lib/systemd/system/etcd.service](#usrlibsystemdsystemetcdservice)
-				* [etcd 启动参数](#etcd-启动参数)
-	* [flanneld](#flanneld)
-				* [flanneld 参数说明](#flanneld-参数说明)
-				* [flannel 配置](#flannel-配置)
-				* [flanneld 启动参数](#flanneld-启动参数)
-				* [向 etcd 写入集群 Pod 网段信息](#向-etcd-写入集群-pod-网段信息)
-				* [启动 flannel](#启动-flannel)
-				* [查询 flannel 网络信息](#查询-flannel-网络信息)
-	* [Kubernetes 主要组件](#kubernetes-主要组件)
-				* [Kubernetes overview](#kubernetes-overview)
-				* [Kubernetes config](#kubernetes-config)
-				* [Kubernetes apiserver](#kubernetes-apiserver)
-				* [Kubernetes controller-manager](#kubernetes-controller-manager)
-				* [Kubernetes scheduler](#kubernetes-scheduler)
-				* [Kubernetes kube-proxy](#kubernetes-kube-proxy)
-				* [Kubernetes kubelet](#kubernetes-kubelet)
-</code></pre>
+      <div class="md-sidebar-toc"><ul>
+<li><a href="#kubernetes-cluster-with-vagrant-and-virtualbox">Kubernetes cluster with Vagrant and Virtualbox</a>
 <ul>
-<li><a href="#kubelet-%E4%BD%BF%E7%94%A8%E8%AF%A5%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E7%94%A8%E6%88%B7%E5%90%8D%E5%92%8C-token-%E5%90%91-kube-apiserver-%E5%8F%91%E9%80%81-tls-bootstrapping-%E8%AF%B7%E6%B1%82">kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；</a></li>
-<li><a href="#kubeconfig-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E4%B8%AD%E5%8C%85%E5%90%AB-master-%E5%9C%B0%E5%9D%80%E4%BF%A1%E6%81%AF%E5%92%8C%E5%BF%85%E8%A6%81%E7%9A%84%E8%AE%A4%E8%AF%81%E4%BF%A1%E6%81%AF">kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息</a>
-<ul>
-<li><a href="#%E6%9C%AA%E4%BD%BF%E7%94%A8">未使用</a></li>
+<li><a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">常用命令</a><br>
+* <a href="#kubectl-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8">Kubectl 自动补全</a><br>
+* <a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4-1">常用命令</a></li>
+<li><a href="#get-start">Get Start</a><br>
+* <a href="#%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">集群主机</a><br>
+* <a href="#%E8%AF%81%E4%B9%A6">证书</a><br>
+* <a href="#%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</a></li>
+<li><a href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4">主要步骤</a><br>
+* <a href="#%E5%90%AF%E5%8A%A8%E9%9B%86%E7%BE%A4%E4%B8%BB%E6%9C%BA">启动集群主机</a><br>
+* <a href="#%E7%B3%BB%E7%BB%9F%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">系统环境准备</a><br>
+* <a href="#etcd-flannel-docker">etcd flannel docker</a><br>
+* <a href="#kubernetes">Kubernetes</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85%E8%AF%B4%E6%98%8E">安装说明</a><br>
+* <a href="#usage">Usage</a><br>
+* <a href="#support-addon">Support Addon</a><br>
+* <a href="#connect-to-kubernetes-cluster">Connect to kubernetes cluster</a><br>
+* <a href="#kubernetes-dashbaord">Kubernetes dashbaord</a><br>
+* <a href="#heapster-monitoring">Heapster monitoring</a><br>
+* <a href="#treafik-ingress">Treafik ingress</a><br>
+* <a href="#efk">EFK</a><br>
+* <a href="#service-mesh">Service Mesh</a><br>
+* <a href="#operation">Operation</a></li>
+<li><a href="#etcd">etcd</a><br>
+* <a href="#etcd-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">etcd 参数说明</a><br>
+* <a href="#etcetcdetcdconf">/etc/etcd/etcd.conf</a><br>
+* <a href="#usrlibsystemdsystemetcdservice">/usr/lib/systemd/system/etcd.service</a><br>
+* <a href="#etcd-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">etcd 启动参数</a></li>
+<li><a href="#flanneld">flanneld</a><br>
+* <a href="#flanneld-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">flanneld 参数说明</a><br>
+* <a href="#flannel-%E9%85%8D%E7%BD%AE">flannel 配置</a><br>
+* <a href="#flanneld-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">flanneld 启动参数</a><br>
+* <a href="#%E5%90%91-etcd-%E5%86%99%E5%85%A5%E9%9B%86%E7%BE%A4-pod-%E7%BD%91%E6%AE%B5%E4%BF%A1%E6%81%AF">向 etcd 写入集群 Pod 网段信息</a><br>
+* <a href="#%E5%90%AF%E5%8A%A8-flannel">启动 flannel</a><br>
+* <a href="#%E6%9F%A5%E8%AF%A2-flannel-%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF">查询 flannel 网络信息</a></li>
+<li><a href="#kubernetes-%E4%B8%BB%E8%A6%81%E7%BB%84%E4%BB%B6">Kubernetes 主要组件</a><br>
+* <a href="#kubernetes-overview">Kubernetes overview</a><br>
+* <a href="#kubernetes-config">Kubernetes config</a><br>
+* <a href="#kubernetes-apiserver">Kubernetes apiserver</a><br>
+* <a href="#kubernetes-controller-manager">Kubernetes controller-manager</a><br>
+* <a href="#kubernetes-scheduler">Kubernetes scheduler</a><br>
+* <a href="#kubernetes-kube-proxy">Kubernetes kube-proxy</a><br>
+* <a href="#kubernetes-kubelet">Kubernetes kubelet</a></li>
+<li><a href="#kubernetes-addon">Kubernetes addon</a><br>
+* <a href="#coredns">coredns</a><br>
+* <a href="#dashboard">dashboard</a><br>
+* <a href="#traefik-ingress-controller">traefik ingress controller</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA-kubeconfig-%E6%96%87%E4%BB%B6">创建 kubeconfig 文件</a><br>
+* <a href="#tls-bootstrapping-token">TLS Bootstrapping Token</a><br>
+* <a href="#kubeconfig">kubeconfig</a><br>
+* <a href="#bootstrapping">bootstrapping</a><br>
+* <a href="#kube-proxy">kube-proxy</a><br>
+* <a href="#scheduler">scheduler</a></li>
+<li><a href="#file-list">File List</a><br>
+* <a href="#vagrantfile">Vagrantfile</a><br>
+* <a href="#provisionsh">provision.sh</a></li>
 </ul>
 </li>
-<li><a href="#kubelet_api_server-api-servershttp1722001138080">$KUBELET_API_SERVER=&quot;--api-servers=http://172.20.0.113:8080&quot;</a></li>
-<li><a href="#kubelet_port-port10250">$KUBELET_PORT=&quot;--port=10250&quot;</a>
-<ul>
-<li><a href="#coredns">coredns</a></li>
-<li><a href="#dashboard">dashboard</a></li>
-<li><a href="#traefik-ingress-controller">traefik ingress controller</a></li>
-</ul>
-</li>
-<li><a href="#export-bootstrap_tokenhead-c-16-devurandom-od-an-t-x-tr-d">export BOOTSTRAP_TOKEN=$(head -c 16 /dev/urandom | od -An -t x | tr -d ' ')</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%9B%86%E7%BE%A4%E5%8F%82%E6%95%B0">设置集群参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%A4%E8%AF%81%E5%8F%82%E6%95%B0">设置客户端认证参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%82%E6%95%B0">设置上下文参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E4%B8%8A%E4%B8%8B%E6%96%87">设置默认上下文</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%9B%86%E7%BE%A4%E5%8F%82%E6%95%B0-1">设置集群参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%A4%E8%AF%81%E5%8F%82%E6%95%B0-1">设置客户端认证参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%82%E6%95%B0-1">设置上下文参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E4%B8%8A%E4%B8%8B%E6%96%87-1">设置默认上下文</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%9B%86%E7%BE%A4%E5%8F%82%E6%95%B0-2">设置集群参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%A4%E8%AF%81%E5%8F%82%E6%95%B0-2">设置客户端认证参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%82%E6%95%B0-2">设置上下文参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E4%B8%8A%E4%B8%8B%E6%96%87-2">设置默认上下文</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%9B%86%E7%BE%A4%E5%8F%82%E6%95%B0-3">设置集群参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%A4%E8%AF%81%E5%8F%82%E6%95%B0-3">设置客户端认证参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E4%B8%8A%E4%B8%8B%E6%96%87%E5%8F%82%E6%95%B0-3">设置上下文参数</a></li>
-<li><a href="#%E8%AE%BE%E7%BD%AE%E9%BB%98%E8%AE%A4%E4%B8%8A%E4%B8%8B%E6%96%87-3">设置默认上下文</a></li>
 </ul>
 </div>
       <a id="sidebar-toc-btn">≡</a>
