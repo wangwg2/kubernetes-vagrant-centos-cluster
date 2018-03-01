@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>k8s-centos-b</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///C:\Users\wangw\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      <style> 
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+.markdown-preview.markdown-preview {
+  font-size: 14px;
+  color: black;
+  /* 等宽字体 */
+  /* 非等宽字体 */
+  font-family: "Microsoft Yahei Mono", "Microsoft YaHei", "Courier New", sans-serif;
+}
+.markdown-preview.markdown-preview h1,
+.markdown-preview.markdown-preview h2,
+.markdown-preview.markdown-preview h3,
+.markdown-preview.markdown-preview h4,
+.markdown-preview.markdown-preview h5,
+.markdown-preview.markdown-preview h6 {
+  font-family: "Microsoft YaHei", "Courier New", sans-serif;
+}
+.markdown-preview.markdown-preview pre,
+.markdown-preview.markdown-preview code {
+  font-family: "Microsoft Yahei Mono", sans-serif;
+  background-color: #fcfcfc;
+}
+.markdown-preview.markdown-preview pre {
+  border-style: dashed;
+  border-width: thin;
+  border-color: gray;
+}
+.markdown-preview.markdown-preview.phantomjs-pdf {
+  font-size: 14px;
+  color: black;
+  background-color: white;
+}
+.markdown-preview.markdown-preview.phantomjs-pdf pre,
+.markdown-preview.markdown-preview.phantomjs-pdf code {
+  background-color: white;
+}
+.markdown-preview.markdown-preview.phantomjs-pdf pre {
+  color: black;
+  border-style: dashed;
+  border-width: thin;
+  border-color: gray;
+}
+.markdown-preview.markdown-preview.phantomjs-pdf .token {
+  color: black;
+}
+ 
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview   ">
+      <h3 class="mume-header" id="kubernetes-cluster-with-vagrant-and-virtualbox">Kubernetes cluster with Vagrant and Virtualbox</h3>
+
+<p>节点网络IP: <code>192.168.99.91 ~ 192.168.99.93</code><br>
+容器IP范围：<code>172.33.0.0/16</code><br>
+Kubernetes service IP范围：<code>10.254.0.0/16</code></p>
+<h6 class="mume-header" id="%E8%AF%81%E4%B9%A6">证书</h6>
+
+<p>生成的 CA 证书和秘钥文件如下：</p>
+<pre class="language-yaml">ca.pem              ca<span class="token punctuation">-</span>key.pem
+kubernetes.pem      kubernetes<span class="token punctuation">-</span>key.pem
+kube<span class="token punctuation">-</span>proxy.pem      kube<span class="token punctuation">-</span>proxy<span class="token punctuation">-</span>key.pem
+admin.pem           admin<span class="token punctuation">-</span>key.pem
+</pre>
+<p>使用证书的组件如下：</p>
+<pre class="language-yaml">etcd：                   使用 ca.pem、kubernetes<span class="token punctuation">-</span>key.pem、kubernetes.pem；
+kube<span class="token punctuation">-</span>apiserver：         使用 ca.pem、kubernetes<span class="token punctuation">-</span>key.pem、kubernetes.pem；
+kubelet：                使用 ca.pem；
+kube<span class="token punctuation">-</span>proxy：             使用 ca.pem、kube<span class="token punctuation">-</span>proxy<span class="token punctuation">-</span>key.pem、kube<span class="token punctuation">-</span>proxy.pem；
+kubectl：                使用 ca.pem、admin<span class="token punctuation">-</span>key.pem、admin.pem；
+kube<span class="token punctuation">-</span>controller<span class="token punctuation">-</span>manager：使用 ca<span class="token punctuation">-</span>key.pem、ca.pem
+</pre>
+<h6 class="mume-header" id="%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</h6>
+
+<pre class="language-yaml"><span class="token comment" spellcheck="true"># TLS Bootstrapping 使用的 Token，可以使用命令 head -c 16 /dev/urandom | od -An -t x | tr -d ' ' 生成</span>
+BOOTSTRAP_TOKEN="9c64d78dbd5afd42316e32d922e2da47"
+
+<span class="token comment" spellcheck="true"># 服务网段 (Service CIDR），部署前路由不可达，部署后集群内使用 IP:Port 可达</span>
+<span class="token comment" spellcheck="true">## kube-apiserver --service-cluster-ip-range=10.254.0.0/16</span>
+<span class="token comment" spellcheck="true">## kube-controller-manager --service-cluster-ip-range=10.254.0.0/16</span>
+SERVICE_CIDR="10.254.0.0/16"
+
+<span class="token comment" spellcheck="true"># POD 网段 (Cluster CIDR），部署前路由不可达，部署后路由可达 (flanneld 保证)  (容器 IP)</span>
+CLUSTER_CIDR="172.33.0.0/16"
+
+<span class="token comment" spellcheck="true"># 服务端口范围 (NodePort Range)</span>
+<span class="token comment" spellcheck="true"># kube-apiserver --service-node-port-range=30000-32767</span>
+NODE_PORT_RANGE="30000<span class="token punctuation">-</span>32767"
+
+<span class="token comment" spellcheck="true"># etcd 集群服务地址列表</span>
+ETCD_ENDPOINTS="https<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span>2379"
+<span class="token comment" spellcheck="true"># ETCD_ENDPOINTS="https://192.168.99.91:2379,https://192.168.99.92:2379,https://192.168.99.93:2379"</span>
+
+<span class="token comment" spellcheck="true"># flanneld 网络配置前缀</span>
+FLANNEL_ETCD_PREFIX="/kube<span class="token punctuation">-</span>centos/network"
+
+<span class="token comment" spellcheck="true"># kubernetes 服务 IP (预分配，一般是 SERVICE_CIDR 中第一个IP)</span>
+CLUSTER_KUBERNETES_SVC_IP="10.254.0.1"
+
+<span class="token comment" spellcheck="true"># 集群 DNS 服务 IP (从 SERVICE_CIDR 中预分配)</span>
+CLUSTER_DNS_SVC_IP="10.254.0.2"
+
+<span class="token comment" spellcheck="true"># 集群 DNS 域名</span>
+CLUSTER_DNS_DOMAIN="cluster.local."
+</pre>
+<h6 class="mume-header" id="etcd-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">etcd 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>name "node1"                              <span class="token comment" spellcheck="true"># 成员名字</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>data<span class="token punctuation">-</span>dir=/var/lib/etcd/default.etcd       <span class="token comment" spellcheck="true"># 数据目录路径</span>
+
+<span class="token comment" spellcheck="true"># 用于监听客户端通讯的 client URL列表。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>listen<span class="token punctuation">-</span>client<span class="token punctuation">-</span>urls "http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">2379</span><span class="token punctuation">,</span>http<span class="token punctuation">:</span>//localhost<span class="token punctuation">:</span>2379"
+<span class="token comment" spellcheck="true"># 列出这个成员的 client URL，通告给集群中的其他成员。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>advertise<span class="token punctuation">-</span>client<span class="token punctuation">-</span>urls "http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span>2379"
+</pre>
+<div class="pagebreak"> </div>
+<h6 class="mume-header" id="flanneld-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">flanneld 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span>etcd<span class="token punctuation">-</span>endpoints=http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">2379      </span><span class="token comment" spellcheck="true"># etcd 的地址</span>
+<span class="token punctuation">-</span>etcd<span class="token punctuation">-</span>prefix=/kube<span class="token punctuation">-</span>centos/network              <span class="token comment" spellcheck="true"># 在 etcd 中配置的网络参数的 key</span>
+<span class="token punctuation">-</span>iface=eth2                                    <span class="token comment" spellcheck="true"># 监听的网卡</span>
+</pre>
+<h6 class="mume-header" id="%E5%90%91-etcd-%E5%86%99%E5%85%A5%E9%9B%86%E7%BE%A4-pod-%E7%BD%91%E6%AE%B5%E4%BF%A1%E6%81%AF">向 etcd 写入集群 Pod 网段信息</h6>
+
+<p>在etcd中创建网络配置，docker分配IP地址段。（子网IP范围：172.33.0.0）<br>
+本步骤只需在第一次部署 Flannel 网络时执行，后续在其它节点上部署 Flannel 时无需再写入该信息！</p>
+<p><code>provision-etcd.sh</code></p>
+<pre class="language-bash"><span class="token keyword">echo</span> <span class="token string">'create kubernetes ip range for flannel on 172.33.0.0/16'</span>
+etcdctl cluster-health
+etcdctl <span class="token function">mkdir</span> /kube-centos/network
+etcdctl mk /kube-centos/network/config 、
+  <span class="token string">'{"Network":"172.33.0.0/16","SubnetLen":24,"Backend":{"Type":"host-gw"}}'</span>
+</pre>
+<h6 class="mume-header" id="%E6%9F%A5%E8%AF%A2-flannel-%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF">查询 flannel 网络信息</h6>
+
+<p><code>etcdctl --endpoints=${ETCD_ENDPOINTS} ls ${FLANNEL_ETCD_PREFIX}/subnets</code><br>
+<code>etcdctl ls /kube-centos/network/subnets</code><br>
+可在各节点查询子网网关，确认能ping通。</p>
+<h6 class="mume-header" id="kube-apiserver-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-apiserver 启动参数</h6>
+
+<pre class="language-yaml"><span class="token comment" spellcheck="true">## 必须项 ------------</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>service<span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>ip<span class="token punctuation">-</span>range=10.254.0.0/16    <span class="token comment" spellcheck="true"># service 要使用的网段，使用 CIDR 格式，参考 service 的定义</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>etcd<span class="token punctuation">-</span>servers=http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">2379    </span><span class="token comment" spellcheck="true"># 以逗号分隔的 etcd 服务列表，与 `--etcd-config` 互斥</span>
+
+<span class="token comment" spellcheck="true">## 可选项 -------------</span>
+<span class="token comment" spellcheck="true">## HTTP/HTTPS 监听的IP与端口</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>apiserver<span class="token punctuation">-</span>count=3                         <span class="token comment" spellcheck="true"># apiservers 数量 (默认1) </span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>advertise<span class="token punctuation">-</span>address=192.168.99.91           <span class="token comment" spellcheck="true"># 通过该 ip 地址向集群其他节点公布 api server 的信息</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>bind<span class="token punctuation">-</span>address=192.168.99.91                <span class="token comment" spellcheck="true"># HTTPS 安全端口监听的IP (默认 0.0.0.0)</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>secure<span class="token punctuation">-</span>port=6443                          <span class="token comment" spellcheck="true"># HTTPS 安全端口 (默认 6443)</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>insecure<span class="token punctuation">-</span>bind<span class="token punctuation">-</span>address=192.168.99.91       <span class="token comment" spellcheck="true"># HTTP 非安全端口监听的IP (默认 127.0.0.1)</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>insecure<span class="token punctuation">-</span>port=8080                        <span class="token comment" spellcheck="true"># HTTP 非安全端口监听的端口 (默认 8080)</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>service<span class="token punctuation">-</span>node<span class="token punctuation">-</span>port<span class="token punctuation">-</span>range=30000<span class="token punctuation">-</span><span class="token number">32767       </span><span class="token comment" spellcheck="true"># Service 的 NodePort 所能使用的主机端口号范围</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>runtime<span class="token punctuation">-</span>config=rbac.authorization.k8s.io/v1beta1  <span class="token comment" spellcheck="true"># 打开或关闭针对某个api版本支持</span>
+
+<span class="token comment" spellcheck="true">## 证书</span>
+<span class="token comment" spellcheck="true"># HTTPS密钥与证书</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>tls<span class="token punctuation">-</span>private<span class="token punctuation">-</span>key<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/kubernetes<span class="token punctuation">-</span>key.pem
+<span class="token punctuation">-</span><span class="token punctuation">-</span>tls<span class="token punctuation">-</span>cert<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/kubernetes.pem
+<span class="token comment" spellcheck="true"># 认证: 证书认证 + Token 认证</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>client<span class="token punctuation">-</span>ca<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca.pem <span class="token comment" spellcheck="true"># 证书认证: client证书文件</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>token<span class="token punctuation">-</span>auth<span class="token punctuation">-</span>file=/etc/kubernetes/token.csv <span class="token comment" spellcheck="true"># tocken 认证: token文件</span>
+<span class="token comment" spellcheck="true"># 授权模式： 安全接口上的授权</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>authorization<span class="token punctuation">-</span>mode=Node<span class="token punctuation">,</span>RBAC              
+<span class="token comment" spellcheck="true"># 准入控制： 一串用逗号连接的有序的准入模块列表</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>admission<span class="token punctuation">-</span>control=ServiceAccount<span class="token punctuation">,</span>NamespaceLifecycle<span class="token punctuation">,</span>NamespaceExists<span class="token punctuation">,</span>LimitRanger<span class="token punctuation">,</span>ResourceQuota
+
+<span class="token punctuation">-</span><span class="token punctuation">-</span>service<span class="token punctuation">-</span>account<span class="token punctuation">-</span>key<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca<span class="token punctuation">-</span>key.pem
+<span class="token punctuation">-</span><span class="token punctuation">-</span>enable<span class="token punctuation">-</span>bootstrap<span class="token punctuation">-</span>token<span class="token punctuation">-</span>auth               <span class="token comment" spellcheck="true"># 启动引导令牌认证（Bootstrap Tokens）</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>allow<span class="token punctuation">-</span>privileged=true                     <span class="token comment" spellcheck="true"># 是否允许 privileged 容器运行</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>kubelet<span class="token punctuation">-</span>https=true                        <span class="token comment" spellcheck="true"># 指定 kubelet 是否使用 HTTPS 连接</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>enable<span class="token punctuation">-</span>swagger<span class="token punctuation">-</span>ui=true                    <span class="token comment" spellcheck="true"># 开启 Swagger UI</span>
+
+<span class="token comment" spellcheck="true">## 日志</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>event<span class="token punctuation">-</span>ttl=1h                              <span class="token comment" spellcheck="true"># 各种事件在系统中的保存时间</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>audit<span class="token punctuation">-</span>log<span class="token punctuation">-</span>path=/var/lib/audit.log         <span class="token comment" spellcheck="true"># 审计日志路径</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>audit<span class="token punctuation">-</span>log<span class="token punctuation">-</span>maxage=30                       <span class="token comment" spellcheck="true"># 旧日志最长保留天数</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>audit<span class="token punctuation">-</span>log<span class="token punctuation">-</span>maxbackup=3                     <span class="token comment" spellcheck="true"># 旧日志文件最多保留个数</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>audit<span class="token punctuation">-</span>log<span class="token punctuation">-</span>maxsize=100                     <span class="token comment" spellcheck="true"># 日志文件最大大小（单位MB）</span>
+</pre>
+<div class="pagebreak"> </div>
+<h6 class="mume-header" id="kube-controller-manager-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-controller-manager 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>leader<span class="token punctuation">-</span>elect=true                         <span class="token comment" spellcheck="true"># 启动选举</span>
+
+<span class="token punctuation">-</span><span class="token punctuation">-</span>master=http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">8080          </span><span class="token comment" spellcheck="true"># Kubernetes master apiserver 地址</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>address=127.0.0.1                         <span class="token comment" spellcheck="true"># 绑定主机 IP 地址，apiserver 与 controller-manager在同一主机</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>service<span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>ip<span class="token punctuation">-</span>range=10.254.0.0/16    <span class="token comment" spellcheck="true"># service 要使用的网段，使用 CIDR 格式，参考 service 的定义</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>name=kubernetes                   <span class="token comment" spellcheck="true"># Kubernetes 集群名，也表现为实例化的前缀</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>root<span class="token punctuation">-</span>ca<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca.pem   <span class="token comment" spellcheck="true"># 用来对 kube-apiserver 证书进行校验，被用于 Service Account。</span>
+
+<span class="token comment" spellcheck="true"># 用于给 Service Account Token 签名的 PEM 编码的 RSA 或 ECDSA 私钥文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>service<span class="token punctuation">-</span>account<span class="token punctuation">-</span>private<span class="token punctuation">-</span>key<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca<span class="token punctuation">-</span>key.pem
+
+<span class="token comment" spellcheck="true"># 指定的证书和私钥文件用来签名为 TLS BootStrap 创建的证书和私钥；</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>signing<span class="token punctuation">-</span>cert<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca.pem
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>signing<span class="token punctuation">-</span>key<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca<span class="token punctuation">-</span>key.pem
+</pre>
+<h6 class="mume-header" id="kube-scheduler-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-scheduler 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>leader<span class="token punctuation">-</span>elect=true                         <span class="token comment" spellcheck="true"># 启动选举</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>master=http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">8080          </span><span class="token comment" spellcheck="true"># Kubernetes master apiserver 地址</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>address=127.0.0.1                         <span class="token comment" spellcheck="true"># 绑定主机 IP 地址，apiserver 与 controller-manager在同一主机 </span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/scheduler.conf <span class="token comment" spellcheck="true"># kubeconfig 配置文件，包含 master 地址信息和必要的认证信息</span>
+</pre>
+<h6 class="mume-header" id="kube-proxy-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-proxy 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>master=http<span class="token punctuation">:</span>//192.168.99.91<span class="token punctuation">:</span><span class="token number">8080          </span><span class="token comment" spellcheck="true"># Kubernetes master apiserver 地址</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>bind<span class="token punctuation">-</span>address=192.168.99.91                <span class="token comment" spellcheck="true"># 主机绑定的IP地址。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>cidr=10.254.0.0/16                <span class="token comment" spellcheck="true"># kube-proxy 根据此判断集群内部和外部流量</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>hostname<span class="token punctuation">-</span>override=192.168.99.91           <span class="token comment" spellcheck="true"># 值须与kubelet的值一致，否则kube-proxy启动后会找不到该Node </span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>hostname<span class="token punctuation">-</span>override=node1                   <span class="token comment" spellcheck="true"># 值须与kubelet的值一致，否则kube-proxy启动后会找不到该Node </span>
+<span class="token comment" spellcheck="true"># kubeconfig 配置文件</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/kube<span class="token punctuation">-</span>proxy.kubeconfig
+</pre>
+<h6 class="mume-header" id="kubelet-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kubelet 启动参数</h6>
+
+<pre class="language-yaml"><span class="token punctuation">-</span><span class="token punctuation">-</span>logtostderr=true                          <span class="token comment" spellcheck="true"># 输出到 `stderr`,不输到日志文件。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>v=0                                       <span class="token comment" spellcheck="true"># 日志级别</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>allow<span class="token punctuation">-</span>privileged=true                     <span class="token comment" spellcheck="true"># 是否允许容器运行在 privileged 模式</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>address=192.168.99.91                     <span class="token comment" spellcheck="true"># 绑定主机 IP 地址</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>hostname<span class="token punctuation">-</span>override=node1                   <span class="token comment" spellcheck="true"># </span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>pod<span class="token punctuation">-</span>infra<span class="token punctuation">-</span>container<span class="token punctuation">-</span>image=docker.io/openshift/origin<span class="token punctuation">-</span>pod   <span class="token comment" spellcheck="true"># 基础镜像容器</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>runtime<span class="token punctuation">-</span>cgroups=/systemd/system.slice     <span class="token comment" spellcheck="true"># 如果使用systemd方式启动，增加此参数</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>kubelet<span class="token punctuation">-</span>cgroups=/systemd/system.slice     <span class="token comment" spellcheck="true"># 如果使用systemd方式启动，增加此参数</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cgroup<span class="token punctuation">-</span>driver=systemd                     <span class="token comment" spellcheck="true"># 配置成 systemd，不要使用 cgroup</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>dns=10.254.0.2                    <span class="token comment" spellcheck="true"># 指定kubedns的Service IP, --cluster-domain指定域名后缀</span>
+                                            <span class="token comment" spellcheck="true"># 这两个参数同时指定后才会生效；</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cluster<span class="token punctuation">-</span>domain=cluster.local              <span class="token comment" spellcheck="true"># 指定 pod 启动时 /etc/resolve.conf 文件中的 search domain</span>
+
+<span class="token comment" spellcheck="true"># kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>bootstrap<span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/bootstrap.kubeconfig 
+<span class="token punctuation">-</span><span class="token punctuation">-</span>require<span class="token punctuation">-</span>kubeconfig                        <span class="token comment" spellcheck="true"># 如未指定--apiservers，则须指定此选项后</span>
+                                            <span class="token comment" spellcheck="true"># 才从配置文件读取 kube-apiserver 地址</span>
+<span class="token comment" spellcheck="true"># kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>kubeconfig=/etc/kubernetes/kubelet.kubeconfig
+
+<span class="token punctuation">-</span><span class="token punctuation">-</span>cert<span class="token punctuation">-</span>dir=/etc/kubernetes/ssl              <span class="token comment" spellcheck="true"># TLS证书所在的目录。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>hairpin<span class="token punctuation">-</span>mode promiscuous<span class="token punctuation">-</span>bridge           <span class="token comment" spellcheck="true"># kubelet应该如何设置 hairpin NAT。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>serialize<span class="token punctuation">-</span>image<span class="token punctuation">-</span>pulls=false               <span class="token comment" spellcheck="true"># 一次拉出一个镜像。</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>allow<span class="token punctuation">-</span>privileged=true                     <span class="token comment" spellcheck="true"># 是否允许 privileged 容器运行</span>
+
+<span class="token comment" spellcheck="true">## 未使用</span>
+<span class="token comment" spellcheck="true"># $KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"</span>
+<span class="token comment" spellcheck="true"># $KUBELET_PORT="--port=10250"</span>
+</pre>
+
+      </div>
+      <div class="md-sidebar-toc"><ul>
+<li><a href="#kubernetes-cluster-with-vagrant-and-virtualbox">Kubernetes cluster with Vagrant and Virtualbox</a><br>
+* <a href="#%E8%AF%81%E4%B9%A6">证书</a><br>
+* <a href="#%E4%B8%BB%E8%A6%81%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F">主要环境变量</a><br>
+* <a href="#etcd-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">etcd 启动参数</a><br>
+* <a href="#flanneld-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">flanneld 启动参数</a><br>
+* <a href="#%E5%90%91-etcd-%E5%86%99%E5%85%A5%E9%9B%86%E7%BE%A4-pod-%E7%BD%91%E6%AE%B5%E4%BF%A1%E6%81%AF">向 etcd 写入集群 Pod 网段信息</a><br>
+* <a href="#%E6%9F%A5%E8%AF%A2-flannel-%E7%BD%91%E7%BB%9C%E4%BF%A1%E6%81%AF">查询 flannel 网络信息</a><br>
+* <a href="#kube-apiserver-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-apiserver 启动参数</a><br>
+* <a href="#kube-controller-manager-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-controller-manager 启动参数</a><br>
+* <a href="#kube-scheduler-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-scheduler 启动参数</a><br>
+* <a href="#kube-proxy-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kube-proxy 启动参数</a><br>
+* <a href="#kubelet-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">kubelet 启动参数</a></li>
+</ul>
+</div>
+      <a id="sidebar-toc-btn">≡</a>
+    </body>
+    
+    
+    
+    
+    
+    <script>
+(function bindTaskListEvent() {
+  var taskListItemCheckboxes = document.body.getElementsByClassName('task-list-item-checkbox')
+  for (var i = 0; i < taskListItemCheckboxes.length; i++) {
+    var checkbox = taskListItemCheckboxes[i]
+    var li = checkbox.parentElement
+    if (li.tagName !== 'LI') li = li.parentElement
+    if (li.tagName === 'LI') {
+      li.classList.add('task-list-item')
+    }
+  }
+}())    
+</script>
+    
+<script>
+
+var sidebarTOCBtn = document.getElementById('sidebar-toc-btn')
+sidebarTOCBtn.addEventListener('click', function(event) {
+  event.stopPropagation()
+  if (document.body.hasAttribute('html-show-sidebar-toc')) {
+    document.body.removeAttribute('html-show-sidebar-toc')
+  } else {
+    document.body.setAttribute('html-show-sidebar-toc', true)
+  }
+})
+</script>
+      
+  </html>

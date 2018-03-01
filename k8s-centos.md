@@ -349,7 +349,7 @@ ETCD_INITIAL_CLUSTER_STATE="new"
 
 ###### etcd 启动参数
 ```yaml
---name "node1"                              # 成员名字.
+--name "node1"                              # 成员名字
 --data-dir=/var/lib/etcd/default.etcd       # 数据目录路径
 
 # 用于监听客户端通讯的 client URL列表。
@@ -633,7 +633,7 @@ kube-scheduler 启动参数
 --leader-elect=true                         # 启动选举
 --master=http://192.168.99.91:8080          # Kubernetes master apiserver 地址
 --address=127.0.0.1                         # 绑定主机 IP 地址，apiserver 与 controller-manager在同一主机 
---kubeconfig=/etc/kubernetes/scheduler.conf # kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息
+--kubeconfig=/etc/kubernetes/scheduler.conf # kubeconfig 配置文件，包含 master 地址信息和必要的认证信息
 ```
 
 ###### Kubernetes kube-proxy 
@@ -658,8 +658,8 @@ kube-proxy 启动参数
 --master=http://192.168.99.91:8080          # Kubernetes master apiserver 地址
 --bind-address=192.168.99.91                # 主机绑定的IP地址。
 --cluster-cidr=10.254.0.0/16                # kube-proxy 根据此判断集群内部和外部流量
---hostname-override=192.168.99.91           # 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node 
---hostname-override=node1                   # 参数值必须与 kubelet 的值一致，否则 kube-proxy 启动后会找不到该 Node 
+--hostname-override=192.168.99.91           # 值须与kubelet的值一致，否则kube-proxy启动后会找不到该Node 
+--hostname-override=node1                   # 值须与kubelet的值一致，否则kube-proxy启动后会找不到该Node 
 # kubeconfig 配置文件
 --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig
 ```
@@ -696,13 +696,15 @@ kubelet 启动参数
 --pod-infra-container-image=docker.io/openshift/origin-pod   # 基础镜像容器
 --runtime-cgroups=/systemd/system.slice     # 如果使用systemd方式启动，增加此参数
 --kubelet-cgroups=/systemd/system.slice     # 如果使用systemd方式启动，增加此参数
---cgroup-driver=systemd                     # 配置成 systemd，不要使用 cgroup，否则在 CentOS 系统中 kubelet将启动失败
---cluster-dns=10.254.0.2                    # 指定 kubedns 的 Service IP, --cluster-domain 指定域名后缀，这两个参数同时指定后才会生效；
+--cgroup-driver=systemd                     # 配置成 systemd，不要使用 cgroup
+--cluster-dns=10.254.0.2                    # 指定kubedns的Service IP, --cluster-domain指定域名后缀
+                                            # 这两个参数同时指定后才会生效；
 --cluster-domain=cluster.local              # 指定 pod 启动时 /etc/resolve.conf 文件中的 search domain
 
 # kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；
 --bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig 
---require-kubeconfig                        # 如果未指定 --apiservers 选项，则必须指定此选项后才从配置文件读取 kube-apiserver 地址 
+--require-kubeconfig                        # 如未指定--apiservers，则须指定此选项后
+                                            # 才从配置文件读取 kube-apiserver 地址
 # kubeconfig 配置文件，在配置文件中包含 master 地址信息和必要的认证信息
 --kubeconfig=/etc/kubernetes/kubelet.kubeconfig
 
