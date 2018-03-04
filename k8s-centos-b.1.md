@@ -16,15 +16,36 @@ kubectl：                使用 ca.pem、admin-key.pem、admin.pem；
 kube-controller-manager：使用 ca-key.pem、ca.pem
 ```
 
+```yaml
+## kube-apiserver: 
+--client-ca-file=/etc/kubernetes/ssl/ca.pem                   # 根证书（客户端证书）
+--tls-cert-file=       /etc/kubernetes/ssl/kubernetes.pem     # 服务端私钥
+--tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem # 服务端证书
+
+#### kube-apiserver 应用客户端 或 kubeconfig 配置文件参数
+## kubectl 或 kubeconfig 配置文件参数
+--certificate-authority=/etc/kubernetes/ssl/ca.pem            # 根证书
+--client-certificate=/etc/kubernetes/ssl/admin.pem            # 客户端证书
+--client-key=        /etc/kubernetes/ssl/admin-key.pem        # 客户端私钥
+
+
+## kube-apiserver 应用客户端 （kubectl）
+--certificate-authority=/etc/kubernetes/ssl/ca.pem            # 根证书
+--client-certificate=/etc/kubernetes/ssl/scheduler.pem        # 客户端证书
+--client-key=        /etc/kubernetes/ssl/scheduler-key.pem    # 客户端私钥
+
+
+```
+
+
 ###### kube-apiserver 启动参数
 ```yaml
-# HTTPS密钥与证书
---tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem
---tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem
+--tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem            # 服务端私钥
+--tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem # 服务端证书
+--client-ca-file=/etc/kubernetes/ssl/ca.pem                   # 客户端证书：证书认证 
 
---client-ca-file=/etc/kubernetes/ssl/ca.pem # 证书认证: client证书文件
---token-auth-file=/etc/kubernetes/token.csv # tocken 认证: token文件
---basic_auth_file=                          # 基本信息认证
+--token-auth-file=/etc/kubernetes/token.csv                   # tocken 认证: token文件
+--basic_auth_file=                                            # 基本信息认证
 --authorization-mode=Node,RBAC              # 授权模式： 安全接口上的授权
 # 准入控制： 一串用逗号连接的有序的准入模块列表
 --admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota
@@ -32,6 +53,7 @@ kube-controller-manager：使用 ca-key.pem、ca.pem
 --enable-bootstrap-token-auth               # 启动引导令牌认证（Bootstrap Tokens）
 --kubelet-https=true                        # 指定 kubelet 是否使用 HTTPS 连接
 ```
+
 
 ###### kube-controller-manager 启动参数
 ```yaml
@@ -47,6 +69,14 @@ kube-controller-manager：使用 ca-key.pem、ca.pem
 ```yaml
 --kubeconfig=/etc/kubernetes/scheduler.conf # kubeconfig 配置文件，包含master地址信息和必要的认证信息
 ```
+
+`/etc/kubernetes/scheduler.conf` 片段
+```yaml
+--certificate-authority=/etc/kubernetes/ssl/ca.pem      # 集群参数
+--client-certificate=/etc/kubernetes/ssl/scheduler.pem  # 客户端认证参数
+--client-key=/etc/kubernetes/ssl/scheduler-key.pem      # 客户端认证参数
+```
+
 
 ###### kube-proxy 启动参数
 ```yaml
