@@ -552,7 +552,7 @@ kube-apiserver 启动参数
 --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem
 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem
 # 认证: 证书认证 + Token 认证
---client-ca-file=/etc/kubernetes/ssl/ca.pem # 证书认证: client证书文件
+--client-ca-file=/etc/kubernetes/ssl/ca.pem # 证书认证: 根CA
 --token-auth-file=/etc/kubernetes/token.csv # tocken 认证: token文件
 # 授权模式： 安全接口上的授权
 --authorization-mode=Node,RBAC              

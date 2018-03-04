@@ -22,19 +22,20 @@ kube-controller-manager：使用 ca-key.pem、ca.pem
 --tls-cert-file=       /etc/kubernetes/ssl/kubernetes.pem     # 服务端私钥
 --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem # 服务端证书
 
-#### kube-apiserver 应用客户端 或 kubeconfig 配置文件参数
-## kubectl 或 kubeconfig 配置文件参数
+## kube-apiserver 应用客户端（kubectl）参数 或 kubeconfig 配置文件参数
 --certificate-authority=/etc/kubernetes/ssl/ca.pem            # 根证书
 --client-certificate=/etc/kubernetes/ssl/admin.pem            # 客户端证书
 --client-key=        /etc/kubernetes/ssl/admin-key.pem        # 客户端私钥
 
-
-## kube-apiserver 应用客户端 （kubectl）
+## kube-apiserver 应用客户端（scheduler）参数 或 kubeconfig 配置文件参数
 --certificate-authority=/etc/kubernetes/ssl/ca.pem            # 根证书
 --client-certificate=/etc/kubernetes/ssl/scheduler.pem        # 客户端证书
 --client-key=        /etc/kubernetes/ssl/scheduler-key.pem    # 客户端私钥
 
-
+## kube-apiserver 应用客户端 （scheduler）
+--certificate-authority=/etc/kubernetes/ssl/ca.pem            # 根证书
+--client-certificate=/etc/kubernetes/ssl/scheduler.pem        # 客户端证书
+--client-key=        /etc/kubernetes/ssl/scheduler-key.pem    # 客户端私钥
 ```
 
 
