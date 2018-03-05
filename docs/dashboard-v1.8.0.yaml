@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# https://raw.githubusercontent.com/kubernetes/dashboard/v1.8.0/src/deploy/recommended/kubernetes-dashboard.yaml
 # Configuration to deploy release version of the Dashboard UI compatible with
 # Kubernetes 1.8.
 #
@@ -52,10 +53,6 @@ rules:
 - apiGroups: [""]
   resources: ["secrets"]
   verbs: ["create"]
-  # Allow Dashboard to create 'kubernetes-dashboard-settings' config map.
-- apiGroups: [""]
-  resources: ["configmaps"]
-  verbs: ["create"]
   # Allow Dashboard to get, update and delete Dashboard exclusive secrets.
 - apiGroups: [""]
   resources: ["secrets"]
@@ -71,10 +68,6 @@ rules:
   resources: ["services"]
   resourceNames: ["heapster"]
   verbs: ["proxy"]
-- apiGroups: [""]
-  resources: ["services/proxy"]
-  resourceNames: ["heapster", "http:heapster:", "https:heapster:"]
-  verbs: ["get"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -112,16 +105,12 @@ spec:
       labels:
         k8s-app: kubernetes-dashboard
     spec:
-      hostNetwork: true
-      nodeSelector:
-        kubernetes.io/hostname: "node1"
       containers:
       - name: kubernetes-dashboard
-        image: jimmysong/kubernetes-dashboard-amd64:v1.8.2
+        image: gcr.io/google_containers/kubernetes-dashboard-amd64:v1.8.0
         ports:
         - containerPort: 8443
           protocol: TCP
-          hostPort: 8443
         args:
           - --auto-generate-certificates
           # Uncomment the following line to manually specify Kubernetes API server Host
@@ -165,8 +154,7 @@ metadata:
   namespace: kube-system
 spec:
   ports:
-    - port: 8443
+    - port: 443
       targetPort: 8443
   selector:
     k8s-app: kubernetes-dashboard
-  type: NodePort

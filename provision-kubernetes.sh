@@ -86,6 +86,7 @@ if [[ $1 -eq 3 ]];then
 
   echo "deploy kubernetes dashboard"
   kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+  kubectl apply -f /vagrant/addon/dashboard/kubernetes-rbac.yaml
   echo "create admin role token"
   kubectl apply -f /vagrant/yaml/admin-role.yaml
   echo "the admin role token is:"

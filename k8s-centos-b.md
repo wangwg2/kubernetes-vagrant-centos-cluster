@@ -212,3 +212,10 @@ etcdctl mk /kube-centos/network/config 、
 # $KUBELET_API_SERVER="--api-servers=http://172.20.0.113:8080"
 # $KUBELET_PORT="--port=10250"
 ```
+
+
+
+
+@import "docs/dashboard-v1.7.1.yaml"
+
+@import "docs/kubernetes-dashboard.yaml"

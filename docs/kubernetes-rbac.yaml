@@ -1,0 +1,29 @@
+## 因为kubernetes1.8.0开启了 RBAC 所以这里需要创建一个 RBAC 认证。
+
+# ------------------- Dashboard Service Account ------------------- #
+# 在名称空间 kube-system 中创建 kubernetes-dashboard 服务帐户。
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubernetes-dashboard
+  namespace: kube-system
+
+# ------------------ Dashboard ClusterRoleBinding ----------------- #
+# Kubernetes版本之间 apiVersion 的 ClusterRoleBinding 资源可能有所不同。
+# 从v1.8开始升级为 rbac.authorization.k8s.io/v1。
+---
+
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
