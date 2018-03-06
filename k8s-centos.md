@@ -1,4 +1,13 @@
-## Kubernetes cluster with Vagrant and Virtualbox
+---
+html:
+  embed_local_images: true
+  embed_svg: true
+  offline: false
+  toc: Ansible
+print_background: false
+---
+
+## Kubernetes cluster with Vagrant
 * [在CentOS上部署kubernetes集群](https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html)
 * [和我一步步部署 kubernetes 集群](https://www.gitbook.com/book/opsnull/follow-me-install-kubernetes-cluster/details)
 * [rootsongjc/kubernetes-vagrant-centos-cluster](https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster)
@@ -328,7 +337,8 @@ etcd 可以通过命令行标记和环境变量来配置。命令行上设置的
   如果这个选项被设置为 `existing`, etcd 将试图加入已有的集群。如果设置为错误的值，etcd 将尝试启动但安全失败。
 
 
-###### /etc/etcd/etcd.conf
+###### etcd.conf
+/etc/etcd/etcd.conf
 ```ini
 #[Member]
 ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
@@ -344,7 +354,8 @@ ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
 ETCD_INITIAL_CLUSTER_STATE="new"
 ```
 
-###### /usr/lib/systemd/system/etcd.service
+###### etcd.service
+/usr/lib/systemd/system/etcd.service
 @import "systemd/etcd.service" {as=ini}
 
 ###### etcd 启动参数

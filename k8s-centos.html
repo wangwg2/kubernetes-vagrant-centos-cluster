@@ -5,7 +5,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       
-      <link rel="stylesheet" href="file:///C:\Users\wangwg2\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.3.2\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css">
       
       
       
@@ -252,7 +252,7 @@ code.language-yaml {
     </head>
     <body for="html-export">
       <div class="mume markdown-preview   ">
-      <h2 class="mume-header" id="kubernetes-cluster-with-vagrant-and-virtualbox">Kubernetes cluster with Vagrant and Virtualbox</h2>
+      <h2 class="mume-header" id="kubernetes-cluster-with-vagrant">Kubernetes cluster with Vagrant</h2>
 
 <ul>
 <li><a href="https://jimmysong.io/kubernetes-handbook/practice/install-kubernetes-on-centos.html">在CentOS上部署kubernetes集群</a></li>
@@ -664,6 +664,7 @@ systemctl start docker
   <span class="token function">cp</span> /vagrant/conf/controller-manager /etc/kubernetes/
   <span class="token function">cp</span> /vagrant/conf/scheduler /etc/kubernetes/
   <span class="token function">cp</span> /vagrant/conf/scheduler.conf /etc/kubernetes/
+  <span class="token function">cp</span> /vagrant/conf/basic_auth_file /etc/kubernetes/
   <span class="token function">cp</span> /vagrant/node1/* /etc/kubernetes/
 
   systemctl daemon-reload
@@ -715,6 +716,7 @@ systemctl start docker
 
   <span class="token keyword">echo</span> <span class="token string">"deploy kubernetes dashboard"</span>
   kubectl apply -f /vagrant/addon/dashboard/kubernetes-dashboard.yaml
+  kubectl apply -f /vagrant/addon/dashboard/kubernetes-rbac.yaml
   <span class="token keyword">echo</span> <span class="token string">"create admin role token"</span>
   kubectl apply -f /vagrant/yaml/admin-role.yaml
   <span class="token keyword">echo</span> <span class="token string">"the admin role token is:"</span>
@@ -862,8 +864,9 @@ example: <code>--initial-cluster node1=http://10.0.1.10:2380,node2=http://10.0.1
 在初始化静态(initial static)或者 DNS 启动 (DNS bootstrapping) 期间为所有成员设置为 <code>new</code>。<br>
 如果这个选项被设置为 <code>existing</code>, etcd 将试图加入已有的集群。如果设置为错误的值，etcd 将尝试启动但安全失败。</li>
 </ul>
-<h6 class="mume-header" id="etcetcdetcdconf">/etc/etcd/etcd.conf</h6>
+<h6 class="mume-header" id="etcdconf">etcd.conf</h6>
 
+<p>/etc/etcd/etcd.conf</p>
 <pre class="language-ini">#[Member]
 <span class="token constant">ETCD_DATA_DIR</span><span class="token attr-value"><span class="token punctuation">=</span>"/var/lib/etcd/default.etcd"</span>
 <span class="token constant">ETCD_LISTEN_PEER_URLS</span><span class="token attr-value"><span class="token punctuation">=</span>"http://192.168.99.91:2380"</span>
@@ -877,8 +880,9 @@ example: <code>--initial-cluster node1=http://10.0.1.10:2380,node2=http://10.0.1
 <span class="token constant">ETCD_INITIAL_CLUSTER_TOKEN</span><span class="token attr-value"><span class="token punctuation">=</span>"etcd-cluster"</span>
 <span class="token constant">ETCD_INITIAL_CLUSTER_STATE</span><span class="token attr-value"><span class="token punctuation">=</span>"new"</span>
 </pre>
-<h6 class="mume-header" id="usrlibsystemdsystemetcdservice">/usr/lib/systemd/system/etcd.service</h6>
+<h6 class="mume-header" id="etcdservice">etcd.service</h6>
 
+<p>/usr/lib/systemd/system/etcd.service</p>
 <pre class="language-ini {as=&quot;ini&quot;}"><span class="token selector">[Unit]</span>
 <span class="token constant">Description</span><span class="token attr-value"><span class="token punctuation">=</span>Etcd Server</span>
 <span class="token constant">After</span><span class="token attr-value"><span class="token punctuation">=</span>network.target</span>
@@ -1093,7 +1097,8 @@ KUBE_SERVICE_ADDRESSES<span class="token operator">=</span><span class="token st
 KUBE_ADMISSION_CONTROL<span class="token operator">=</span><span class="token string">"--admission-control=ServiceAccount,NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota"</span>
 <span class="token comment" spellcheck="true">#</span>
 <span class="token comment" spellcheck="true">## Add your own!</span>
-KUBE_API_ARGS<span class="token operator">=</span><span class="token string">"--authorization-mode=Node,RBAC --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
+<span class="token comment" spellcheck="true"># KUBE_API_ARGS="--authorization-mode=Node,RBAC --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
+KUBE_API_ARGS<span class="token operator">=</span><span class="token string">"--authorization-mode=Node,RBAC --anonymous-auth=false --basic-auth-file=/etc/kubernetes/basic_auth_file --runtime-config=rbac.authorization.k8s.io/v1beta1 --kubelet-https=true --enable-bootstrap-token-auth --token-auth-file=/etc/kubernetes/token.csv --service-node-port-range=30000-32767 --tls-cert-file=/etc/kubernetes/ssl/kubernetes.pem --tls-private-key-file=/etc/kubernetes/ssl/kubernetes-key.pem --client-ca-file=/etc/kubernetes/ssl/ca.pem --service-account-key-file=/etc/kubernetes/ssl/ca-key.pem --enable-swagger-ui=true --apiserver-count=3 --audit-log-maxage=30 --audit-log-maxbackup=3 --audit-log-maxsize=100 --audit-log-path=/var/lib/audit.log --event-ttl=1h --allow-privileged=true"</span>
 
 </pre>
 <p>/usr/lib/systemd/system/kube-apiserver.service</p>
@@ -1165,7 +1170,7 @@ KUBE_API_ARGS<span class="token operator">=</span><span class="token string">"--
 <span class="token punctuation">-</span><span class="token punctuation">-</span>tls<span class="token punctuation">-</span>private<span class="token punctuation">-</span>key<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/kubernetes<span class="token punctuation">-</span>key.pem
 <span class="token punctuation">-</span><span class="token punctuation">-</span>tls<span class="token punctuation">-</span>cert<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/kubernetes.pem
 <span class="token comment" spellcheck="true"># 认证: 证书认证 + Token 认证</span>
-<span class="token punctuation">-</span><span class="token punctuation">-</span>client<span class="token punctuation">-</span>ca<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca.pem <span class="token comment" spellcheck="true"># 证书认证: client证书文件</span>
+<span class="token punctuation">-</span><span class="token punctuation">-</span>client<span class="token punctuation">-</span>ca<span class="token punctuation">-</span>file=/etc/kubernetes/ssl/ca.pem <span class="token comment" spellcheck="true"># 证书认证: 根CA</span>
 <span class="token punctuation">-</span><span class="token punctuation">-</span>token<span class="token punctuation">-</span>auth<span class="token punctuation">-</span>file=/etc/kubernetes/token.csv <span class="token comment" spellcheck="true"># tocken 认证: token文件</span>
 <span class="token comment" spellcheck="true"># 授权模式： 安全接口上的授权</span>
 <span class="token punctuation">-</span><span class="token punctuation">-</span>authorization<span class="token punctuation">-</span>mode=Node<span class="token punctuation">,</span>RBAC              
@@ -1848,7 +1853,7 @@ YAML_TEMPLATE<span class="token operator">=</span>$<span class="token punctuatio
       <span class="token key atrule">targetPort</span><span class="token punctuation">:</span> <span class="token number">8443</span>
   <span class="token key atrule">selector</span><span class="token punctuation">:</span>
     <span class="token key atrule">k8s-app</span><span class="token punctuation">:</span> kubernetes<span class="token punctuation">-</span>dashboard
-
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> NodePort
 </pre>
 <h6 class="mume-header" id="traefik-ingress-controller">traefik ingress controller</h6>
 
@@ -2238,7 +2243,7 @@ systemctl start docker
 
       </div>
       <div class="md-sidebar-toc"><ul>
-<li><a href="#kubernetes-cluster-with-vagrant-and-virtualbox">Kubernetes cluster with Vagrant and Virtualbox</a>
+<li><a href="#kubernetes-cluster-with-vagrant">Kubernetes cluster with Vagrant</a>
 <ul>
 <li><a href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">常用命令</a><br>
 * <a href="#kubectl-%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8">Kubectl 自动补全</a><br>
@@ -2264,8 +2269,8 @@ systemctl start docker
 * <a href="#operation">Operation</a></li>
 <li><a href="#etcd">etcd</a><br>
 * <a href="#etcd-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">etcd 参数说明</a><br>
-* <a href="#etcetcdetcdconf">/etc/etcd/etcd.conf</a><br>
-* <a href="#usrlibsystemdsystemetcdservice">/usr/lib/systemd/system/etcd.service</a><br>
+* <a href="#etcdconf">etcd.conf</a><br>
+* <a href="#etcdservice">etcd.service</a><br>
 * <a href="#etcd-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0">etcd 启动参数</a></li>
 <li><a href="#flanneld">flanneld</a><br>
 * <a href="#flanneld-%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E">flanneld 参数说明</a><br>
@@ -2321,7 +2326,7 @@ systemctl start docker
 </script>
     
 <script>
-
+document.body.setAttribute('html-show-sidebar-toc', true)
 var sidebarTOCBtn = document.getElementById('sidebar-toc-btn')
 sidebarTOCBtn.addEventListener('click', function(event) {
   event.stopPropagation()
