@@ -35,6 +35,7 @@ if [[ $1 -eq 1 ]];then
   cp /vagrant/conf/controller-manager /etc/kubernetes/
   cp /vagrant/conf/scheduler /etc/kubernetes/
   cp /vagrant/conf/scheduler.conf /etc/kubernetes/
+  cp /vagrant/conf/basic_auth_file /etc/kubernetes/
   cp /vagrant/node1/* /etc/kubernetes/
 
   systemctl daemon-reload
