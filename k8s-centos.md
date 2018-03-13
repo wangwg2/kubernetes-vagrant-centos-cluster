@@ -85,7 +85,7 @@ curl "10.254.62.207:80"
 | IP           | 主机名    | 组件                                     |
 | ------------ | -------- | ---------------------------------------- |
 | 192.168.99.91 | node1    | kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard |
-| 192.168.99.92 | node2    | kubelet, docker, flannel、traefik         |
+| 192.168.99.92 | node2    | kubelet, docker, flannel、traefik        |
 | 192.168.99.93 | node3    | kubelet, docker, flannel                 |
 
 以上的IP、主机名和组件都是固定在这些节点的，即使销毁后下次使用vagrant重建依然保持不变。
